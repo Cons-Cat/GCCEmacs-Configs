@@ -98,12 +98,20 @@
 
 
 ;; AESTHETICS
-(straight-use-package 'dracula-theme)
-(load-theme 'dracula t)
+(add-to-list 'custom-theme-load-path "./dracula-pro-theme")
+(load-theme 'dracula-pro t)
+(use-package dracula-pro-theme
+ :defer 3
+  :load-path "./dracula-pro-theme"
+  :init
+  (load-theme 'dracula-pro t)
+  )
 (setq custom-safe-themes t)
 
-(hl-line-mode t)
-;; 753190246
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(toggle-scroll-bar -1)
+
 ;; Font
 (add-hook 'prog-mode 'font-lock-mode)
 (set-face-attribute 'default nil
@@ -159,14 +167,28 @@
   (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
   )
 
-(menu-bar-mode -1)
-(tool-bar-mode -1)
-(toggle-scroll-bar -1)
+;; (use-package hl-line+
+	 ;; :load-path "./random-libs"
+	 ;; :init
+	 ;; (setq hl-line-overlay-priority 100)
+	 ;; (set-face-attribute hl-line-face nil :box t)
+	 ;; (set-face-foreground 'hl-line "#9580FF")
+	 ;; (set-face-underline-p 'highlight t)
+	 ;; (toggle-hl-line-when-idle t)
+	 ;; (hl-line-when-idle-interval 10)
+	 ;; )
+(hl-line-mode t)
+(set-face-attribute 'region nil :background "#635937" :foreground "#FAFAFA")
 
-(straight-use-package 'linum-relative)
-(setq linum-relative-backend 'display-line-numbers-mode)
-(setq linum-relative-current-symbol "")
-(add-hook 'text-mode-hook 'linum-on)
+;; Line Numbers
+(use-package linum-relative
+  :straight t
+  :init
+  ;; This backend is faster, but its faces do not work.
+  (setq linum-relative-backend 'display-line-numbers-mode)
+  (setq linum-relative-current-symbol "")
+  (linum-relative-global-mode t)
+   )
 
 (use-package yascroll
   :straight t
@@ -193,11 +215,9 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(cursor ((t (:background "violet" :foreground "violet"))))
+ '(cursor ((t nil)))
  '(custom-comment ((t (:background "dim gray" :family "Operator Mono Lig Medium"))))
- '(hydra-face-red ((t (:foreground "violet"))))
- )
-
+ '(hydra-face-red ((t (:foreground "violet")))))
 ;; FILE BROWSING
 (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
 (straight-use-package 'dired-posframe)
@@ -219,13 +239,17 @@
   )
 (setq inhibit-splash-screen t)
 
+(add-to-list 'default-frame-alist '(drag-internal-border . 1))
+(add-to-list 'default-frame-alist '(internal-border-width . 5))
+
 (setq-default frame-title-format "%b (%f)")
 (setq electric-pair-pairs '(
                            (?\{ . ?\})
                            (?\( . ?\))
                            (?\[ . ?\])
                            (?\" . ?\")
-                           ))
+                           )
+		)
 
 (use-package hungry-delete
   :straight t
@@ -268,7 +292,6 @@
 (setq which-key-show-transient-maps t)
 (which-key-mode)
 
-
 ;; Buffer management
 ;; (straight-use-package 'persp-mode)
 (straight-use-package 'ace-window)
@@ -291,43 +314,42 @@
 	 (ryo-modal-mode)
 	 )
   (ryo-cursor-update)
+  (selected-off)
   )
 
 ;; There exist states, such as after kill-region, when the cursor color is incorrect.
 (defun ryo-cursor-update ()
   (if ryo-modal-mode
 		(progn
-		  (setq cursor-type (cons 'box 1))
-		  ;(set-cursor-color nil)
+		  (setq cursor-type (cons 'box 2))
 		  (message "NORMAL MODE")
+
+		  (if (region-active-p)
+				(keyboard-quit)
+			 )
 		  )
 	 (progn
 		(setq cursor-type (cons 'bar 2))
-		(set-cursor-color "darkmagenta")
-		(message "INSERT MODE")
+			(message "INSERT MODE")
 		)
 	 )
   )
 
-;; This seems redundant.
-(add-hook 'ryo-modal-mode-hook 'ryo-cursor-update)
-
-;; I'm using some of Xah's utilities rn.
-;; (straight-use-package 'xah-fly-keys)
-(use-package xah-fly-keys
-  :straight t
-  )
-
-;; Hydra
-(straight-use-package 'hydra)
-
-;; Chords
-(straight-use-package 'key-chord)
-(key-chord-define selectrum-minibuffer-map "ut" 'selectrum-next-candidate)
-(key-chord-define selectrum-minibuffer-map "uc" 'selectrum-previous-candidate)
-(key-chord-define selectrum-minibuffer-map "us" 'selectrum-next-page)
-(key-chord-define selectrum-minibuffer-map "ud" 'selectrum-previous-page)
-(key-chord-mode t)
+(defun pony-toggle-mark ()
+  (interactive)
+   (if (region-active-p)
+		(progn
+		  (setq cursor-type 'box)
+		  (keyboard-quit)
+		  (message "Cancel Selection")   ; This is not working.
+		  )
+	 (progn
+		(set-mark (point))
+		(setq cursor-type 'hbox)
+		(message "Selecting")
+		)
+	 )
+	)
 
 ;; Keybindings.
 (use-package ryo-modal
@@ -396,6 +418,7 @@
 		  ("q" kill-region)
 		  ("j" pony-copy-current-word)
 		  ("k" yank)
+		  ("y" pony-toggle-mark)
 
 		  ;; Buffer management.
 		  ("w" :hydra
@@ -458,6 +481,6 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-	'("7451f243a18b4b37cabfec57facc01bd1fe28b00e101e488c61e1eed913d9db9" default))
+	'("89ba918121c69681960ac1e4397296b5a756b1293325cee0cb543d70418bd556" "bcb58b7e1a372e677f44e25e3da88f283090dbd506550c137d02907446c7d11c" "7451f243a18b4b37cabfec57facc01bd1fe28b00e101e488c61e1eed913d9db9" default))
  '(line-number-mode nil)
  '(warning-suppress-types '((comp) (comp) (comp) (comp) (comp) (comp))))
