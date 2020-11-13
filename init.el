@@ -257,6 +257,15 @@
   (global-hungry-delete-mode)
   )
 
+(straight-use-package 'syntax-subword)
+(global-syntax-subword-mode t)
+
+;; Ripgrep
+;(grep-apply-setting
+;   'grep-find-command
+;   '("rg -n -H --no-heading -e '' $(git rev-parse --show-toplevel || pwd)" . 27)
+;	)
+
 (setq-default
  tab-width 3
  electric-pair-mode t
@@ -300,11 +309,35 @@
 ;; GIT
 (straight-use-package 'magit)
 
-
 ;; PONY FLY KEYS
 (native-compile-async "~/.emacs.d/Pony-Fly-Keys/" 'recursively)
 (add-to-list 'load-path "~/.emacs.d/Pony-Fly-Keys/")
 (load "pony-fly-keys")
+
+;; Toggle mark state.
+(straight-use-package 'selected)
+(selected-global-mode t)
+
+;; This seems redundant.
+(add-hook 'ryo-modal-mode-hook 'ryo-cursor-update)
+
+;; I'm using some of Xah's utilities rn.
+;; (straight-use-package 'xah-fly-keys)
+(use-package xah-fly-keys
+  :straight t
+  )
+
+;; Hydra
+(straight-use-package 'hydra)
+
+;; Chords
+(straight-use-package 'key-chord)
+(key-chord-define selectrum-minibuffer-map "ut" 'selectrum-next-candidate)
+(key-chord-define selectrum-minibuffer-map "uc" 'selectrum-previous-candidate)
+(key-chord-define selectrum-minibuffer-map "us" 'selectrum-next-page)
+(key-chord-define selectrum-minibuffer-map "ud" 'selectrum-previous-page)
+(key-chord-mode t)
+
 
 ;; MODAL EDITING
 (setq-default cursor-type (cons 'bar 2))
@@ -358,9 +391,10 @@
     :bind ("M-SPC" . ryo-modal-mode)
     :init
     (global-set-key [backspace] 'ryo-enable)
+	 ;; (add-hook 'text-mode 'ryo-enable)
     :config
 	 (setq ryo-modal-cursor-type t)
-	 (setq ryo-modal-cursor-color "violet")
+	 (setq ryo-modal-cursor-color nil)
 	 (ryo-modal-keys
      (:exit t)
      ("u" ryo-modal-mode :name "Insert Mode")
@@ -378,7 +412,9 @@
 	  ("g" backward-char)
      ("r" forward-char)
      ("h" pony-move-left-word)
+	  ("H" syntax-subword-left)
 	  ("n" pony-move-right-word)
+	  ("N" syntax-subword-right)
 	  ("d" xah-beginning-of-line-or-block)
 	  ("s" xah-end-of-line-or-block)
 	  ("D" pony-binary-beginning-of-line)
@@ -388,14 +424,17 @@
 	  ("e" delete-backward-char)
 	  ("(" delete-char)
 	  ("." pony-delete-left-word)
+	  (">" subword-backward-kill)
 	  ("p" pony-delete-right-word)
+	  ("P" subword-kill)
 
 	  ;; Commenting
 	  ("'" comment-line)
 
 	  ;; Selection
 	  ("*" pony-mark-line)
-	  )
+	  ("+" xah-select-block)
+	   )
 
     (ryo-modal-keys
         ;; First argument to ryo-modal-keys may be a list of keywords.
