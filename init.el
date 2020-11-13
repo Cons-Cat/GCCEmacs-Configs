@@ -34,6 +34,7 @@
 
 ;; Vertical completion.
 (straight-use-package 'selectrum)
+
 (selectrum-mode t)
 
 (straight-use-package 'prescient)
@@ -42,10 +43,8 @@
 ;; (straight-use-package 'company-prescient)
 ;; (company-prescient-mode t)
 
-;; TODO: Install Embark
 (straight-use-package 'selectrum-prescient)
 (selectrum-prescient-mode t)
-
 (prescient-persist-mode t)
 
 ;; TODO: Configure this
@@ -182,7 +181,7 @@
 	 (sublimity-mode t)
 	 )
 (require 'sublimity-scroll)
-(setq sublimity-scroll-weight 16
+(setq sublimity-scroll-weight 12
 		sublimity-scroll-drift-length 2
 		)
 
@@ -250,6 +249,11 @@
   (super-save-mode t)
   )
 
+(use-package embark
+  :straight (:host github :repo "oantolin/embark"
+			:branch "master")
+  )
+
 ;; WHICH KEY
 (use-package which-key
   :straight t
@@ -261,6 +265,7 @@
 (setq which-key-idle-delay 0.1)
 (setq which-key-prefix-prefix "")
 (setq which-key-show-prefix 'bottom)
+(setq which-key-show-transient-maps t)
 (which-key-mode)
 
 
@@ -307,8 +312,22 @@
 ;; This seems redundant.
 (add-hook 'ryo-modal-mode-hook 'ryo-cursor-update)
 
+;; I'm using some of Xah's utilities rn.
+;; (straight-use-package 'xah-fly-keys)
+(use-package xah-fly-keys
+  :straight t
+  )
+
 ;; Hydra
 (straight-use-package 'hydra)
+
+;; Chords
+(straight-use-package 'key-chord)
+(key-chord-define selectrum-minibuffer-map "ut" 'selectrum-next-candidate)
+(key-chord-define selectrum-minibuffer-map "uc" 'selectrum-previous-candidate)
+(key-chord-define selectrum-minibuffer-map "us" 'selectrum-next-page)
+(key-chord-define selectrum-minibuffer-map "ud" 'selectrum-previous-page)
+(key-chord-mode t)
 
 ;; Keybindings.
 (use-package ryo-modal
@@ -316,7 +335,7 @@
     :commands ryo-modal-mode
     :bind ("M-SPC" . ryo-modal-mode)
     :init
-    (global-set-key [backspace] 'ryo-enable) ;; Backspace
+    (global-set-key [backspace] 'ryo-enable)
     :config
 	 (setq ryo-modal-cursor-type t)
 	 (setq ryo-modal-cursor-color "violet")
@@ -413,10 +432,9 @@
 						 ("C" zz-scroll-half-page-up :name "Half-Page Down")
 						 ("u" recenter-top-bottom :name "Recenter Point")
 						 ("e" move-to-window-line-top-bottom :name "Point at Center")
-						 ;; ("e"
 						 )
 				  :name "Large Motions"
-				  )								 ;		:name "Leader"
+				  )
 				 )
 		:name "LEADER"
 		)
