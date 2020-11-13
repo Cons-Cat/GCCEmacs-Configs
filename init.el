@@ -271,7 +271,7 @@
 
 ;; Buffer management
 ;; (straight-use-package 'persp-mode)
-;; (straight-use-package 'ace-window)
+(straight-use-package 'ace-window)
 (straight-use-package 'buffer-move)
 
 ;; GIT
@@ -349,14 +349,16 @@
 	  ;; Basic navigation controls.
      ("t" next-logical-line)
      ("T" next-line)
-     ("c" previous-logical-line)
+	  ("C-t" selectrum-next-candidate)
+	  ("c" previous-logical-line)
      ("C" previous-line)
+	  ("C-c" selectrum-previous-candidate)
 	  ("g" backward-char)
      ("r" forward-char)
      ("h" pony-move-left-word)
 	  ("n" pony-move-right-word)
-	  ("d" beginning-of-line)
-	  ("s" end-of-line)
+	  ("d" xah-beginning-of-line-or-block)
+	  ("s" xah-end-of-line-or-block)
 	  ("D" pony-binary-beginning-of-line)
 	  ("S" pony-binary-end-of-line)
 
@@ -409,6 +411,11 @@
 
 								("e" ace-delete-window "Kill")
 								("w" ace-delete-other-windows "Kill All Except")
+
+								("p" switch-to-buffer "Switch")
+								;; TODO: Configure IBuffer commands.
+								("." ibuffer "IBuffer")
+
 								("<BACKSPACE>" nil "Cancel" :color blue)
 								)
 			)
@@ -417,6 +424,10 @@
 	 (ryo-modal-keys
 	  ;; Leader key
 	  ("SPC" (
+				 ("b" exchange-point-and-mark "Exchange Point and Mark")
+				 ("d" beginning-of-buffer "Buffer Start")
+				 ("s" end-of-buffer "Buffer End")
+
 				 ("c" (
 						 ("s" save-buffer :name "Save Buffer")
 						 ("o" write-file :name "Save As")
