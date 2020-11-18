@@ -53,6 +53,60 @@
 
 (straight-use-package 'restart-emacs)
 
+;; EDITOR SETTINGS
+(when (display-graphic-p) ; Start full screen
+  (add-to-list 'default-frame-alist '(fullscreen . t))
+  (x-focus-frame nil)
+  )
+(setq inhibit-splash-screen t)
+
+(add-to-list 'default-frame-alist '(drag-internal-border . 1))
+(add-to-list 'default-frame-alist '(internal-border-width . 5))
+
+(setq-default frame-title-format "%b (%f)")
+(setq electric-pair-pairs '(
+                           (?\{ . ?\})
+                           (?\( . ?\))
+                           (?\[ . ?\])
+                           (?\" . ?\")
+                           )
+		)
+
+(use-package hungry-delete
+  :straight t
+  :config
+  (global-hungry-delete-mode)
+  )
+
+(straight-use-package 'syntax-subword)
+(global-syntax-subword-mode t)
+
+;; Ripgrep
+;(grep-apply-setting
+;   'grep-find-command
+;   '("rg -n -H --no-heading -e '' $(git rev-parse --show-toplevel || pwd)" . 27)
+;	)
+
+(setq-default
+ tab-width 3
+ electric-pair-mode t
+ )
+
+(add-hook 'before-save-hook #'delete-trailing-whitespace)
+(setq require-final-newline t)
+
+(global-visual-line-mode)
+
+(use-package super-save
+  :straight t
+  :config
+  (super-save-mode t)
+  )
+
+(use-package embark
+  :straight (:host github :repo "oantolin/embark"
+			:branch "master")
+  )
 
 ;; MODELINE
 (straight-use-package 'all-the-icons)
@@ -232,60 +286,25 @@
 ;(define-key dired-mode-map (kbd "^") (lambda () (interactive) (find-alternate-file "..")))  ; was dired-up-directory
 
 
-;; EDITOR SETTINGS
-(when (display-graphic-p) ; Start full screen
-  (add-to-list 'default-frame-alist '(fullscreen . t))
-  (x-focus-frame nil)
-  )
-(setq inhibit-splash-screen t)
-
-(add-to-list 'default-frame-alist '(drag-internal-border . 1))
-(add-to-list 'default-frame-alist '(internal-border-width . 5))
-
-(setq-default frame-title-format "%b (%f)")
-(setq electric-pair-pairs '(
-                           (?\{ . ?\})
-                           (?\( . ?\))
-                           (?\[ . ?\])
-                           (?\" . ?\")
-                           )
-		)
-
-(use-package hungry-delete
+;; Org
+(use-package org
   :straight t
   :config
-  (global-hungry-delete-mode)
   )
+;; Make Bibtex export in PDF
+(setq org-latex-pdf-process
+		'("latexmk -pdflatex='pdflatex -interaction nonstopmode' -pdf -bibtex -f %f"))
+(setq org-todo-keyword-faces
+      '(
+		  ("NOTE" . (:foreground "lightgreen" :weight bold))
+		  ("LOW" . (:foreground "#cb4b16" :background "snow" :weight bold :box (:line-width -1)))
+        ("MED" . (:foreground "goldenrod" :background "cornsilk" :weight bold :box (:line-width -1)))
+        ("HIGH" . (:foreground "darkgreen" :background "honeydew" :weight bold :box (:line-width -1)))
+		  ("TODO" . (:foreground "black" :background "snow" :weight bold :box (:line-width -1)))
+        ("DONE" . org-done)
+        ("WONTFIX" . org-done)
+		  ))
 
-(straight-use-package 'syntax-subword)
-(global-syntax-subword-mode t)
-
-;; Ripgrep
-;(grep-apply-setting
-;   'grep-find-command
-;   '("rg -n -H --no-heading -e '' $(git rev-parse --show-toplevel || pwd)" . 27)
-;	)
-
-(setq-default
- tab-width 3
- electric-pair-mode t
- )
-
-(add-hook 'before-save-hook #'delete-trailing-whitespace)
-(setq require-final-newline t)
-
-(global-visual-line-mode)
-
-(use-package super-save
-  :straight t
-  :config
-  (super-save-mode t)
-  )
-
-(use-package embark
-  :straight (:host github :repo "oantolin/embark"
-			:branch "master")
-  )
 
 ;; WHICH KEY
 (use-package which-key
@@ -399,8 +418,7 @@
      (:exit t)
      ("u" ryo-modal-mode :name "Insert Mode")
 	)
-
-    (ryo-modal-keys
+	 (ryo-modal-keys
 	  ("a" execute-extended-command)
 	  ;; Basic navigation controls.
      ("t" next-logical-line)
@@ -486,6 +504,7 @@
 	 (ryo-modal-keys
 	  ;; Leader key
 	  ("SPC" (
+				 ("a" mark-whole-buffer "Select All")
 				 ("b" exchange-point-and-mark "Exchange Point and Mark")
 				 ("d" beginning-of-buffer "Buffer Start")
 				 ("s" end-of-buffer "Buffer End")
