@@ -19,7 +19,7 @@
   (require 'use-package)
   )
 ;; TODO: Use Diminish for RYO
-;(require 'diminish)
+													 ;(require 'diminish)
 (require 'bind-key)
 (require 'use-package-ensure)
 (setq use-package-always-ensure t)
@@ -28,9 +28,9 @@
 (straight-use-package 'pcache)
 (straight-use-package 'persistent-soft)
 (require 'persistent-soft)
-;(persistent-soft-store 'hundred 100 "mydatastore")
+													 ;(persistent-soft-store 'hundred 100 "mydatastore")
 (persistent-soft-fetch 'hundred "mydatastore")
-;(persistent-soft-fetch 'thousand "mydatastore")
+													 ;(persistent-soft-fetch 'thousand "mydatastore")
 
 ;; Vertical completion.
 (straight-use-package 'selectrum)
@@ -65,11 +65,11 @@
 
 (setq-default frame-title-format "%b (%f)")
 (setq electric-pair-pairs '(
-                           (?\{ . ?\})
-                           (?\( . ?\))
-                           (?\[ . ?\])
-                           (?\" . ?\")
-                           )
+                            (?\{ . ?\})
+                            (?\( . ?\))
+                            (?\[ . ?\])
+                            (?\" . ?\")
+                            )
 		)
 
 (use-package hungry-delete
@@ -82,10 +82,10 @@
 (global-syntax-subword-mode t)
 
 ;; Ripgrep
-;(grep-apply-setting
-;   'grep-find-command
-;   '("rg -n -H --no-heading -e '' $(git rev-parse --show-toplevel || pwd)" . 27)
-;	)
+													 ;(grep-apply-setting
+													 ;   'grep-find-command
+													 ;   '("rg -n -H --no-heading -e '' $(git rev-parse --show-toplevel || pwd)" . 27)
+													 ;	)
 
 (setq-default
  tab-width 3
@@ -105,7 +105,7 @@
 
 (use-package embark
   :straight (:host github :repo "oantolin/embark"
-			:branch "master")
+						 :branch "master")
   )
 
 ;; MODELINE
@@ -155,7 +155,7 @@
 (add-to-list 'custom-theme-load-path "./dracula-pro-theme")
 (load-theme 'dracula-pro t)
 (use-package dracula-pro-theme
- :defer 3
+  :defer 3
   :load-path "./dracula-pro-theme"
   :init
   (load-theme 'dracula-pro t)
@@ -207,7 +207,7 @@
                                        "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
                                        "\\" "://" "||-"))
   (ligature-set-ligatures 'text-mode '("|-" "-|-" "-|" "---"))
-  ;(www-ligature-mode t)
+													 ;(www-ligature-mode t)
   (global-ligature-mode t)
   )
 (add-to-list 'ligature-composition-table `(text-mode ("=" . ,(rx (+ "=")))))
@@ -222,15 +222,15 @@
   )
 
 ;; (use-package hl-line+
-	 ;; :load-path "./random-libs"
-	 ;; :init
-	 ;; (setq hl-line-overlay-priority 100)
-	 ;; (set-face-attribute hl-line-face nil :box t)
-	 ;; (set-face-foreground 'hl-line "#9580FF")
-	 ;; (set-face-underline-p 'highlight t)
-	 ;; (toggle-hl-line-when-idle t)
-	 ;; (hl-line-when-idle-interval 10)
-	 ;; )
+;; :load-path "./random-libs"
+;; :init
+;; (setq hl-line-overlay-priority 100)
+;; (set-face-attribute hl-line-face nil :box t)
+;; (set-face-foreground 'hl-line "#9580FF")
+;; (set-face-underline-p 'highlight t)
+;; (toggle-hl-line-when-idle t)
+;; (hl-line-when-idle-interval 10)
+;; )
 (hl-line-mode t)
 (set-face-attribute 'region nil :background "#635937" :foreground "#FAFAFA")
 
@@ -242,7 +242,7 @@
   (setq linum-relative-backend 'display-line-numbers-mode)
   (setq linum-relative-current-symbol "")
   (linum-relative-global-mode t)
-   )
+  )
 
 (use-package yascroll
   :straight t
@@ -252,10 +252,10 @@
 (setq scroll-preserve-screen-position t)
 
 (use-package sublimity
-	 :straight t
-	 :init
-	 (sublimity-mode t)
-	 )
+  :straight t
+  :init
+  (sublimity-mode t)
+  )
 (require 'sublimity-scroll)
 (setq sublimity-scroll-weight 12
 		sublimity-scroll-drift-length 2
@@ -281,9 +281,9 @@
 (add-hook 'after-init-hook #'dired-jump)
 													 ; Thanks, Xah!
 ;; TODO: Replace this with RYO bindings.
-;(define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file) ; was dired-advertised-find-file
+													 ;(define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file) ; was dired-advertised-find-file
 
-;(define-key dired-mode-map (kbd "^") (lambda () (interactive) (find-alternate-file "..")))  ; was dired-up-directory
+													 ;(define-key dired-mode-map (kbd "^") (lambda () (interactive) (find-alternate-file "..")))  ; was dired-up-directory
 
 
 ;; Org
@@ -303,7 +303,8 @@
 		  ("TODO" . (:foreground "black" :background "snow" :weight bold :box (:line-width -1)))
         ("DONE" . org-done)
         ("WONTFIX" . org-done)
-		  ))
+		  )
+		)
 
 
 ;; WHICH KEY
@@ -382,14 +383,14 @@
 		  )
 	 (progn
 		(setq cursor-type (cons 'bar 2))
-			(message "INSERT MODE")
+		(message "INSERT MODE")
 		)
 	 )
   )
 
 (defun pony-toggle-mark ()
   (interactive)
-   (if (region-active-p)
+  (if (region-active-p)
 		(progn
 		  (setq cursor-type 'box)
 		  (keyboard-quit)
@@ -401,137 +402,142 @@
 		(message "Selecting")
 		)
 	 )
-	)
+  )
 
-;; Keybindings.
+;; Keybindings.l
 (use-package ryo-modal
-    :straight t
-    :commands ryo-modal-mode
-    :bind ("M-SPC" . ryo-modal-mode)
-    :init
-    (global-set-key [backspace] 'ryo-enable)
-	 ;; (add-hook 'text-mode 'ryo-enable)
-    :config
-	 (setq ryo-modal-cursor-type t)
-	 (setq ryo-modal-cursor-color nil)
-	 (ryo-modal-keys
-     (:exit t)
-     ("u" ryo-modal-mode :name "Insert Mode")
+  :straight t
+  :commands ryo-modal-mode
+  :bind ("M-SPC" . ryo-modal-mode)
+  :init
+  (global-set-key [backspace] 'ryo-enable)
+  ;; (add-hook 'text-mode 'ryo-enable)
+  :config
+  (setq ryo-modal-cursor-type t)
+  (setq ryo-modal-cursor-color nil)
+  (ryo-modal-keys
+   (:exit t)
+   ("u" ryo-modal-mode :name "Insert Mode")
 	)
-	 (ryo-modal-keys
-	  ("a" execute-extended-command)
-	  ;; Basic navigation controls.
-     ("t" next-logical-line)
-     ("T" next-line)
-	  ("C-t" selectrum-next-candidate)
-	  ("c" previous-logical-line)
-     ("C" previous-line)
-	  ("C-c" selectrum-previous-candidate)
-	  ("g" backward-char)
-     ("r" forward-char)
-     ("h" pony-move-left-word)
-	  ("H" syntax-subword-left)
-	  ("n" pony-move-right-word)
-	  ("N" syntax-subword-right)
-	  ("d" xah-beginning-of-line-or-block)
-	  ("s" xah-end-of-line-or-block)
-	  ("D" pony-binary-beginning-of-line)
-	  ("S" pony-binary-end-of-line)
+  (ryo-modal-keys
+	("a" execute-extended-command)
+	;; Basic navigation controls.
+   ("t" next-logical-line)
+   ("T" next-line)
+	("C-t" selectrum-next-candidate)
+	("c" previous-logical-line)
+   ("C" previous-line)
+	("C-c" selectrum-previous-candidate)
+	("g" backward-char)
+   ("r" forward-char)
+   ("h" pony-move-left-word)
+	("H" syntax-subword-left)
+	("n" pony-move-right-word)
+	("N" syntax-subword-right)
+	("d" xah-beginning-of-line-or-block)
+	("s" xah-end-of-line-or-block)
+	("D" pony-binary-beginning-of-line)
+	("S" pony-binary-end-of-line)
 
-	  ;; Basic deletion commands.
-	  ("e" delete-backward-char)
-	  ("(" delete-char)
-	  ("." pony-delete-left-word)
-	  (">" subword-backward-kill)
-	  ("p" pony-delete-right-word)
-	  ("P" subword-kill)
+	;; Basic deletion commands.
+	("e" delete-backward-char)
+	("(" delete-char)
+	("." pony-delete-left-word)
+	(">" subword-backward-kill)
+	("p" pony-delete-right-word)
+	("P" subword-kill)
 
-	  ;; Commenting
-	  ("'" comment-line)
+	;; Commenting
+	("'" comment-line)
 
-	  ;; Selection
-	  ("*" pony-mark-line)
-	  ("+" xah-select-block)
-	   )
+	;; Selection
+	("*" pony-mark-line)
+	("+" xah-select-block)
+	)
 
-    (ryo-modal-keys
-        ;; First argument to ryo-modal-keys may be a list of keywords.
-        ;; These keywords will be applied to all keybindings.
-        (:norepeat t)
-        ("0" "M-0")
-        ("1" "M-1")
-        ("2" "M-2")
-        ("3" "M-3")
-        ("4" "M-4")
-        ("5" "M-5")
-        ("6" "M-6")
-        ("7" "M-7")
-        ("8" "M-8")
-        ("9" "M-9")
+  (ryo-modal-keys
+   ;; First argument to ryo-modal-keys may be a list of keywords.
+   ;; These keywords will be applied to all keybindings.
+   (:norepeat t)
+   ("0" "M-0")
+   ("1" "M-1")
+   ("2" "M-2")
+   ("3" "M-3")
+   ("4" "M-4")
+   ("5" "M-5")
+   ("6" "M-6")
+   ("7" "M-7")
+   ("8" "M-8")
+   ("9" "M-9")
 
-		  ;; Basic operations.
-		  ("f" undo)
-		  ("F" undo-redo)
-		  ("q" kill-region)
-		  ("j" pony-copy-current-word)
-		  ("k" yank)
-		  ("y" pony-toggle-mark)
+	;; Basic operations.
+	("f" undo)
+	("F" undo-redo)
+	("q" kill-region)
+	("j" pony-copy-current-word)
+	("k" yank)
+	("y" pony-toggle-mark)
+	)
 
-		  ;; Buffer management.
-		  ("w" :hydra
-			'(hydra-buffer ()
-								"Buffer Hydra"
-								("t" split-window-below "Split Vertically")
-								("n" split-window-right "Split Rightward")
-
-								("T" buf-move-down "Focus Down")
-								("C" buf-move-up "Focus Up")
-								("N" buf-move-right "Focus Right")
-								("H" buf-move-left "Focus Left")
-
-								("e" ace-delete-window "Kill")
-								("w" ace-delete-other-windows "Kill All Except")
-
-								("p" switch-to-buffer "Switch")
-								;; TODO: Configure IBuffer commands.
-								("." ibuffer "IBuffer")
-
-								("<BACKSPACE>" nil "Cancel" :color blue)
-								)
-			)
-		  )
-
-	 (ryo-modal-keys
-	  ;; Leader key
-	  ("SPC" (
-				 ("a" mark-whole-buffer "Select All")
-				 ("b" exchange-point-and-mark "Exchange Point and Mark")
-				 ("d" beginning-of-buffer "Buffer Start")
-				 ("s" end-of-buffer "Buffer End")
-
-				 ("c" (
-						 ("s" save-buffer :name "Save Buffer")
-						 ("o" write-file :name "Save As")
-						 ("." dired :name "Dired")
-						 ("a" magit-status :name "Git")
+  ;; Buffer management.
+  (ryo-modal-keys
+	;; ("SPC" (
+	;; ("SPC g" :hydra
+	("w" :hydra
+	 ;; ("SPC g" :hydra
+	 '(hydra-buffer (:color red)
+						 "Buffer Hydra"
+						 ("t" split-window-below "Split Vertically")
+						 ("n" split-window-right "Split Rightward")
+						 ("T" buf-move-down "Focus Down")
+						 ("C" buf-move-up "Focus Up")
+						 ("N" buf-move-right "Focus Right")
+						 ("H" buf-move-left "Focus Left")
+						 ("e" ace-delete-window "Kill")
+						 ("w" ace-delete-other-windows "Kill All Except")
+						 ("p" switch-to-buffer "Switch")
+						 ;; TODO: Configure IBuffer commands.
+						 ;; ("." ibuffer "IBuffer")
+						 ("<BACKSPACE>" nil "Cancel" :color blue)
 						 )
-				  :name "File Motions"
-				  )
-				 ("t" (
-						 ("t" scroll-up :name "Page Down")
-						 ("T" zz-scroll-half-page-down :name "Half-Page Down")
-						 ("c" scroll-down :name "Page Up")
-						 ("C" zz-scroll-half-page-up :name "Half-Page Down")
-						 ("u" recenter-top-bottom :name "Recenter Point")
-						 ("e" move-to-window-line-top-bottom :name "Point at Center")
-						 )
-				  :name "Large Motions"
-				  )
-				 )
-		:name "LEADER"
-		)
-	  )
+	 ;; )
+	 ;; )
 	 )
+	)
+
+  (ryo-modal-keys
+	;; Leader key
+	("SPC" (
+			  ("a" mark-whole-buffer "Select All")
+			  ("b" exchange-point-and-mark "Exchange Point and Mark")
+			  ("d" beginning-of-buffer "Buffer Start")
+			  ("s" end-of-buffer "Buffer End")
+
+           ("c" (
+                 ("s" save-buffer :name "Save Buffer")
+                 ("o" write-file :name "Save As")
+                 ("." dired :name "Dired")
+                 ("a" magit-status :name "Git")
+                 )
+            :name "File Motions"
+            )
+           ("t" (
+                 ("n" scroll-up :name "Page Down")
+                 ("N" zz-scroll-half-page-down :name "Half-Page Down")
+                 ;; g can be used for scroll without moving cursor
+                 ("h" scroll-down :name "Page Up")
+                 ("H" zz-scroll-half-page-up :name "Half-Page Down")
+                 ;; r can be used for scroll without moving cursor
+                 ("u" recenter-top-bottom :name "Recenter Point")
+                 ("e" move-to-window-line-top-bottom :name "Point at Center")
+                 )
+            :name "Large Motions"
+            )
+           )
+    :name "LEADER"
+    )
+   )
+  )
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
