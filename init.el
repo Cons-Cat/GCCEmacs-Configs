@@ -277,20 +277,29 @@
 
 ;; DIRED
 (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
+(add-hook 'dired-mode-hook 'ryo-enable)
 ;; (setq dired-omit-files
 			;; (concat dired-omit-files "\\|^.DS_STORE$\\|^.projectile$\\|^.git$")
-			;; )
+;; )
 
-(use-package dired-posframe
-  :straight t
-  :config
-  (add-to-list 'dired-posframe-advice-alist
-					'(
-					  (dired-next-dirline . dired-posframe--advice-show)
-					  (dired-prev-dirline . dired-posframe--advice-show)
-					  )
-					)
-  )
+(straight-use-package 'posframe)
+
+(native-compile-async "~/.emacs.d/dired-posframe.el/" 'recursively)
+(add-to-list 'load-path "~/.emacs.d/dired-posframe.el/")
+(load "dired-posframe")
+
+;; I've submitted a pull request adding this. If it's accepted, I'll uncomment.
+;; (use-package dired-posframe
+  ;; :straight t
+   ;; :config
+  ;; (add-to-list 'dired-posframe-advice-alist
+					;; '(
+					  ;; (dired-next-dirline . dired-posframe--advice-show)
+					  ;; (dired-prev-dirline . dired-posframe--advice-show)
+					  ;; (dired-omit-mode . dired-posframe--advice-show)
+					  ;; )
+					;; )
+  ;; )
 
 (straight-use-package 'dired-git)
 (add-hook 'dired-mode-hook 'dired-git-mode)
@@ -305,19 +314,23 @@
 
 (defun dired-posframe-toggle ()
   (interactive)
-	 (if (bound-and-true-p dired-posframe-mode)
-		  (progn
-			 (setq dired-posframe-mode nil)
-			 (message "Posframe Disabled")
-			 )
+  (if (bound-and-true-p dired-posframe-mode)
 		(progn
-		  (setq dired-posframe-mode t)
-		  (dired-posframe-show)
-		  (message "Posframe Enabled")
-			)
+		  (setq dired-posframe-mode nil)
+		  (dired-posframe-teardown)
+		  (message "Posframe Disabled")
+		  )
+	 (progn
+		(setq dired-posframe-mode t)
+		(dired-posframe-setup)
+		(dired-posframe-show)
+		;; (setq dired-posframe--show t)
+		(message "Posframe Enabled")
 		)
+	 )
+  ;; (dired-posframe-show)
   )
-
+;; (add-hook 'dired-posframe-mode 'dired-posframe-show)
 
 ;; ORG
 (use-package org
