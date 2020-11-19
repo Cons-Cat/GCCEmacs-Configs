@@ -275,21 +275,51 @@
  '(hydra-face-red ((t (:foreground "violet")))))
 
 
-;; FILE BROWSING
+;; DIRED
 (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
-(straight-use-package 'dired-posframe)
-(add-hook 'dired-mode-hook 'dired-posframe-mode)
+;; (setq dired-omit-files
+			;; (concat dired-omit-files "\\|^.DS_STORE$\\|^.projectile$\\|^.git$")
+			;; )
+
+(use-package dired-posframe
+  :straight t
+  :config
+  (add-to-list 'dired-posframe-advice-alist
+					'(
+					  (dired-next-dirline . dired-posframe--advice-show)
+					  (dired-prev-dirline . dired-posframe--advice-show)
+					  )
+					)
+  )
+
 (straight-use-package 'dired-git)
 (add-hook 'dired-mode-hook 'dired-git-mode)
-(add-hook 'after-init-hook #'dired-jump)
-													 ; Thanks, Xah!
+;; (add-hook 'after-init-hook #')
+
 ;; TODO: Replace this with RYO bindings.
 													 ;(define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file) ; was dired-advertised-find-file
+;; define-key dired-mode-map (kbd "^") (lambda () (interactive) (find-alternate-file "..")))  ; was dired-up-directory
 
-													 ;(define-key dired-mode-map (kbd "^") (lambda () (interactive) (find-alternate-file "..")))  ; was dired-up-directory
+(setq-default dired-omit-files-p t)
+(setq dired-omit-verbose nil)
+
+(defun dired-posframe-toggle ()
+  (interactive)
+	 (if (bound-and-true-p dired-posframe-mode)
+		  (progn
+			 (setq dired-posframe-mode nil)
+			 (message "Posframe Disabled")
+			 )
+		(progn
+		  (setq dired-posframe-mode t)
+		  (dired-posframe-show)
+		  (message "Posframe Enabled")
+			)
+		)
+  )
 
 
-;; Org
+;; ORG
 (use-package org
   :straight t
   :config
@@ -470,6 +500,7 @@
 
 	;; Selection
 	("*" pony-mark-line)
+	(")" mark-word)
 	("+" xah-select-block)
 	)
 
@@ -495,6 +526,7 @@
 	("j" pony-copy-current-word)
 	("k" yank)
 	("y" pony-toggle-mark)
+	("b" isearch-forward)
 	)
 
   ;; Buffer management.
@@ -548,6 +580,7 @@
                  ;; r can be used for scroll without moving cursor
                  ("u" recenter-top-bottom :name "Recenter Point")
                  ("e" move-to-window-line-top-bottom :name "Point at Center")
+					  ("b" kill-this-buffer :name "Kill This Buffer")
                  )
             :name "Large Motions"
             )
@@ -555,6 +588,46 @@
     :name "LEADER"
     )
    )
+  (ryo-modal-keys
+	;; Dired Mode
+	(:norepeat t :mode 'dired-mode)
+	("j" dired-do-copy)
+	("." dired-up-directory)
+	("y" dired-mark)
+	("Y" dired-unmark)
+	("c" dired-previous-line)
+	("t" dired-next-line)
+	("n" dired-next-dirline)
+	("h" dired-prev-dirline)
+	("b" find-name-dired)
+	("'" dired-omit-mode :name "Hide Details")
+	("SPC" (
+			  ("e" dired-do-delete)
+			  ("i" dired-do-rename)
+			  ("p" dired-create-directory)
+			  ("," dired-do-compress-to)
+			  ("<" dired-do-compress)
+			  ("y" dired-unmark-all-marks :name "Unmark All")
+			  ("." dired-posframe-toggle)
+			  ("'" dired-mark-omitted :name "Omit")
+			  ("c" (
+					  ("n" find-file :name "Create File")
+					   )
+				)
+			  ("t" (
+					  ("." dired-do-load :name "Load Elisp")
+					  ("b" quit-window :name "Close Dired")
+					  )
+				)
+			  ("b" (
+					  ("." dired-mark-extension)
+					  ("b" dired-do-find-regexp)
+					  )
+				;; :name "Finding"
+				)
+			   )
+	 )
+	)
   )
 
 (custom-set-variables
