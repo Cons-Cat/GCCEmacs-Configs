@@ -60,8 +60,9 @@
   )
 (setq inhibit-splash-screen t)
 
-(add-to-list 'default-frame-alist '(drag-internal-border . 1))
-(add-to-list 'default-frame-alist '(internal-border-width . 5))
+;; (setq default-frame-alist '((undecorated . t)))
+;; (add-to-list 'default-frame-alist '(drag-internal-border . 1))
+;; (add-to-list 'default-frame-alist '(internal-border-width . 5))
 
 (setq-default frame-title-format "%b (%f)")
 (setq electric-pair-pairs '(
@@ -152,11 +153,11 @@
 
 
 ;; AESTHETICS
-(add-to-list 'custom-theme-load-path "./dracula-pro-theme")
+(add-to-list 'custom-theme-load-path (expand-file-name "./dracula-pro-theme/" user-emacs-directory))
 (load-theme 'dracula-pro t)
 (use-package dracula-pro-theme
   :defer 3
-  :load-path "./dracula-pro-theme"
+  :load-path "~/wgooch/.emacs.d/dracula-pro-theme"
   :init
   (load-theme 'dracula-pro t)
   )
@@ -272,6 +273,8 @@
  '(cursor ((t nil)))
  '(custom-comment ((t (:background "dim gray" :family "Operator Mono Lig Medium"))))
  '(hydra-face-red ((t (:foreground "violet")))))
+
+
 ;; FILE BROWSING
 (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
 (straight-use-package 'dired-posframe)
@@ -419,7 +422,7 @@
 	 )
   )
 
-;; Keybindings.l
+;; Keybindings.
 (use-package ryo-modal
   :straight t
   :commands ryo-modal-mode
