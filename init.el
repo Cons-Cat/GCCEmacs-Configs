@@ -60,6 +60,7 @@
   )
 (setq inhibit-splash-screen t)
 
+;; Make frame borderless.
 ;; (setq default-frame-alist '((undecorated . t)))
 ;; (add-to-list 'default-frame-alist '(drag-internal-border . 1))
 ;; (add-to-list 'default-frame-alist '(internal-border-width . 5))
@@ -175,7 +176,6 @@
 						  :height 90
 						  )
 (set-face-attribute 'font-lock-comment-face nil
-													 ;:family "Liga Dank Mono"
 						  :family "Liga OperatorMono Nerd Font"
 						  :weight 'Light
 						  :height 90
@@ -208,13 +208,13 @@
                                        "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
                                        "\\" "://" "||-"))
   (ligature-set-ligatures 'text-mode '("|-" "-|-" "-|" "---"))
-													 ;(www-ligature-mode t)
   (global-ligature-mode t)
   )
 (add-to-list 'ligature-composition-table `(text-mode ("=" . ,(rx (+ "=")))))
 
-(straight-use-package 'unicode-fonts)
-(unicode-fonts-setup)
+;; This takes too long to set up. Not needed yet.
+;; (straight-use-package 'unicode-fonts)
+;; (unicode-fonts-setup)
 
 (use-package rainbow-delimiters
   :straight t
@@ -222,6 +222,7 @@
   (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
   )
 
+;; Highlight current line
 ;; (use-package hl-line+
 ;; :load-path "./random-libs"
 ;; :init
@@ -232,8 +233,9 @@
 ;; (toggle-hl-line-when-idle t)
 ;; (hl-line-when-idle-interval 10)
 ;; )
-(hl-line-mode t)
-(set-face-attribute 'region nil :background "#635937" :foreground "#FAFAFA")
+(add-hook 'text-mode-hook 'hl-line-mode)
+(add-hook 'prog-mode-hook 'hl-line-mode)
+(add-hook 'dired-mode-hook 'hl-line-mode)
 
 ;; Line Numbers
 (use-package linum-relative
@@ -278,40 +280,38 @@
 ;; DIRED
 (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
 (add-hook 'dired-mode-hook 'ryo-enable)
-;; (setq dired-omit-files
-			;; (concat dired-omit-files "\\|^.DS_STORE$\\|^.projectile$\\|^.git$")
-;; )
-
 (straight-use-package 'posframe)
 
+;; Load posframe locally.
 (native-compile-async "~/.emacs.d/dired-posframe.el/" 'recursively)
 (add-to-list 'load-path "~/.emacs.d/dired-posframe.el/")
 (load "dired-posframe")
 
 ;; I've submitted a pull request adding this. If it's accepted, I'll uncomment.
 ;; (use-package dired-posframe
-  ;; :straight t
-   ;; :config
-  ;; (add-to-list 'dired-posframe-advice-alist
-					;; '(
-					  ;; (dired-next-dirline . dired-posframe--advice-show)
-					  ;; (dired-prev-dirline . dired-posframe--advice-show)
-					  ;; (dired-omit-mode . dired-posframe--advice-show)
-					  ;; )
-					;; )
-  ;; )
+;; :straight t
+;; :config
+;; (add-to-list 'dired-posframe-advice-alist
+;; '(
+;; (dired-next-dirline . dired-posframe--advice-show)
+;; (dired-prev-dirline . dired-posframe--advice-show)
+;; (dired-omit-mode . dired-posframe--advice-show)
+;; )
+;; )
+;; )
 
 (straight-use-package 'dired-git)
 (add-hook 'dired-mode-hook 'dired-git-mode)
-;; (add-hook 'after-init-hook #')
+(setq initial-buffer-choice "~/.emacs.d/")
+(add-hook 'emacs-startup-hook #'dired-jump)
 
 ;; TODO: Replace this with RYO bindings.
-													 ;(define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file) ; was dired-advertised-find-file
-;; define-key dired-mode-map (kbd "^") (lambda () (interactive) (find-alternate-file "..")))  ; was dired-up-directory
+(define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file)
 
 (setq-default dired-omit-files-p t)
 (setq dired-omit-verbose nil)
 
+;; Custom utility scripts.
 (defun dired-posframe-toggle ()
   (interactive)
   (if (bound-and-true-p dired-posframe-mode)
@@ -324,19 +324,22 @@
 		(setq dired-posframe-mode t)
 		(dired-posframe-setup)
 		(dired-posframe-show)
-		;; (setq dired-posframe--show t)
 		(message "Posframe Enabled")
 		)
 	 )
-  ;; (dired-posframe-show)
   )
-;; (add-hook 'dired-posframe-mode 'dired-posframe-show)
+(defun dired-alternate-up ()
+  (interactive)
+  (find-alternate-file "..")
+  )
+
 
 ;; ORG
 (use-package org
   :straight t
   :config
   )
+(add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
 ;; Make Bibtex export in PDF
 (setq org-latex-pdf-process
 		'("latexmk -pdflatex='pdflatex -interaction nonstopmode' -pdf -bibtex -f %f"))
@@ -367,6 +370,7 @@
               (("C-c n i" . org-roam-insert))
               (("C-c n I" . org-roam-insert-immediate)))
   )
+
 
 ;; WHICH KEY
 (use-package which-key
@@ -579,8 +583,16 @@
            ("c" (
                  ("s" save-buffer :name "Save Buffer")
                  ("o" write-file :name "Save As")
-                 ("." dired :name "Dired")
+                 ("," dired :name "Dired Path")
+					  ("." dired-jump :name "Dired")
                  ("a" magit-status :name "Git")
+					  (";" xah-show-in-desktop :name "Explorer")
+					  ;; ("h" recentf-open-files :name "Open Recent")
+					  ("p" xah-open-last-closed :name "Open Last Closed")
+					  ("f" xah-open-recently-closed :name "Open Recent Closed")
+					  ;; TODO: Configure bookmarks.
+					  ("l" bookmark-set :name "Bookmark")
+					  ("c" bookmark-bmenu-list :name "Bookmark Jump")
                  )
             :name "File Motions"
             )
@@ -601,11 +613,12 @@
     :name "LEADER"
     )
    )
+
   (ryo-modal-keys
 	;; Dired Mode
 	(:norepeat t :mode 'dired-mode)
 	("j" dired-do-copy)
-	("." dired-up-directory)
+	("." dired-alternate-up)
 	("y" dired-mark)
 	("Y" dired-unmark)
 	("c" dired-previous-line)
@@ -617,7 +630,6 @@
 	("SPC" (
 			  ("e" dired-do-delete)
 			  ("i" dired-do-rename)
-			  ("p" dired-create-directory)
 			  ("," dired-do-compress-to)
 			  ("<" dired-do-compress)
 			  ("y" dired-unmark-all-marks :name "Unmark All")
@@ -625,7 +637,8 @@
 			  ("'" dired-mark-omitted :name "Omit")
 			  ("c" (
 					  ("n" find-file :name "Create File")
-					   )
+					  ("t" dired-create-directory :name "Create Directory")
+			 		  )
 				)
 			  ("t" (
 					  ("." dired-do-load :name "Load Elisp")
@@ -638,8 +651,13 @@
 					  )
 				;; :name "Finding"
 				)
-			   )
+			  )
 	 )
+	)
+
+  (ryo-modal-keys
+	;; Org Mode
+	(:mode 'org-mode)
 	)
   )
 
@@ -652,3 +670,4 @@
 	'("89ba918121c69681960ac1e4397296b5a756b1293325cee0cb543d70418bd556" "bcb58b7e1a372e677f44e25e3da88f283090dbd506550c137d02907446c7d11c" "7451f243a18b4b37cabfec57facc01bd1fe28b00e101e488c61e1eed913d9db9" default))
  '(line-number-mode nil)
  '(warning-suppress-types '((comp) (comp) (comp) (comp) (comp) (comp))))
+(put 'dired-find-alternate-file 'disabled nil)
