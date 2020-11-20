@@ -152,7 +152,6 @@
 (straight-use-package 'all-the-icons-dired)
 (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
 
-
 ;; AESTHETICS
 (add-to-list 'custom-theme-load-path (expand-file-name "./dracula-pro-theme/" user-emacs-directory))
 (load-theme 'dracula-pro t)
@@ -167,6 +166,14 @@
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (toggle-scroll-bar -1)
+
+(defun graphic-p ()
+  (display-graphic-p))
+(when (graphic-p)
+  ;;  transparent frame
+  (add-to-list 'default-frame-alist'(ns-transparent-titlebar . t))
+  (add-to-list 'default-frame-alist'(alpha . (95 . 89)))
+  )
 
 ;; Font
 (add-hook 'prog-mode 'font-lock-mode)
@@ -394,6 +401,14 @@
 ;; GIT
 (straight-use-package 'magit)
 
+;; YASnippet
+(use-package yasnippet
+  :straight t
+  :init
+  )
+(yas-global-mode t)
+(straight-use-package 'yasnippet-snippets)
+
 ;; PONY FLY KEYS
 (native-compile-async "~/.emacs.d/Pony-Fly-Keys/" 'recursively)
 (add-to-list 'load-path "~/.emacs.d/Pony-Fly-Keys/")
@@ -567,8 +582,6 @@
 						 ;; ("." ibuffer "IBuffer")
 						 ("<BACKSPACE>" nil "Cancel" :color blue)
 						 )
-	 ;; )
-	 ;; )
 	 )
 	)
 
@@ -580,7 +593,21 @@
 			  ("d" beginning-of-buffer "Buffer Start")
 			  ("s" end-of-buffer "Buffer End")
 
-           ("c" (
+			  ;; Inserts
+			  ("e" (
+					  ("e" yas-insert-snippet :name "Snippet")
+					  ("h" xah-insert-brace :name "{}")
+					  ("t" xah-insert-paren :name "()")
+					  ("n" xah-insert-square-bracket :name "[]")
+					  ("g" xah-insert-ascii-double-quote :name "\"\"")
+					  ("c" xah-insert-ascii-double-quote :name "\'\'")
+					  ("r" pony-insert-region-pair :name "Region")
+					  )
+				:name "Insert"
+				)
+
+			  ;; File Management
+			  ("c" (
                  ("s" save-buffer :name "Save Buffer")
                  ("o" write-file :name "Save As")
                  ("," dired :name "Dired Path")
@@ -594,8 +621,10 @@
 					  ("l" bookmark-set :name "Bookmark")
 					  ("c" bookmark-bmenu-list :name "Bookmark Jump")
                  )
-            :name "File Motions"
+            :name "File"
             )
+
+			  ;; Large Motions
            ("t" (
                  ("n" scroll-up :name "Page Down")
                  ("N" zz-scroll-half-page-down :name "Half-Page Down")
@@ -607,7 +636,7 @@
                  ("e" move-to-window-line-top-bottom :name "Point at Center")
 					  ("b" kill-this-buffer :name "Kill This Buffer")
                  )
-            :name "Large Motions"
+            :name "Large Motion"
             )
            )
     :name "LEADER"
@@ -658,6 +687,27 @@
   (ryo-modal-keys
 	;; Org Mode
 	(:mode 'org-mode)
+	("SPC" (
+			  ("u" (
+					  ("u" org-table-create)
+					  )
+				:name "Table"
+				)
+			  ("h" org-do-demote)
+			  ("n" org-do-promote)
+			  ("TAB" org-toggle-narrow-to-subtree)
+			  ("SPC" (
+						 ("t" org-next-visible-heading)
+						 ("c" org-previous-visible-heading)
+						 ("T" org-forward-heading-same-level)
+						 ("C" org-backward-heading-same-level)
+						 ("h" outline-up-heading)
+						 ("n" org-goto)
+						 )
+				:name "Headings"
+				)
+			  )
+	 )
 	)
   )
 
