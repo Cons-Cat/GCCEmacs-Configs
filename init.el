@@ -95,7 +95,8 @@
  )
 
 (add-hook 'before-save-hook #'delete-trailing-whitespace)
-(setq require-final-newline t)
+(setq-default require-final-newline t)
+(add-hook 'org-mode-hook (lambda () (require-final-newline nil)))
 
 (global-visual-line-mode)
 
@@ -182,12 +183,30 @@
 						  :weight 'SemiBold
 						  :height 90
 						  )
+
 (set-face-attribute 'font-lock-comment-face nil
 						  :family "Liga OperatorMono Nerd Font"
 						  :weight 'Light
 						  :height 90
 						  :slant 'italic
 						  )
+(set-face-attribute 'font-lock-keyword-face nil
+						  :family "Fira Code"
+						  :weight 'Bold
+						  )
+
+(set-face-attribute 'variable-pitch nil
+						  :family "Input Serif Compressed"
+						  :weight 'Medium
+						  :height 100
+						  )
+
+(set-face-attribute 'fixed-pitch nil
+						  :family "Fira Code"
+						  :weight 'SemiBold
+						  :height 90
+						  )
+
 													 ; |-----  -|- ----|
 													 ; |--------|-----|
 													 ; |-|-
@@ -345,11 +364,52 @@
 (use-package org
   :straight t
   :config
+  (setq-default
+	org-src-fontify-natively t
+	org-hide-emphasis-markers t
+	org-pretty-entities t
+	org-pretty-entities-include-sub-superscripts t
+  )
+  ;; (setq org-hide-leading-stars t)
   )
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
+
+(use-package org-bullets
+  :straight t
+  :init
+  ;; (setq org-bullets-face-name "Inconsolata-12")
+  (setq org-bullets-bullet-list
+        '("◎" "⚫" "○" "►" "◇"))
+  :config
+  (add-hook 'org-mode-hook (lambda () (org-bullets-mode t)))
+  )
+
+(add-hook 'org-mode-hook 'variable-pitch-mode)
+
+;; (set-face-attribute 'org-code nil :inherit 'fixed-pitch)
+;; (set-face-attribute 'org-table nil :inherit 'fixed-pitch)
+(defun my-adjoin-to-list-or-symbol (element list-or-symbol)
+  (let ((list (if (not (listp list-or-symbol))
+                  (list list-or-symbol)
+                list-or-symbol)))
+    (require 'cl-lib)
+    (cl-adjoin element list)))
+
+(eval-after-load "org"
+  '(mapc
+    (lambda (face)
+      (set-face-attribute
+       face nil
+       :inherit
+       (my-adjoin-to-list-or-symbol
+        'fixed-pitch
+        (face-attribute face :inherit))))
+    (list 'org-code 'org-block 'org-table)))
+
 ;; Make Bibtex export in PDF
 (setq org-latex-pdf-process
 		'("latexmk -pdflatex='pdflatex -interaction nonstopmode' -pdf -bibtex -f %f"))
+
 (setq org-todo-keyword-faces
       '(
 		  ("NOTE" . (:foreground "lightgreen" :weight bold))
@@ -558,7 +618,8 @@
 	("j" pony-copy-current-word)
 	("k" yank)
 	("y" pony-toggle-mark)
-	("b" isearch-forward)
+	("b" ctrlf-forward-fuzzy)
+	("B" ctrlf-forward-literal)
 	)
 
   ;; Buffer management.
@@ -687,16 +748,28 @@
   (ryo-modal-keys
 	;; Org Mode
 	(:mode 'org-mode)
+	("'" (
+			("u" org-table-create)
+			)
+	 :name "Table"
+	 )
+
 	("SPC" (
+			  ("n" org-do-demote)
+			  ("h" org-do-promote)
+			  ("TAB" org-todo :name "Toggle TODO")
 			  ("u" (
-					  ("u" org-table-create)
+					  ("n" org-insert-todo-subheading)
+					  ("t" org-insert-todo-heading)
 					  )
-				:name "Table"
 				)
-			  ("h" org-do-demote)
-			  ("n" org-do-promote)
-			  ("TAB" org-toggle-narrow-to-subtree)
+			  ("e" (
+					  ("n" org-insert-subheading)
+					  ("t" org-insert-heading)
+					  )
+				)
 			  ("SPC" (
+						 ("TAB" org-toggle-narrow-to-subtree)
 						 ("t" org-next-visible-heading)
 						 ("c" org-previous-visible-heading)
 						 ("T" org-forward-heading-same-level)
