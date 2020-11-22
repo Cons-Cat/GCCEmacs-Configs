@@ -1,0 +1,1 @@
+/home/wgooch/.emacs.d/straight/repos/emacs/dracula-theme.el
