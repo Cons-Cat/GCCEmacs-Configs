@@ -1,4 +1,3 @@
-
 ;; Package management configurations.
 (defvar bootstrap-version)
 (let ((bootstrap-file
@@ -34,9 +33,7 @@
 
 ;; Vertical completion.
 (straight-use-package 'selectrum)
-
 (selectrum-mode t)
-
 (straight-use-package 'prescient)
 ;; (prescient-filter-method fuzzy)
 
@@ -47,6 +44,13 @@
 (selectrum-prescient-mode t)
 (prescient-persist-mode t)
 
+;; Languages
+;; V
+(straight-use-package
+ '(vlang-mode :type git :host github :repo "Naheel-Azawy/vlang-mode")
+ )
+
+;; Searching
 ;; TODO: Configure this
 (straight-use-package 'ctrlf)
 (ctrlf-mode t)
@@ -113,7 +117,6 @@
 
 ;; MODELINE
 (straight-use-package 'all-the-icons)
-
 (use-package powerline
   :straight t
   :config
@@ -338,6 +341,40 @@
 (setq dired-omit-verbose nil)
 
 ;; Custom utility scripts.
+;; There exist states, such as after kill-region, when the cursor color is incorrect.
+(defun ryo-cursor-update ()
+  (if ryo-modal-mode
+		(progn
+		  (setq cursor-type (cons 'box 2))
+		  (message "NORMAL MODE")
+
+		  (if (region-active-p)
+				(keyboard-quit)
+			 )
+		  )
+	 (progn
+		(setq cursor-type (cons 'bar 2))
+		(message "INSERT MODE")
+		)
+	 )
+  )
+
+(defun pony-toggle-mark ()
+  (interactive)
+  (if (region-active-p)
+		(progn
+		  (setq cursor-type 'box)
+		  (keyboard-quit)
+		  (message "Cancel Selection")   ; This is not working.
+		  )
+	 (progn
+		(set-mark (point))
+		(setq cursor-type 'hbox)
+		(message "Selecting")
+		)
+	 )
+  )
+
 (defun dired-posframe-toggle ()
   (interactive)
   (if (bound-and-true-p dired-posframe-mode)
@@ -354,9 +391,18 @@
 		)
 	 )
   )
+
 (defun dired-alternate-up ()
   (interactive)
   (find-alternate-file "..")
+  )
+
+(defun eval-dwim ()
+  (interactive)
+  (if (region-active-p)
+		(eval-region)
+	 (eval-buffer)
+	 )
   )
 
 
@@ -498,6 +544,45 @@
 (key-chord-define selectrum-minibuffer-map "ud" 'selectrum-previous-page)
 (key-chord-mode t)
 
+;; Multi Cursors
+(straight-use-package 'multiple-cursors)
+(straight-use-package 'mc-calc)
+
+;; Bookmarks
+(setq bm-restore-repository-on-load t)
+(use-package bm
+  :straight t
+  :demand t
+  :init
+  (autoload 'bm-toggle   "bm" "Toggle bookmark in current buffer." t)
+  (autoload 'bm-next     "bm" "Goto bookmark."                     t)
+  (autoload 'bm-previous "bm" "Goto previous bookmark."            t)
+  :config
+  ;; Save bookmarks
+  (setq bm-repository-file "~/.emacs.d/bm-repository")
+  (setq bm-buffer-persistence t)
+  ;; Optional labels
+  (setq bm-annotate-on-create t)
+  (add-hook 'find-file-hooks 'bm-buffer-restore)
+  (add-hook 'kill-buffer-hook #'bm-buffer-save)
+  (add-hook 'kill-emacs-hook #'(lambda nil
+                                (bm-buffer-save-all)
+                                (bm-repository-save)
+										  ))
+  (add-hook 'after-save-hook #'bm-buffer-save)
+  (add-hook 'after-revert-hook #'bm-buffer-restore)
+  (add-hook 'vc-before-checkin-hook #'bm-buffer-save)
+  ;; Aesthetics
+  ;; Currently, fringe-bitmap 'bm-marker is non-configable.
+  (setq bm-marker 'bm-marker-left
+        bm-recenter t
+        bm-highlight-style 'bm-highlight-only-fringe
+		  )
+  ;; These are not working.
+  (add-hook 'bm-show-mode-hook #'ryo-enable)
+  (add-hook 'bm-show-mode-hook #'hl-line-mode)
+  )
+(add-hook 'bookmark-bmenu-mode-hook 'ryo-enable)
 
 ;; MODAL EDITING
 (setq-default cursor-type (cons 'bar 2))
@@ -510,40 +595,6 @@
   (selected-off)
   )
 
-;; There exist states, such as after kill-region, when the cursor color is incorrect.
-(defun ryo-cursor-update ()
-  (if ryo-modal-mode
-		(progn
-		  (setq cursor-type (cons 'box 2))
-		  (message "NORMAL MODE")
-
-		  (if (region-active-p)
-				(keyboard-quit)
-			 )
-		  )
-	 (progn
-		(setq cursor-type (cons 'bar 2))
-		(message "INSERT MODE")
-		)
-	 )
-  )
-
-(defun pony-toggle-mark ()
-  (interactive)
-  (if (region-active-p)
-		(progn
-		  (setq cursor-type 'box)
-		  (keyboard-quit)
-		  (message "Cancel Selection")   ; This is not working.
-		  )
-	 (progn
-		(set-mark (point))
-		(setq cursor-type 'hbox)
-		(message "Selecting")
-		)
-	 )
-  )
-
 ;; Keybindings.
 (use-package ryo-modal
   :straight t
@@ -551,14 +602,15 @@
   :bind ("M-SPC" . ryo-modal-mode)
   :init
   (global-set-key [backspace] 'ryo-enable)
-  ;; (add-hook 'text-mode 'ryo-enable)
   :config
   (setq ryo-modal-cursor-type t)
   (setq ryo-modal-cursor-color nil)
+
   (ryo-modal-keys
    (:exit t)
    ("u" ryo-modal-mode :name "Insert Mode")
 	)
+
   (ryo-modal-keys
 	("a" execute-extended-command)
 	;; Basic navigation controls.
@@ -594,6 +646,22 @@
 	("*" pony-mark-line)
 	(")" mark-word)
 	("+" xah-select-block)
+	("!" rectangle-mark-mode)
+
+	;; Multi-cursor
+	("C" mc/mark-previous-like-this)
+	("T" mc/mark-next-like-this)
+
+	;; Bookmarks
+	("i" (
+			;; TODO: Configure bookmarks.
+			("c" bm-previous :name "Bookmark Up")
+			("t" bm-next :name "Bookmark Down")
+			("h" bm-toggle :name "Bookmark Toggle")
+			("." bm-show :name "Bookmark Jump")
+			("e" bm-remove-all-current-buffer "Remove All")
+			)
+	 )
 	)
 
   (ryo-modal-keys
@@ -620,29 +688,54 @@
 	("y" pony-toggle-mark)
 	("b" ctrlf-forward-fuzzy)
 	("B" ctrlf-forward-literal)
+	("," xah-shrink-whitespaces)
 	)
 
-  ;; Buffer management.
+  ;; Buffer management hydra
   (ryo-modal-keys
 	;; ("SPC" (
 	;; ("SPC g" :hydra
 	("w" :hydra
-	 ;; ("SPC g" :hydra
-	 '(hydra-buffer (:color red)
-						 "Buffer Hydra"
-						 ("t" split-window-below "Split Vertically")
-						 ("n" split-window-right "Split Rightward")
-						 ("T" buf-move-down "Focus Down")
-						 ("C" buf-move-up "Focus Up")
-						 ("N" buf-move-right "Focus Right")
-						 ("H" buf-move-left "Focus Left")
-						 ("e" ace-delete-window "Kill")
-						 ("w" ace-delete-other-windows "Kill All Except")
-						 ("p" switch-to-buffer "Switch")
-						 ;; TODO: Configure IBuffer commands.
-						 ;; ("." ibuffer "IBuffer")
-						 ("<BACKSPACE>" nil "Cancel" :color blue)
-						 )
+		  ;; ("SPC g" :hydra
+		  '(hydra-buffer (:color red)
+			 "Buffer Hydra"
+			 ("t" split-window-below "Split Vertically")
+			 ("n" split-window-right "Split Rightward")
+			 ("M-t" buf-move-down "Swap Down")
+			 ("M-c" buf-move-up "Swap Up")
+			 ("M-n" buf-move-right "Swap Right")
+			 ("M-h" buf-move-left "Swap Left")
+			 ("T" windmove-down "Focus Down")
+			 ("C" windmove-up "Focus Up")
+			 ("H" windmove-left "Focus Left")
+			 ("N" windmove-right "Focus Right")
+			 ("e" delete-window "Kill")
+			 ("(" ace-delete-window "Kill Other")
+			 ("w" ace-delete-other-windows "Kill All Except")
+			 ("p" switch-to-buffer "Switch")
+
+			 ;; Resizing
+			 (">" enlarge-window :name "Grow Vert")
+			 ("E" shrink-window :name "Shrink Vert")
+			 ("U" enlarge-window-horizontally :name "Grow Hor")
+			 ("O" shrink-window-horizontally :name "Shrink Hor")
+			 ("," balance-windows)
+			 ;; TODO: Configure IBuffer commands.
+			 ("." ibuffer "IBuffer")
+			 ("<BACKSPACE>" nil "Cancel" :color blue)
+			 )
+		  )
+
+	;; Multi-cursor bindings
+	;; TODO: This would be better as
+	;; "!" when a selection exists.
+	("-" (
+			("e" mc/edit-lines)
+			("d" mc/edit-beginnings-of-lines)
+			("s" mc/edit-ends-of-lines)
+			("+" mc/mark-all-in-region)
+			(")" mc/mark-all-dwim)
+			)
 	 )
 	)
 
@@ -663,6 +756,14 @@
 					  ("g" xah-insert-ascii-double-quote :name "\"\"")
 					  ("c" xah-insert-ascii-double-quote :name "\'\'")
 					  ("r" pony-insert-region-pair :name "Region")
+					  ("!" (
+							  ("t" mc/insert-numbers)
+							  ("h" mc/insert-letters)
+							  ("n" mc/sort-regions)
+							  ("s" mc/reverse-regions)
+							  )
+						:name "Multi-Cursor"
+						)
 					  )
 				:name "Insert"
 				)
@@ -678,9 +779,7 @@
 					  ;; ("h" recentf-open-files :name "Open Recent")
 					  ("p" xah-open-last-closed :name "Open Last Closed")
 					  ("f" xah-open-recently-closed :name "Open Recent Closed")
-					  ;; TODO: Configure bookmarks.
-					  ("l" bookmark-set :name "Bookmark")
-					  ("c" bookmark-bmenu-list :name "Bookmark Jump")
+					  ("d" eval-dwim :name "Evaluate")
                  )
             :name "File"
             )

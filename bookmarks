@@ -1,0 +1,45 @@
+;;;; Emacs Bookmark Format Version 1;;;; -*- coding: utf-8-emacs; mode: lisp-data -*-
+;;; This format is meant to be slightly human-readable;
+;;; nevertheless, you probably don't want to edit it.
+;;; -*- End Of Bookmark File Format Version Stamp -*-
+(("Dired"
+ (filename . "~/.emacs.d/init.el")
+ (front-context-string . "DIRED\n(add-hook ")
+ (rear-context-string . "olet\")))))\n\n\n;; ")
+ (position . 9379))
+("Utilities"
+ (filename . "~/.emacs.d/init.el")
+ (front-context-string . "utility scripts.")
+ (rear-context-string . "nil)\n\n;; Custom ")
+ (position . 10404))
+("Searching"
+ (filename . "~/.emacs.d/init.el")
+ (front-context-string . "\n;; TODO: Config")
+ (rear-context-string . "t)\n\n;; Searching")
+ (position . 1397))
+("Font"
+ (filename . "~/.emacs.d/init.el")
+ (front-context-string . ";; Font\n(add-hoo")
+ (rear-context-string . "95 . 89)))\n  )\n\n")
+ (position . 5009))
+("Git"
+ (filename . "~/.emacs.d/init.el")
+ (front-context-string . ";; GIT\n(straight")
+ (rear-context-string . " 'buffer-move)\n\n")
+ (position . 12111))
+("Org"
+ (filename . "~/.emacs.d/init.el")
+ (front-context-string . ";; ORG\n(use-pack")
+ (rear-context-string . "ile \"..\")\n  )\n\n\n")
+ (position . 10347))
+("Modal"
+ (filename . "~/.emacs.d/init.el")
+ (front-context-string . ";; MODAL EDITING")
+ (rear-context-string . "chord-mode t)\n\n\n")
+ (position . 12722))
+("Snippets"
+ (filename . "~/.emacs.d/init.el")
+ (front-context-string . "\n\n\n;; PONY FLY K")
+ (rear-context-string . "t)\n\n;; YASnippet")
+ (position . 11874))
+)
