@@ -210,6 +210,44 @@
 						  :height 90
 						  )
 
+;; Change font size by monitor.
+(defun fontify-frame ()
+  (interactive)
+  ;; (if window-system
+  (progn
+	 ;; (if (eq (x-display-pixel-width) 1920)
+    (if (equal 'x-display-pixel-width 1920)
+	 ;; (if (eq x-display-name "172.22.192.1:0.0")
+	 ;; (if (eq (display-monitor-attributes-list . )
+		  (progn
+			 ;; Laptop
+          (set-frame-parameter (selected-frame) 'font "Fira Code 10")
+			 (message "On Laptop")
+			 )
+		(progn
+		  (if (eq (x-display-pixel-width) 1050)
+				(progn
+				  ;; Monitor
+				  (set-frame-parameter (selected-frame) 'font "Fira Code 8")
+				  (message "On Monitor")
+				  )
+			 (progn
+				(message "Failed")
+				)
+			 )
+		  )
+		)
+	 )
+  ;; )
+  )
+
+;; Fontify current frame
+;; (fontify-frame nil)
+
+;; Fontify any future frames
+;; (push 'fontify-frame after-make-frame-functions)
+;; (add-hook 'window-size-change-functions #'fontify-frame)
+
 													 ; |-----  -|- ----|
 													 ; |--------|-----|
 													 ; |-|-
