@@ -1,4 +1,4 @@
-;;; dracula-theme.el --- Dracula Theme
+;;; dracula-pro-theme.el --- Dracula Theme
 
 ;; Copyright 2015-present, All rights reserved
 ;;
