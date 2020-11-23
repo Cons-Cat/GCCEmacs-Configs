@@ -55,11 +55,29 @@
 ;; Completion
 (straight-use-package 'flycheck)
 (add-hook 'after-init-hook #'global-flycheck-mode)
-(straight-use-package 'company)
+(use-package company
+  :straight t
+  :diminish
+  :hook (company-mode . company-box-mode)
+  :custom
+  (company-begin-commands '(self-insert-command))
+  (company-idle-delay .1)
+  (company-minimum-prefix-length 2)
+  (company-show-numbers t)
+  (company-tooltip-align-annotations 't)
+  (company-idle-delay 0)
+  (company-dabbrev-downcase nil)
+  (global-company-mode t)
+  )
+;; (add-hook 'after-init-hook 'global-company-mode)
+(add-hook 'prog-mode-hook 'company-mode)
+
 (straight-use-package 'company-posframe)
-(add-hook 'after-init-hook 'global-company-mode)
 (straight-use-package 'company-box)
-(add-hook 'company-mode 'company-box-mode)
+;; (add-hook 'company-mode-hook 'company-box-mode)
+
+(straight-use-package 'company-tabnine)
+(add-to-list 'company-backends #'company-tabnine)
 
 (use-package lsp-mode
   :straight t
@@ -67,6 +85,7 @@
   :commands (lsp lsp-deferred)
   ;; :commands lsp
   )
+(add-to-list 'company-backends '(company-lsp company-dabbrev))
 (use-package lsp-ui
   :straight t
   :commands lsp-ui-mode
@@ -408,6 +427,7 @@
 
 (setq-default dired-omit-files-p t)
 (setq dired-omit-verbose nil)
+(put 'dired-find-alternate-file 'disabled nil)
 
 ;; Custom utility scripts.
 ;; There exist states, such as after kill-region, when the cursor color is incorrect.
@@ -848,6 +868,7 @@
 
 			  ;; Inserts
 			  ("e" (
+					  ;; TODO: Consider company-yasnippet
 					  ("e" yas-insert-snippet :name "Snippet")
 					  ("h" xah-insert-brace :name "{}")
 					  ("t" xah-insert-paren :name "()")
