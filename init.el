@@ -44,11 +44,42 @@
 (selectrum-prescient-mode t)
 (prescient-persist-mode t)
 
+(straight-use-package 'treemacs)
+
 ;; Languages
 ;; V
 (straight-use-package
  '(vlang-mode :type git :host github :repo "Naheel-Azawy/vlang-mode")
  )
+
+;; Completion
+(straight-use-package 'flycheck)
+(add-hook 'after-init-hook #'global-flycheck-mode)
+(straight-use-package 'company)
+(straight-use-package 'company-posframe)
+(add-hook 'after-init-hook 'global-company-mode)
+(straight-use-package 'company-box)
+(add-hook 'company-mode 'company-box-mode)
+
+(use-package lsp-mode
+  :straight t
+  :hook (lisp-mode . lsp-deferred)
+  :commands (lsp lsp-deferred)
+  ;; :commands lsp
+  )
+(use-package lsp-ui
+  :straight t
+  :commands lsp-ui-mode
+  )
+(add-to-list 'load-path "~/.emacs.d/cask/core/")
+(add-to-list 'load-path "~/.emacs.d/cask/lisp/")
+(add-to-list 'load-path "~/.emacs.d/cask/langs/")
+(use-package lsp-treemacs
+  :straight t
+  :commands lsp-treemacs-errors-list
+  )
+
+(straight-use-package 'dap-mode)
 
 ;; Searching
 ;; TODO: Configure this
@@ -438,7 +469,7 @@
 (defun eval-dwim ()
   (interactive)
   (if (region-active-p)
-		(eval-region)
+		(eval-region (region-beginning) (region-end))
 	 (eval-buffer)
 	 )
   )
@@ -544,6 +575,36 @@
 
 ;; GIT
 (straight-use-package 'magit)
+
+(straight-use-package 'vc-msg)
+(eval-after-load 'vc-msg-git
+  '(progn
+     ;; show code of commit
+     (setq vc-msg-git-show-commit-function 'magit-show-commit)
+     ;; open file of certain revision
+     (push '("m"
+             "[m]agit-find-file"
+             (lambda ()
+               (let* ((info vc-msg-previous-commit-info)
+                      (git-dir (locate-dominating-file default-directory ".git")))
+                 (magit-find-file (plist-get info :id )
+                                  (concat git-dir (plist-get info :filename))))))
+           vc-msg-git-extra))
+  )
+
+(use-package git-gutter
+  :straight t
+  )
+(add-hook 'prog-mode-hook 'git-gutter-mode)
+(add-hook 'org-mode-hook 'git-gutter-mode)
+(custom-set-variables
+ '(git-gutter:update-interval 2)
+ '(git-gutter:window-width 1)
+ '(git-gutter:modified-sign " ")
+ '(git-gutter:added-sign "|")
+ '(git-gutter:deleted-sign " ")
+ )
+(set-face-foreground 'git-gutter:added "orange")
 
 ;; YASnippet
 (use-package yasnippet
@@ -815,6 +876,7 @@
                  ("a" magit-status :name "Git")
 					  (";" xah-show-in-desktop :name "Explorer")
 					  ;; ("h" recentf-open-files :name "Open Recent")
+					  ("n" xah-new-empty-buffer :name "New File")
 					  ("p" xah-open-last-closed :name "Open Last Closed")
 					  ("f" xah-open-recently-closed :name "Open Recent Closed")
 					  ("d" eval-dwim :name "Evaluate")
@@ -854,8 +916,8 @@
 	("h" dired-prev-dirline)
 	("b" find-name-dired)
 	("'" dired-omit-mode :name "Hide Details")
+	("e" dired-do-delete)
 	("SPC" (
-			  ("e" dired-do-delete)
 			  ("i" dired-do-rename)
 			  ("," dired-do-compress-to)
 			  ("<" dired-do-compress)
@@ -930,4 +992,3 @@
 	'("89ba918121c69681960ac1e4397296b5a756b1293325cee0cb543d70418bd556" "bcb58b7e1a372e677f44e25e3da88f283090dbd506550c137d02907446c7d11c" "7451f243a18b4b37cabfec57facc01bd1fe28b00e101e488c61e1eed913d9db9" default))
  '(line-number-mode nil)
  '(warning-suppress-types '((comp) (comp) (comp) (comp) (comp) (comp))))
-(put 'dired-find-alternate-file 'disabled nil)
