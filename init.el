@@ -59,6 +59,9 @@
   :straight t
   :diminish
   :hook (company-mode . company-box-mode)
+  :config
+  (add-to-list 'company-backends '(company-files company-dabbrev))
+  (add-to-list 'company-backends '(company-lsp company-dabbrev))
   :custom
   (company-begin-commands '(self-insert-command))
   (company-idle-delay .1)
@@ -100,6 +103,15 @@
   :straight t
   :config
   (add-to-list 'company-backends #'company-tabnine)
+  )
+
+(straight-use-package 'flx)
+(use-package company-fuzzy
+  :straight t
+  :config
+  (setq company-fuzzy-sorting-backend 'flx)
+  (setq company-fuzzy-prefix-on-top t)
+  (setq company-fuzzy-show-annotation t)
   )
 
 (straight-use-package 'dap-mode)
