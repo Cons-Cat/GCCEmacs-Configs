@@ -76,16 +76,12 @@
 (straight-use-package 'company-box)
 ;; (add-hook 'company-mode-hook 'company-box-mode)
 
-(straight-use-package 'company-tabnine)
-(add-to-list 'company-backends #'company-tabnine)
-
 (use-package lsp-mode
   :straight t
   :hook (lisp-mode . lsp-deferred)
   :commands (lsp lsp-deferred)
   ;; :commands lsp
   )
-(add-to-list 'company-backends '(company-lsp company-dabbrev))
 (use-package lsp-ui
   :straight t
   :commands lsp-ui-mode
@@ -96,6 +92,14 @@
 (use-package lsp-treemacs
   :straight t
   :commands lsp-treemacs-errors-list
+  :config
+  (add-to-list 'company-backends '(company-lsp company-dabbrev))
+  )
+
+(use-package company-tabnine
+  :straight t
+  :config
+  (add-to-list 'company-backends #'company-tabnine)
   )
 
 (straight-use-package 'dap-mode)
