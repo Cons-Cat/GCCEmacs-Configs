@@ -45,11 +45,10 @@
 
 (straight-use-package 'treemacs)
 
-;; Languages
-;; V
-(straight-use-package
- '(vlang-mode :type git :host github :repo "Naheel-Azawy/vlang-mode")
- )
+
+;; Syntax highlighting
+(straight-use-package 'tree-sitter)
+(straight-use-package 'tree-sitter-langs)
 
 ;; Completion
 (straight-use-package 'flycheck)
@@ -129,8 +128,31 @@
 
 
 ;; Debugging
+;; TODO: Configure debugger.
 (straight-use-package 'dap-mode)
+(add-hook 'dap-stopped-hook
+          (lambda (arg) (call-interactively #'dap-hydra))
+			 )
 
+
+;; Languages
+;; V
+(straight-use-package
+ '(vlang-mode :type git :host github :repo "Naheel-Azawy/vlang-mode")
+ )
+
+;; C++
+(add-hook 'c++-mode 'tree-sitter-mode)
+(use-package company-irony
+  :straight t
+  :init
+  (add-to-list 'company-backends 'company-irony)
+  )
+
+;; MySQL
+(straight-use-package 'exec-path-from-shell)
+(straight-use-package 'emacsql)
+(straight-use-package 'emacsql-mysql)
 
 ;; Searching
 ;; TODO: Configure this
@@ -528,6 +550,10 @@
   )
 
 
+;; Avy
+(straight-use-package 'avy)
+
+
 ;; ORG
 (use-package org
   :straight t
@@ -538,9 +564,8 @@
 	org-pretty-entities t
 	org-pretty-entities-include-sub-superscripts t
   )
-  ;; (setq org-hide-leading-stars t)
+  (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
   )
-(add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
 
 (use-package org-bullets
   :straight t
@@ -553,6 +578,12 @@
   )
 
 (add-hook 'org-mode-hook 'variable-pitch-mode)
+
+;; Org Babel
+;; (org-babel-do-load-languages
+ ;; 'org-babel-load-languages
+ ;; '((mysql . t))
+ ;; )
 
 ;; (set-face-attribute 'org-code nil :inherit 'fixed-pitch)
 ;; (set-face-attribute 'org-table nil :inherit 'fixed-pitch)
@@ -965,6 +996,8 @@
                  ("u" recenter-top-bottom :name "Recenter Point")
                  ("e" move-to-window-line-top-bottom :name "Point at Center")
 					  ("b" kill-this-buffer :name "Kill This Buffer")
+					  ("." avy-goto-line :name "Line Jump")
+                 ("p" avy-goto-word-1 :name "Word Jump")
                  )
             :name "Large Motion"
             )
