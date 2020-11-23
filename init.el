@@ -554,6 +554,14 @@
 (straight-use-package 'avy)
 
 
+;; Word Rotation
+(use-package grugru
+  :straight t
+  :init
+  (grugru-default-setup)
+  )
+
+
 ;; ORG
 (use-package org
   :straight t
@@ -861,6 +869,8 @@
 			("e" bm-remove-all-current-buffer "Remove All")
 			)
 	 )
+
+	("-" grugru)
 	)
 
   (ryo-modal-keys
@@ -928,7 +938,7 @@
 	;; Multi-cursor bindings
 	;; TODO: This would be better as
 	;; "!" when a selection exists.
-	("-" (
+	("_" (
 			("e" mc/edit-lines)
 			("d" mc/edit-beginnings-of-lines)
 			("s" mc/edit-ends-of-lines)
