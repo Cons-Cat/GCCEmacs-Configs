@@ -39,7 +39,6 @@
 
 ;; (straight-use-package 'company-prescient)
 ;; (company-prescient-mode t)
-
 (straight-use-package 'selectrum-prescient)
 (selectrum-prescient-mode t)
 (prescient-persist-mode t)
@@ -61,13 +60,13 @@
   :hook (company-mode . company-box-mode)
   :config
   (add-to-list 'company-backends '(company-files company-dabbrev))
-  (add-to-list 'company-backends '(company-lsp company-dabbrev))
-  :custom
+   :custom
   (company-begin-commands '(self-insert-command))
+  (company-require-match nil)
   (company-idle-delay .1)
   (company-minimum-prefix-length 2)
   (company-show-numbers t)
-  (company-tooltip-align-annotations 't)
+  (company-tooltip-align-annotations t)
   (company-idle-delay 0)
   (company-dabbrev-downcase nil)
   (global-company-mode t)
@@ -77,11 +76,17 @@
 
 (straight-use-package 'company-posframe)
 (straight-use-package 'company-box)
-;; (add-hook 'company-mode-hook 'company-box-mode)
 
 (use-package lsp-mode
   :straight t
   :hook (lisp-mode . lsp-deferred)
+  :config
+  (add-to-list 'company-backends '(company-lsp company-dabbrev))
+  :custom
+  (company-lsp-cache-candidates 'auto)
+  (company-lsp-async t)
+  (company-lsp-enable-snippet t)
+  (company-lsp-enable-recompletion t)
   :commands (lsp lsp-deferred)
   ;; :commands lsp
   )
@@ -109,12 +114,23 @@
 (use-package company-fuzzy
   :straight t
   :config
-  (setq company-fuzzy-sorting-backend 'flx)
-  (setq company-fuzzy-prefix-on-top t)
-  (setq company-fuzzy-show-annotation t)
+  (add-to-list 'company-fuzzy-history-backends 'company-yasnippet)
+  :custom
+  (company-fuzzy-sorting-backend 'flx)
+  (company-fuzzy-prefix-on-top t)
+  (company-fuzzy-show-annotation t)
   )
 
+;; Company keybindings
+(add-hook 'company-mode-hook 'company-tng-mode)
+(define-key company-active-map (kbd "TAB") 'company-select-next)
+(define-key company-active-map (kbd "<backtab>") 'company-select-previous)
+(define-key company-active-map (kbd "RET") nil)
+
+
+;; Debugging
 (straight-use-package 'dap-mode)
+
 
 ;; Searching
 ;; TODO: Configure this
@@ -122,6 +138,7 @@
 (ctrlf-mode t)
 
 (straight-use-package 'restart-emacs)
+
 
 ;; EDITOR SETTINGS
 (when (display-graphic-p) ; Start full screen
@@ -642,13 +659,29 @@
  )
 (set-face-foreground 'git-gutter:added "orange")
 
-;; YASnippet
+
+;; Snippets
 (use-package yasnippet
   :straight t
   :init
+  ;; (define-key yas-minor-mode-map "TAB" nil)
+  ;; (define-key yas-minor-mode-map "C-RET" 'yas-next-field-or-maybe-expand)
   )
+
+(setq company-lsp-enable-snippet nil)
+(advice-add 'company-tng--supress-post-completion :override #'ignore)
+
+(define-key yas-minor-mode-map "\M-t" 'yas-expand)
+(define-key yas-keymap "\M-t" 'yas-next-field-or-maybe-expand)
+
+(dolist (keymap (list yas-minor-mode-map yas-keymap))
+  (define-key keymap (kbd "TAB") nil)
+  (define-key keymap [(tab)] nil)
+  )
+
 (yas-global-mode t)
 (straight-use-package 'yasnippet-snippets)
+
 
 ;; PONY FLY KEYS
 (native-compile-async "~/.emacs.d/Pony-Fly-Keys/" 'recursively)
