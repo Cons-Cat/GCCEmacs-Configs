@@ -62,7 +62,7 @@
    :custom
   (company-begin-commands '(self-insert-command))
   (company-require-match nil)
-  (company-idle-delay .1)
+  (company-idle-delay .6)
   (company-minimum-prefix-length 2)
   (company-show-numbers t)
   (company-tooltip-align-annotations t)
@@ -70,7 +70,6 @@
   (company-dabbrev-downcase nil)
   (global-company-mode t)
   )
-;; (add-hook 'after-init-hook 'global-company-mode)
 (add-hook 'prog-mode-hook 'company-mode)
 
 (straight-use-package 'company-posframe)
@@ -119,6 +118,8 @@
   (company-fuzzy-prefix-on-top t)
   (company-fuzzy-show-annotation t)
   )
+
+(
 
 ;; Company keybindings
 (add-hook 'company-mode-hook 'company-tng-mode)
@@ -612,6 +613,14 @@
 (setq ispell-extra-args '("--sug-mode=ultra" "--lang=en_US" "--run-together" "--run-together-limit=16"))
 ;; (setq ispell-extra-args "--run-together")
 ;; emacs -batch -Q -l ~/projs/wucuo/wucuo.el --eval '(let* ((ispell-program-name "aspell") (ispell-extra-args (wucuo-aspell-cli-args t))) (wucuo-spell-check-directory "."))'
+
+;; TODO: Configure this for Org or comments or something.
+;; https://laclefyoshi.hatenablog.com/entry/20150912/langtool_popup
+;; (use-package langtool
+;;   :straight t
+;;   :config
+;;   (setq langtool-default-language "en-US")
+;;   )
 
 
 ;; ORG
