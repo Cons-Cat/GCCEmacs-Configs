@@ -207,7 +207,11 @@
 (setq-default require-final-newline t)
 (add-hook 'org-mode-hook (lambda () (require-final-newline nil)))
 
-(global-visual-line-mode)
+;; This is disabled because it causes Avy to be slow.
+;; This is a known Avy issue. I very much wish I'll be able to
+;; enable it in all modes one day.
+;; (global-visual-line-mode)
+(add-hook 'text-mode 'visual-line-mode)
 
 (use-package super-save
   :straight t
@@ -562,6 +566,54 @@
   )
 
 
+;; Spell Checking
+
+;; (use-package wucuo
+;;   :straight t
+;;   :config
+;;   (setq wucuo-flyspell-start-mode "fast")
+;;   (setq wucuo-spell-check-buffer-predicate
+;;         (lambda ()
+;; 			 (not (memq major-mode
+;; 							'(dired-mode
+;;                        log-edit-mode
+;;                        compilation-mode
+;;                        help-mode
+;;                        profiler-report-mode
+;;                        speedbar-mode
+;;                        gud-mode
+;;                        calc-mode
+;;                        Info-mode))))
+;; 		  )
+;;   )
+
+(use-package flyspell-correct
+  :straight t
+  ;; :bind (:map flyspell-mode-map ("M-c" . flyspell-correct-wrapper))
+  )
+
+(use-package flyspell-correct-popup
+  :straight t
+  :defer t
+  ;; :after flyspell-correct
+  )
+
+(use-package flyspell-correct-avy-menu
+  :straight t
+  :after flyspell-correct
+  )
+;; (defun flyspell-correct-popup-inline-actions (candidates word)
+
+;; (add-hook 'prog-mode-hook #'wucuo-start)
+;; (add-hook 'text-mode-hook #'wucuo-start)
+;; (setq ispell-program-name "enchant-2")
+;; (setq ispell-extra-args '("-a"))
+(setq ispell-program-name "aspell")
+(setq ispell-extra-args '("--sug-mode=ultra" "--lang=en_US" "--run-together" "--run-together-limit=16"))
+;; (setq ispell-extra-args "--run-together")
+;; emacs -batch -Q -l ~/projs/wucuo/wucuo.el --eval '(let* ((ispell-program-name "aspell") (ispell-extra-args (wucuo-aspell-cli-args t))) (wucuo-spell-check-directory "."))'
+
+
 ;; ORG
 (use-package org
   :straight t
@@ -869,8 +921,6 @@
 			("e" bm-remove-all-current-buffer "Remove All")
 			)
 	 )
-
-	("-" grugru)
 	)
 
   (ryo-modal-keys
@@ -898,6 +948,7 @@
 	("b" ctrlf-forward-fuzzy)
 	("B" ctrlf-forward-literal)
 	("," xah-shrink-whitespaces)
+	("-" grugru)
 	)
 
   ;; Buffer management hydra
@@ -1011,6 +1062,15 @@
                  )
             :name "Large Motion"
             )
+
+			  ;; Spellcheck
+			  ("," (
+					  ("t" flyspell-correct-wrapper :name "Suggestions")
+					  ("n" flyspell-correct-next :name "Next")
+					  ("h" flyspell-correct-previous :name "Previous")
+					  )
+				:name "Spell Checking"
+				)
            )
     :name "LEADER"
     )
