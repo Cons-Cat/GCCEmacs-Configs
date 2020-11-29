@@ -45,6 +45,9 @@
 
 (straight-use-package 'treemacs)
 
+;; Projectile
+(straight-use-package 'projectile)
+(projectile-mode t)
 
 ;; Syntax highlighting
 (straight-use-package 'tree-sitter)
@@ -77,7 +80,10 @@
 
 (use-package lsp-mode
   :straight t
-  :hook (lisp-mode . lsp-deferred)
+  :hook
+  (lisp-mode . lsp-deferred)
+  (c-mode-hook . lsp-deferred)
+  (c++-mode-hook . lsp-deferred)
   :config
   (add-to-list 'company-backends '(company-lsp company-dabbrev))
   :custom
@@ -119,7 +125,6 @@
   (company-fuzzy-show-annotation t)
   )
 
-(
 
 ;; Company keybindings
 (add-hook 'company-mode-hook 'company-tng-mode)
@@ -143,17 +148,36 @@
  )
 
 ;; C++
-(add-hook 'c++-mode 'tree-sitter-mode)
+(add-hook 'c-mode-common-hook 'tree-sitter-mode)
+;; (add-hook 'c-mode-common-hook #'lsp)
+
 (use-package company-irony
   :straight t
   :init
   (add-to-list 'company-backends 'company-irony)
   )
+(setq gc-cons-threshold (* 100 1024 1024)
+      read-process-output-max (* 1024 1024)
+      treemacs-space-between-root-nodes nil
+      company-idle-delay 0.0
+      company-minimum-prefix-length 1
+      lsp-idle-delay 0.1 ;; clangd is fast
+      ;; be more ide-ish
+      lsp-headerline-breadcrumb-enable t
+		)
+
+(straight-use-package 'cmake-ide)
 
 ;; MySQL
 (straight-use-package 'exec-path-from-shell)
 (straight-use-package 'emacsql)
 (straight-use-package 'emacsql-mysql)
+
+;;
+(with-eval-after-load 'lsp-mode
+  (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
+  )
+
 
 ;; Searching
 ;; TODO: Configure this
@@ -614,6 +638,12 @@
 ;; (setq ispell-extra-args "--run-together")
 ;; emacs -batch -Q -l ~/projs/wucuo/wucuo.el --eval '(let* ((ispell-program-name "aspell") (ispell-extra-args (wucuo-aspell-cli-args t))) (wucuo-spell-check-directory "."))'
 
+(use-package flyspell-lazy
+  :straight t
+  )
+(add-hook 'flyspell-mode-hook 'flyspell-lazy-mode)
+(add-to-list 'ispell-extra-args "--sug-mode=ultra")
+
 ;; TODO: Configure this for Org or comments or something.
 ;; https://laclefyoshi.hatenablog.com/entry/20150912/langtool_popup
 ;; (use-package langtool
@@ -706,6 +736,25 @@
               (("C-c n I" . org-roam-insert-immediate)))
   )
 
+(use-package company-org-roam
+  ;; :when (featurep! :completion company)
+  :straight t
+  :after org-roam
+  :config
+  ;; (set-company-backend! 'org-mode '(company-org-roam company-yasnippet company-dabbrev))
+  )
+(add-to-list 'company-backends '(company-org-roam))
+
+;; (use-package org-journal
+;;   :straight t
+;;   :config
+;;   (setq org-journal-enable-agenda-integration t)
+;;   :custom
+;;   (org-journal-dir "~/Desktop/03-resources/org-roam/")
+;;   (org-journal-date-prefix "#+TITLE: ")
+;;   (org-journal-file-format "%Y-%m-%d.org")
+;;   (org-journal-date-format "%A, %d %B %Y")
+;;   )
 
 ;; WHICH KEY
 (use-package which-key
@@ -867,69 +916,70 @@
 (use-package ryo-modal
   :straight t
   :commands ryo-modal-mode
-  :bind ("M-SPC" . ryo-modal-mode)
-  :init
-  (global-set-key [backspace] 'ryo-enable)
+  :bind
+  ("M-SPC" . ryo-modal-mode)
+  ("M-TAB" . ryo-modal-mode)
+  ;; :init
+  ;; (global-set-key [escape] 'ryo-enable)
   :config
   (setq ryo-modal-cursor-type t)
   (setq ryo-modal-cursor-color nil)
 
   (ryo-modal-keys
    (:exit t)
-   ("u" ryo-modal-mode :name "Insert Mode")
+   ("t" ryo-modal-mode :name "Insert Mode")
 	)
 
   (ryo-modal-keys
-	("a" execute-extended-command)
+	("r" execute-extended-command)
 	;; Basic navigation controls.
-   ("t" next-logical-line)
-   ("T" next-line)
-	("C-t" selectrum-next-candidate)
-	("c" previous-logical-line)
-   ("C" previous-line)
-	("C-c" selectrum-previous-candidate)
-	("g" backward-char)
-   ("r" forward-char)
-   ("h" pony-move-left-word)
-	("H" syntax-subword-left)
-	("n" pony-move-right-word)
-	("N" syntax-subword-right)
-	("d" xah-beginning-of-line-or-block)
-	("s" xah-end-of-line-or-block)
-	("D" pony-binary-beginning-of-line)
-	("S" pony-binary-end-of-line)
+   ("e" next-logical-line)
+   ("E" next-line)
+	;; ("C-t" selectrum-next-candidate)
+	("o" previous-logical-line)
+   ("O" previous-line)
+	;; ("C-c" selectrum-previous-candidate)
+	("c" backward-char)
+   ("j" forward-char)
+   ("u" pony-move-left-word)
+	("U" syntax-subword-left)
+	("a" pony-move-right-word)
+	("A" syntax-subword-right)
+	("y" xah-beginning-of-line-or-block)
+	("i" xah-end-of-line-or-block)
+	("Y" pony-binary-beginning-of-line)
+	("I" pony-binary-end-of-line)
 
 	;; Basic deletion commands.
-	("e" delete-backward-char)
-	("(" delete-char)
-	("." pony-delete-left-word)
-	(">" subword-backward-kill)
-	("p" pony-delete-right-word)
-	("P" subword-kill)
+	("n" delete-backward-char)
+	("=" delete-char)
+	("h" pony-delete-left-word)
+	("H" subword-backward-kill)
+	("k" pony-delete-right-word)
+	("K" subword-kill)
 
 	;; Commenting
-	("'" comment-line)
+	("x" comment-line)
 
 	;; Selection
-	("*" pony-mark-line)
-	(")" mark-word)
-	("+" xah-select-block)
-	("!" rectangle-mark-mode)
+	("0" pony-mark-line)
+	("(" mark-word)
+	("{" xah-select-block)
+	("[" rectangle-mark-mode)
 
 	;; Multi-cursor
-	("C" mc/mark-previous-like-this)
-	("T" mc/mark-next-like-this)
+	("M-o" mc/mark-previous-like-this)
+	("M-e" mc/mark-next-like-this)
 
 	;; Bookmarks
-	("i" (
+	;; ("p" (
 			;; TODO: Configure bookmarks.
-			("c" bm-previous :name "Bookmark Up")
-			("t" bm-next :name "Bookmark Down")
-			("h" bm-toggle :name "Bookmark Toggle")
-			("." bm-show :name "Bookmark Jump")
-			("e" bm-remove-all-current-buffer "Remove All")
-			)
-	 )
+			;; ("e" bm-next :name "Bookmark Down")
+			;; ("u" bm-toggle :name "Bookmark Toggle")
+			;; ("h" bm-show :name "Bookmark Jump")
+			;; ("N" bm-remove-all-current-buffer "Remove All")
+			;; )
+	 ;; )
 	)
 
   (ryo-modal-keys
@@ -948,56 +998,56 @@
    ("9" "M-9")
 
 	;; Basic operations.
-	("f" undo)
-	("F" undo-redo)
-	("q" kill-region)
-	("j" pony-copy-current-word)
-	("k" yank)
-	("y" pony-toggle-mark)
-	("b" ctrlf-forward-fuzzy)
-	("B" ctrlf-forward-literal)
-	("," xah-shrink-whitespaces)
-	("-" grugru)
+	("m" undo)
+	("M" undo-redo)
+	("b" kill-region)
+	("l" pony-copy-current-word)
+	("d" yank)
+	("v" pony-toggle-mark)
+	("w" ctrlf-forward-fuzzy)
+	("W" ctrlf-forward-literal)
+	("g" xah-shrink-whitespaces)
+	("2" grugru)
 	)
 
   ;; Buffer management hydra
   (ryo-modal-keys
 	;; ("SPC" (
 	;; ("SPC g" :hydra
-	("w" :hydra
+	("q" :hydra
 		  ;; ("SPC g" :hydra
 		  '(hydra-buffer (:color red)
 			 "Buffer Hydra"
-			 ("t" split-window-below "Split Vertically")
-			 ("n" split-window-right "Split Rightward")
-			 ("M-t" buf-move-down "Swap Down")
-			 ("M-c" buf-move-up "Swap Up")
-			 ("M-n" buf-move-right "Swap Right")
-			 ("M-h" buf-move-left "Swap Left")
-			 ("T" windmove-down "Focus Down")
-			 ("C" windmove-up "Focus Up")
-			 ("H" windmove-left "Focus Left")
-			 ("N" windmove-right "Focus Right")
-			 ("e" delete-window "Kill")
-			 ("(" ace-delete-window "Kill Other")
-			 ("w" ace-delete-other-windows "Kill All Except")
-			 ("p" switch-to-buffer "Switch")
+			 ("e" split-window-below "Split Vertically")
+			 ("a" split-window-right "Split Rightward")
+			 ("M-e" buf-move-down "Swap Down")
+			 ("M-o" buf-move-up "Swap Up")
+			 ("M-a" buf-move-right "Swap Right")
+			 ("M-u" buf-move-left "Swap Left")
+			 ("E" windmove-down "Focus Down")
+			 ("O" windmove-up "Focus Up")
+			 ("U" windmove-left "Focus Left")
+			 ("A" windmove-right "Focus Right")
+			 ("n" delete-window "Kill")
+			 ("=" ace-delete-window "Kill Other")
+			 ("q" ace-delete-other-windows "Kill All Except")
+			 ("k" switch-to-buffer "Switch")
 
 			 ;; Resizing
-			 (">" enlarge-window :name "Grow Vert")
-			 ("E" shrink-window :name "Shrink Vert")
-			 ("U" enlarge-window-horizontally :name "Grow Hor")
-			 ("O" shrink-window-horizontally :name "Shrink Hor")
-			 ("," balance-windows)
+			 ("H" enlarge-window :name "Grow Vert")
+			 ("N" shrink-window :name "Shrink Vert")
+			 ("T" enlarge-window-horizontally :name "Grow Hor")
+			 ("S" shrink-window-horizontally :name "Shrink Hor")
+			 ("g" balance-windows)
 			 ;; TODO: Configure IBuffer commands.
-			 ("." ibuffer "IBuffer")
+			 ("h" ibuffer "IBuffer")
 			 ("<BACKSPACE>" nil "Cancel" :color blue)
 			 )
 		  )
 
 	;; Multi-cursor bindings
 	;; TODO: This would be better as
-	;; "!" when a selection exists.
+	;; "2" when a selection exists.
 	("_" (
 			("e" mc/edit-lines)
 			("d" mc/edit-beginnings-of-lines)
@@ -1011,13 +1061,13 @@
   (ryo-modal-keys
 	;; Leader key
 	("SPC" (
-			  ("a" mark-whole-buffer "Select All")
-			  ("b" exchange-point-and-mark "Exchange Point and Mark")
-			  ("d" beginning-of-buffer "Buffer Start")
-			  ("s" end-of-buffer "Buffer End")
+			  ("r" mark-whole-buffer "Select All")
+			  ("w" exchange-point-and-mark "Exchange Point and Mark")
+			  ("y" beginning-of-buffer "Buffer Start")
+			  ("i" end-of-buffer "Buffer End")
 
 			  ;; Inserts
-			  ("e" (
+			  ("n" (
 					  ;; TODO: Consider company-yasnippet
 					  ("e" yas-insert-snippet :name "Snippet")
 					  ("h" xah-insert-brace :name "{}")
@@ -1026,7 +1076,7 @@
 					  ("g" xah-insert-ascii-double-quote :name "\"\"")
 					  ("c" xah-insert-ascii-double-quote :name "\'\'")
 					  ("r" pony-insert-region-pair :name "Region")
-					  ("!" (
+					  ("2" (
 							  ("t" mc/insert-numbers)
 							  ("h" mc/insert-letters)
 							  ("n" mc/sort-regions)
@@ -1039,44 +1089,44 @@
 				)
 
 			  ;; File Management
-			  ("c" (
-                 ("s" save-buffer :name "Save Buffer")
-                 ("o" write-file :name "Save As")
-                 ("," dired :name "Dired Path")
-					  ("." dired-jump :name "Dired")
-                 ("a" magit-status :name "Git")
-					  (";" xah-show-in-desktop :name "Explorer")
+			  ("o" (
+                 ("i" save-buffer :name "Save Buffer")
+                 ("s" write-file :name "Save As")
+                 ("g" dired :name "Dired Path")
+					  ("h" dired-jump :name "Dired")
+                 ("r" magit-status :name "Git")
+					  ("x" xah-show-in-desktop :name "Explorer")
 					  ;; ("h" recentf-open-files :name "Open Recent")
-					  ("n" xah-new-empty-buffer :name "New File")
-					  ("p" xah-open-last-closed :name "Open Last Closed")
-					  ("f" xah-open-recently-closed :name "Open Recent Closed")
-					  ("d" eval-dwim :name "Evaluate")
+					  ("a" xah-new-empty-buffer :name "New File")
+					  ("m" xah-open-last-closed :name "Open Last Closed")
+					  ("v" xah-open-recently-closed :name "Open Recent Closed")
+					  ("y" eval-dwim :name "Evaluate")
                  )
             :name "File"
             )
 
 			  ;; Large Motions
-           ("t" (
-                 ("n" scroll-up :name "Page Down")
-                 ("N" zz-scroll-half-page-down :name "Half-Page Down")
+           ("e" (
+                 ("a" scroll-up :name "Page Down")
+                 ("A" zz-scroll-half-page-down :name "Half-Page Down")
                  ;; g can be used for scroll without moving cursor
-                 ("h" scroll-down :name "Page Up")
-                 ("H" zz-scroll-half-page-up :name "Half-Page Down")
+                 ("u" scroll-down :name "Page Up")
+                 ("U" zz-scroll-half-page-up :name "Half-Page Down")
                  ;; r can be used for scroll without moving cursor
-                 ("u" recenter-top-bottom :name "Recenter Point")
-                 ("e" move-to-window-line-top-bottom :name "Point at Center")
-					  ("b" kill-this-buffer :name "Kill This Buffer")
-					  ("." avy-goto-line :name "Line Jump")
-                 ("p" avy-goto-word-1 :name "Word Jump")
+                 ("n" recenter-top-bottom :name "Recenter Point")
+                 ("t" move-to-window-line-top-bottom :name "Point at Center")
+					  ("f" kill-this-buffer :name "Kill This Buffer")
+					  ("h" avy-goto-line :name "Line Jump")
+                 ("k" avy-goto-word-1 :name "Word Jump")
                  )
             :name "Large Motion"
             )
 
 			  ;; Spellcheck
-			  ("," (
-					  ("t" flyspell-correct-wrapper :name "Suggestions")
-					  ("n" flyspell-correct-next :name "Next")
-					  ("h" flyspell-correct-previous :name "Previous")
+			  ("g" (
+					  ("h" flyspell-correct-wrapper :name "Suggestions")
+					  ("e" flyspell-correct-next :name "Next")
+					  ("o" flyspell-correct-previous :name "Previous")
 					  )
 				:name "Spell Checking"
 				)
@@ -1088,37 +1138,37 @@
   (ryo-modal-keys
 	;; Dired Mode
 	(:norepeat t :mode 'dired-mode)
-	("j" dired-do-copy)
-	("." dired-alternate-up)
-	("y" dired-mark)
-	("Y" dired-unmark)
-	("c" dired-previous-line)
-	("t" dired-next-line)
-	("n" dired-next-dirline)
-	("h" dired-prev-dirline)
-	("b" find-name-dired)
-	("'" dired-omit-mode :name "Hide Details")
-	("e" dired-do-delete)
+	("l" dired-do-copy)
+	("h" dired-alternate-up)
+	("m" dired-mark)
+	("M" dired-unmark)
+	("o" dired-previous-line)
+	("e" dired-next-line)
+	("a" dired-next-dirline)
+	("u" dired-prev-dirline)
+	("w" find-name-dired)
+	("x" dired-omit-mode :name "Hide Details")
+	("n" dired-do-delete)
 	("SPC" (
-			  ("i" dired-do-rename)
+			  ("p" dired-do-rename)
 			  ("," dired-do-compress-to)
-			  ("<" dired-do-compress)
-			  ("y" dired-unmark-all-marks :name "Unmark All")
-			  ("." dired-posframe-toggle)
-			  ("'" dired-mark-omitted :name "Omit")
-			  ("c" (
-					  ("n" find-file :name "Create File")
-					  ("t" dired-create-directory :name "Create Directory")
+			  ("G" dired-do-compress)
+			  ("m" dired-unmark-all-marks :name "Unmark All")
+			  ("h" dired-posframe-toggle)
+			  ("x" dired-mark-omitted :name "Omit")
+			  ("o" (
+					  ("a" find-file :name "Create File")
+					  ("e" dired-create-directory :name "Create Directory")
 			 		  )
 				)
-			  ("t" (
-					  ("." dired-do-load :name "Load Elisp")
-					  ("b" quit-window :name "Close Dired")
+			  ("e" (
+					  ("h" dired-do-load :name "Load Elisp")
+					  ("w" quit-window :name "Close Dired")
 					  )
 				)
-			  ("b" (
-					  ("." dired-mark-extension)
-					  ("b" dired-do-find-regexp)
+			  ("w" (
+					  ("h" dired-mark-extension)
+					  ("w" dired-do-find-regexp)
 					  )
 				;; :name "Finding"
 				)
@@ -1129,8 +1179,8 @@
   (ryo-modal-keys
 	;; Org Mode
 	(:mode 'org-mode)
-	("'" (
-			("u" org-table-create)
+	("x" (
+			("t" org-table-create)
 			)
 	 :name "Table"
 	 )
