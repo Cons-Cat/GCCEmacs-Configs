@@ -70,7 +70,7 @@
   (company-show-numbers t)
   (company-tooltip-align-annotations t)
   (company-idle-delay 0)
-  (company-dabbrev-downcase nil)
+  ;; (company-dabbrev-downcase nil)
   (global-company-mode t)
   )
 (add-hook 'prog-mode-hook 'company-mode)
@@ -586,7 +586,18 @@
 
 
 ;; Avy
-(straight-use-package 'avy)
+(use-package avy
+  :straight t
+  :init
+  (setq
+   avy-keys
+   '(
+     ?t ?u ?n ?e ?s ?a ?r ?i  ;; 'power eight': can type them without any movement of the hand.
+     ?h ?o ?k ?c ?g ?j ?p ?y ;; close to home rows; no pinkes
+     ?d ?f ?l ?q ?b ?\,
+     ;; ?z ?\_ ?m ?v ;; diagonals, pinkie moves
+	  ))
+  )
 
 
 ;; Word Rotation
@@ -859,13 +870,13 @@
 ;; Hydra
 (straight-use-package 'hydra)
 
-;; Chords
-(straight-use-package 'key-chord)
-(key-chord-define selectrum-minibuffer-map "ut" 'selectrum-next-candidate)
-(key-chord-define selectrum-minibuffer-map "uc" 'selectrum-previous-candidate)
-(key-chord-define selectrum-minibuffer-map "us" 'selectrum-next-page)
-(key-chord-define selectrum-minibuffer-map "ud" 'selectrum-previous-page)
-(key-chord-mode t)
+;; ;; Chords
+;; (straight-use-package 'key-chord)
+;; (key-chord-define selectrum-minibuffer-map "ut" 'selectrum-next-candidate)
+;; (key-chord-define selectrum-minibuffer-map "uc" 'selectrum-previous-candidate)
+;; (key-chord-define selectrum-minibuffer-map "us" 'selectrum-next-page)
+;; (key-chord-define selectrum-minibuffer-map "ud" 'selectrum-previous-page)
+;; (key-chord-mode t)
 
 ;; Multi Cursors
 (straight-use-package 'multiple-cursors)
@@ -919,6 +930,10 @@
   )
 
 ;; Keybindings.
+;; TODO: This does not work:
+(global-unset-key "\C-n")
+(global-set-key "\C-n" 'keyboard-quit)
+
 (use-package ryo-modal
   :straight t
   :commands ryo-modal-mode
@@ -1112,7 +1127,8 @@
 
 			  ;; Frames
 			  ("j" (
-					  ("a" make-frame :name "New Frame")
+					  ("a" view-buffer-other-frame :name "New Frame")
+					  ("s" make-frame :name "Duplicate Frame")
 					  ("h" other-frame :name "Other Frame")
 					  )
 				)
