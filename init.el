@@ -69,7 +69,7 @@
   (company-minimum-prefix-length 2)
   (company-show-numbers t)
   (company-tooltip-align-annotations t)
-  (company-idle-delay 0)
+  ;; (company-idle-delay 0)
   ;; (company-dabbrev-downcase nil)
   (global-company-mode t)
   )
@@ -149,7 +149,7 @@
 
 ;; C++
 (add-hook 'c-mode-common-hook 'tree-sitter-mode)
-;; (add-hook 'c-mode-common-hook #'lsp)
+;; (add-hook 'c-mode-common-hook #'lsp
 
 (use-package company-irony
   :straight t
@@ -467,7 +467,7 @@
   (sublimity-mode t)
   )
 (require 'sublimity-scroll)
-(setq sublimity-scroll-weight 12
+(setq sublimity-scroll-weight 2
 		sublimity-scroll-drift-length 2
 		)
 
