@@ -62,7 +62,7 @@
   :hook (company-mode . company-box-mode)
   :config
   (add-to-list 'company-backends '(company-files company-dabbrev))
-   :custom
+  :custom
   (company-begin-commands '(self-insert-command))
   (company-require-match nil)
   (company-idle-delay .6)
@@ -173,7 +173,13 @@
 (straight-use-package 'emacsql)
 (straight-use-package 'emacsql-mysql)
 
-;;
+;; ;; HLSL
+;; ;;(straight-use-package 'hlsl-mode)
+;; (use-package hlsl-mode
+;;   ;; :straight t
+;;   :load-path "~/.emacs.d/hlsl/hlsl-mode.el"
+;;   )
+
 (with-eval-after-load 'lsp-mode
   (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
   )
@@ -917,8 +923,9 @@
   :straight t
   :commands ryo-modal-mode
   :bind
-  ("M-SPC" . ryo-modal-mode)
-  ("M-TAB" . ryo-modal-mode)
+  ("M-SPC" . ryo-enable)
+  ("C-SPC" . ryo-enable)
+  ("S-SPC" . ryo-enable)
   ;; :init
   ;; (global-set-key [escape] 'ryo-enable)
   :config
@@ -962,7 +969,7 @@
 	("x" comment-line)
 
 	;; Selection
-	("0" pony-mark-line)
+	("|" pony-mark-line)
 	("(" mark-word)
 	("{" xah-select-block)
 	("[" rectangle-mark-mode)
@@ -1041,7 +1048,7 @@
 			 ("g" balance-windows)
 			 ;; TODO: Configure IBuffer commands.
 			 ("h" ibuffer "IBuffer")
-			 ("<BACKSPACE>" nil "Cancel" :color blue)
+			 ("<ESCAPE>" nil "Cancel" :color blue)
 			 )
 		  )
 
@@ -1063,24 +1070,22 @@
 	("SPC" (
 			  ("r" mark-whole-buffer "Select All")
 			  ("w" exchange-point-and-mark "Exchange Point and Mark")
-			  ("y" beginning-of-buffer "Buffer Start")
-			  ("i" end-of-buffer "Buffer End")
 
 			  ;; Inserts
 			  ("n" (
 					  ;; TODO: Consider company-yasnippet
-					  ("e" yas-insert-snippet :name "Snippet")
-					  ("h" xah-insert-brace :name "{}")
-					  ("t" xah-insert-paren :name "()")
-					  ("n" xah-insert-square-bracket :name "[]")
-					  ("g" xah-insert-ascii-double-quote :name "\"\"")
+					  ("n" yas-insert-snippet :name "Snippet")
+					  ("u" xah-insert-brace :name "{}")
+					  ("e" xah-insert-paren :name "()")
+					  ("a" xah-insert-square-bracket :name "[]")
+					  ("o" xah-insert-ascii-double-quote :name "\"\"")
 					  ("c" xah-insert-ascii-double-quote :name "\'\'")
-					  ("r" pony-insert-region-pair :name "Region")
-					  ("2" (
-							  ("t" mc/insert-numbers)
-							  ("h" mc/insert-letters)
-							  ("n" mc/sort-regions)
-							  ("s" mc/reverse-regions)
+					  ("j" pony-insert-region-pair :name "Region")
+					  ("i" (
+							  ("e" mc/insert-numbers)
+							  ("u" mc/insert-letters)
+							  ("j" mc/sort-regions)
+							  ("a" mc/reverse-regions)
 							  )
 						:name "Multi-Cursor"
 						)
@@ -1100,10 +1105,17 @@
 					  ("a" xah-new-empty-buffer :name "New File")
 					  ("m" xah-open-last-closed :name "Open Last Closed")
 					  ("v" xah-open-recently-closed :name "Open Recent Closed")
-					  ("y" eval-dwim :name "Evaluate")
+					  ("u" eval-dwim :name "Evaluate")
                  )
             :name "File"
             )
+
+			  ;; Frames
+			  ("j" (
+					  ("a" make-frame :name "New Frame")
+					  ("h" other-frame :name "Other Frame")
+					  )
+				)
 
 			  ;; Large Motions
            ("e" (
@@ -1118,6 +1130,8 @@
 					  ("f" kill-this-buffer :name "Kill This Buffer")
 					  ("h" avy-goto-line :name "Line Jump")
                  ("k" avy-goto-word-1 :name "Word Jump")
+					  ("y" beginning-of-buffer "Buffer Start")
+					  ("i" end-of-buffer "Buffer End")
                  )
             :name "Large Motion"
             )
@@ -1185,18 +1199,26 @@
 	 :name "Table"
 	 )
 
+	("TAB" org-todo)
+	("M-o" org-move-subtree-up)
+	("M-e" org-move-subtree-down)
+
 	("SPC" (
-			  ("n" org-do-demote)
-			  ("h" org-do-promote)
-			  ("TAB" org-todo :name "Toggle TODO")
-			  ("u" (
-					  ("n" org-insert-todo-subheading)
-					  ("t" org-insert-todo-heading)
+			  ("a" org-do-demote)
+			  ("u" org-do-promote)
+			  ("i" org-forward-heading-same-level)
+			  ("y" org-backward-heading-same-level)
+			  ("TAB" org-cycle)
+			  ("t" (
+					  ("a" org-insert-todo-subheading)
+					  ("e" org-insert-todo-heading)
 					  )
+				:name "TODOs"
 				)
-			  ("e" (
-					  ("n" org-insert-subheading)
-					  ("t" org-insert-heading)
+			  ;; TODO: This should be "n".
+			  ("s" (
+					  ("a" org-insert-subheading)
+					  ("e" org-insert-heading)
 					  )
 				)
 			  ("SPC" (
