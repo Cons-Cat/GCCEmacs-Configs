@@ -92,6 +92,10 @@
 (straight-use-package 'company-posframe)
 (straight-use-package 'company-box)
 
+;; Formatting
+(straight-use-package 'format-all)
+(add-hook 'prog-mode-hook 'format-all-mode)
+
 (use-package lsp-mode
   :straight t
   :hook
@@ -179,9 +183,9 @@
       lsp-headerline-breadcrumb-enable t
 		)
 
-;(sp-local-pair 'c++-mode "/*" "*/" :post-handlers '((" | " "SPC")
-;                                                    ("* ||\n[i]" "RET"))
-;					)
+													 ;(sp-local-pair 'c++-mode "/*" "*/" :post-handlers '((" | " "SPC")
+													 ;                                                    ("* ||\n[i]" "RET"))
+													 ;					)
 ;; (straight-use-package 'cmake-ide)
 
 ;; MySQL
@@ -206,12 +210,12 @@
   (sp-local-pair "'" nil :actions nil))
 
 (defun my-add-space-after-sexp-insertion (id action _context)
-	(when (eq action 'insert)
-     (save-excursion
-       (forward-char (sp-get-pair id :cl-l))
-       (when (or (eq (char-syntax (following-char)) ?w)
-                 (looking-at (sp--get-opening-regexp)))
-			(insert " ")))))
+  (when (eq action 'insert)
+    (save-excursion
+      (forward-char (sp-get-pair id :cl-l))
+      (when (or (eq (char-syntax (following-char)) ?w)
+                (looking-at (sp--get-opening-regexp)))
+		  (insert " ")))))
 
 (defun my-add-space-before-sexp-insertion (id action _context)
   (when (eq action 'insert)
@@ -242,31 +246,27 @@
 
 
 ;; EDITOR SETTINGS
-(when (display-graphic-p) ; Start full screen
-  (add-to-list 'default-frame-alist '(fullscreen . t))
-  (x-focus-frame nil)
-  )
+;; (when (display-graphic-p) ; Start full screen
+;; (add-to-list 'default-frame-alist '(fullscreen . t))
+;; (x-focus-frame nil)
+;; )
+
 (setq inhibit-splash-screen t)
+(add-hook 'emacs-startup-hook 'dired-jump)
 
 ;; Make frame borderless.
 ;; (setq default-frame-alist '((undecorated . t)))
 ;; (add-to-list 'default-frame-alist '(drag-internal-border . 1))
 ;; (add-to-list 'default-frame-alist '(internal-border-width . 5))
 
-(setq-default frame-title-format "%b (%f)")
-(setq electric-pair-pairs '(
-                            (?\{ . ?\})
-                            (?\( . ?\))
-                            (?\[ . ?\])
-                            (?\" . ?\")
-                            )
-		)
+(setq-default frame-title-format "Emacs %b (%f)")
 
 (use-package hungry-delete
   :straight t
   :config
   (global-hungry-delete-mode)
   )
+;; (straight-use-package 'duplicate-thing)
 
 (straight-use-package 'syntax-subword)
 (global-syntax-subword-mode t)
@@ -279,9 +279,14 @@
 
 (setq-default
  tab-width 3
-  )
+ )
 
-(add-hook 'before-save-hook #'delete-trailing-whitespace)
+;; Comments
+(straight-use-package 'banner-comment)
+(straight-use-package 'smart-comment)
+(straight-use-package 'nocomments-mode)
+
+;; (add-hook 'before-save-hook #'delete-trailing-whitespace)
 (setq-default require-final-newline t)
 (add-hook 'org-mode-hook (lambda () (require-final-newline nil)))
 
@@ -291,16 +296,15 @@
 ;; (global-visual-line-mode)
 (add-hook 'text-mode 'visual-line-mode)
 
-(use-package super-save
-  :straight t
-  :config
-  (super-save-mode t)
-  )
+;; (use-package super-save
+;;   :straight t
+;;   :config
+;;   (super-save-mode t)
+;;   )
 
 (use-package embark
   :straight (:host github :repo "oantolin/embark"
-						 :branch "master")
-  )
+						 :branch "master"))
 
 ;; MODELINE
 (straight-use-package 'all-the-icons)
@@ -314,8 +318,7 @@
   :straight t
   :demand t
   :config
-  (require 'spaceline-config)
-  )
+  (require 'spaceline-config))
 
 (use-package spaceline-all-the-icons
   :straight t
@@ -363,39 +366,34 @@
 (when (graphic-p)
   ;;  transparent frame
   (add-to-list 'default-frame-alist'(ns-transparent-titlebar . t))
-  (add-to-list 'default-frame-alist'(alpha . (95 . 89)))
-  )
+  (add-to-list 'default-frame-alist'(alpha . (95 . 89))))
 
 ;; Font
 (add-hook 'prog-mode 'font-lock-mode)
 (set-face-attribute 'default nil
 						  :family "Fira Code"
 						  :weight 'SemiBold
-						  :height 90
-						  )
+						  :height 90)
 
 (set-face-attribute 'font-lock-comment-face nil
 						  :family "Liga OperatorMono Nerd Font"
 						  :weight 'Light
 						  :height 90
-						  :slant 'italic
-						  )
+						  :slant 'italic)
+
 (set-face-attribute 'font-lock-keyword-face nil
 						  :family "Fira Code"
-						  :weight 'Bold
-						  )
+						  :weight 'Bold)
 
 (set-face-attribute 'variable-pitch nil
 						  :family "Input Serif Compressed"
 						  :weight 'Medium
-						  :height 100
-						  )
+						  :height 100)
 
 (set-face-attribute 'fixed-pitch nil
 						  :family "Fira Code"
 						  :weight 'SemiBold
-						  :height 90
-						  )
+						  :height 90)
 
 ;; Change font size by monitor.
 (defun fontify-frame ()
@@ -404,8 +402,8 @@
   (progn
 	 ;; (if (eq (x-display-pixel-width) 1920)
     (if (equal 'x-display-pixel-width 1920)
-	 ;; (if (eq x-display-name "172.22.192.1:0.0")
-	 ;; (if (eq (display-monitor-attributes-list . )
+		  ;; (if (eq x-display-name "172.22.192.1:0.0")
+		  ;; (if (eq (display-monitor-attributes-list . )
 		  (progn
 			 ;; Laptop
           (set-frame-parameter (selected-frame) 'font "Fira Code 10")
@@ -419,9 +417,7 @@
 				  (message "On Monitor")
 				  )
 			 (progn
-				(message "Failed"))))))
-  ;; )
-  )
+				(message "Failed")))))))
 
 ;; Fontify current frame
 ;; (fontify-frame nil)
@@ -493,25 +489,24 @@
   ;; This backend is faster, but its faces do not work.
   (setq linum-relative-backend 'display-line-numbers-mode)
   (setq linum-relative-current-symbol "")
-  (linum-relative-global-mode t)
-  )
+  (linum-relative-global-mode nil))
 
-(use-package yascroll
-  :straight t
-  )
-(setq yascroll:delay-to-hide 9.0)
-(global-yascroll-bar-mode t)
-(setq scroll-preserve-screen-position t)
+;; (use-package yascroll
+;;   :straight t)
 
-(use-package sublimity
-  :straight t
-  :init
-  (sublimity-mode t)
-  )
-(require 'sublimity-scroll)
-(setq sublimity-scroll-weight 2
-		sublimity-scroll-drift-length 2
-		)
+;; (setq yascroll:delay-to-hide 9.0)
+;; (global-yascroll-bar-mode t)
+;; (setq scroll-preserve-screen-position t)
+
+;; (use-package sublimity
+;;   :straight t
+;;   :init
+;;   (sublimity-mode t)
+;;   )
+;; (require 'sublimity-scroll)
+;; (setq sublimity-scroll-weight 2
+;; 		sublimity-scroll-drift-length 2
+;; 		)
 
 (setq x-stretch-cursor t)
 (setq cursor-in-non-selected-windows nil)
@@ -551,8 +546,8 @@
 
 (straight-use-package 'dired-git)
 (add-hook 'dired-mode-hook 'dired-git-mode)
-(setq initial-buffer-choice "~/.emacs.d/")
-(add-hook 'emacs-startup-hook #'dired-jump)
+;; (setq initial-buffer-choice "~/.emacs.d/")
+;; (add-hook 'after-init-hook 'dired-jump)
 
 ;; TODO: Replace this with RYO bindings.
 (define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file)
@@ -570,15 +565,10 @@
 		  (message "NORMAL MODE")
 
 		  (if (region-active-p)
-				(keyboard-quit)
-			 )
-		  )
+				(keyboard-quit)))
 	 (progn
 		(setq cursor-type (cons 'bar 2))
-		(message "INSERT MODE")
-		)
-	 )
-  )
+		(message "INSERT MODE"))))
 
 (defun pony-toggle-mark ()
   (interactive)
@@ -591,10 +581,7 @@
 	 (progn
 		(set-mark (point))
 		(setq cursor-type 'hbox)
-		(message "Selecting")
-		)
-	 )
-  )
+		(message "Selecting"))))
 
 (defun dired-posframe-toggle ()
   (interactive)
@@ -602,30 +589,38 @@
 		(progn
 		  (setq dired-posframe-mode nil)
 		  (dired-posframe-teardown)
-		  (message "Posframe Disabled")
-		  )
+		  (message "Posframe Disabled"))
 	 (progn
 		(setq dired-posframe-mode t)
 		(dired-posframe-setup)
 		(dired-posframe-show)
-		(message "Posframe Enabled")
-		)
-	 )
-  )
+		(message "Posframe Enabled"))))
 
 (defun dired-alternate-up ()
   (interactive)
-  (find-alternate-file "..")
-  )
+  (find-alternate-file ".."))
 
 (defun eval-dwim ()
   (interactive)
   (if (region-active-p)
 		(eval-region (region-beginning) (region-end))
-	 (eval-buffer)
-	 )
+	 (eval-buffer)))
+
+(defun dupl-down ()
+  (interactive)
+  (setq $s (buffer-substring-no-properties (line-beginning-position) (line-end-position)))
+  (end-of-line)
+  (newline)
+  (insert $s)
   )
 
+(defun temp-comment ()
+  (interactive)
+  (dupl-down)
+  (previous-logical-line)
+  (comment-line 1)
+  (end-of-line)
+  )
 
 ;; Avy
 (use-package avy
@@ -638,16 +633,14 @@
      ?h ?o ?k ?c ?g ?j ?p ?y ;; close to home rows; no pinkes
      ?d ?f ?l ?q ?b ?\,
      ;; ?z ?\_ ?m ?v ;; diagonals, pinkie moves
-	  ))
-  )
+	  )))
 
 
 ;; Word Rotation
 (use-package grugru
   :straight t
   :init
-  (grugru-default-setup)
-  )
+  (grugru-default-setup))
 
 
 ;; Spell Checking
@@ -684,8 +677,7 @@
 
 (use-package flyspell-correct-avy-menu
   :straight t
-  :after flyspell-correct
-  )
+  :after flyspell-correct)
 ;; (defun flyspell-correct-popup-inline-actions (candidates word)
 
 ;; (add-hook 'prog-mode-hook #'wucuo-start)
@@ -697,9 +689,7 @@
 ;; (setq ispell-extra-args "--run-together")
 ;; emacs -batch -Q -l ~/projs/wucuo/wucuo.el --eval '(let* ((ispell-program-name "aspell") (ispell-extra-args (wucuo-aspell-cli-args t))) (wucuo-spell-check-directory "."))'
 
-(use-package flyspell-lazy
-  :straight t
-  )
+(straight-use-package 'flyspell-lazy)
 (add-hook 'flyspell-mode-hook 'flyspell-lazy-mode)
 (add-to-list 'ispell-extra-args "--sug-mode=ultra")
 
@@ -720,10 +710,8 @@
 	org-src-fontify-natively t
 	org-hide-emphasis-markers t
 	org-pretty-entities t
-	org-pretty-entities-include-sub-superscripts t
-  )
-  (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
-  )
+	org-pretty-entities-include-sub-superscripts t)
+  (add-to-list 'auto-mode-alist '("\\.org$" . org-mode)))
 
 (use-package org-bullets
   :straight t
@@ -732,16 +720,15 @@
   (setq org-bullets-bullet-list
         '("◎" "⚫" "○" "►" "◇"))
   :config
-  (add-hook 'org-mode-hook (lambda () (org-bullets-mode t)))
-  )
+  (add-hook 'org-mode-hook (lambda () (org-bullets-mode t))))
 
 (add-hook 'org-mode-hook 'variable-pitch-mode)
 
 ;; Org Babel
 ;; (org-babel-do-load-languages
- ;; 'org-babel-load-languages
- ;; '((mysql . t))
- ;; )
+;; 'org-babel-load-languages
+;; '((mysql . t))
+;; )
 
 ;; (set-face-attribute 'org-code nil :inherit 'fixed-pitch)
 ;; (set-face-attribute 'org-table nil :inherit 'fixed-pitch)
@@ -775,9 +762,7 @@
         ("HIGH" . (:foreground "darkgreen" :background "honeydew" :weight bold :box (:line-width -1)))
 		  ("TODO" . (:foreground "black" :background "snow" :weight bold :box (:line-width -1)))
         ("DONE" . org-done)
-        ("WONTFIX" . org-done)
-		  )
-		)
+        ("WONTFIX" . org-done)))
 
 (executable-find "sqlite3")
 (use-package org-roam
@@ -792,8 +777,7 @@
                ("C-c n g" . org-roam-graph))
               :map org-mode-map
               (("C-c n i" . org-roam-insert))
-              (("C-c n I" . org-roam-insert-immediate)))
-  )
+              (("C-c n I" . org-roam-insert-immediate))))
 
 (use-package company-org-roam
   ;; :when (featurep! :completion company)
@@ -820,8 +804,8 @@
   :straight t
   :custom
   (which-key-setup-side-window-bottom)
-  (which-key-enable-extended-define-key t)
-  )
+  (which-key-enable-extended-define-key t))
+
 (push '((nil . "ryo:.*:") . (nil . "")) which-key-replacement-alist)
 (setq which-key-idle-delay 0.1)
 (setq which-key-prefix-prefix "")
@@ -864,8 +848,8 @@
  '(git-gutter:window-width 1)
  '(git-gutter:modified-sign " ")
  '(git-gutter:added-sign "|")
- '(git-gutter:deleted-sign " ")
- )
+ '(git-gutter:deleted-sign " "))
+
 (set-face-foreground 'git-gutter:added "orange")
 
 
@@ -902,9 +886,7 @@
 (add-hook 'markdown-mode-hook 'turn-on-smartparens-strict-mode)
 (straight-use-package 'comment-or-uncomment-sexp)
 
-(use-package embrace
-  :straight t
-  )
+(straight-use-package 'embrace)
 (add-hook 'prog-mode-hook
 			 (lambda ()
 			   (embrace-add-pair ?e "(" ")")
@@ -930,19 +912,10 @@
 ;; I'm using some of Xah's utilities rn.
 ;; (straight-use-package 'xah-fly-keys)
 (use-package xah-fly-keys
-  :straight t
-  )
+  :straight t)
 
 ;; Hydra
 (straight-use-package 'hydra)
-
-;; ;; Chords
-;; (straight-use-package 'key-chord)
-;; (key-chord-define selectrum-minibuffer-map "ut" 'selectrum-next-candidate)
-;; (key-chord-define selectrum-minibuffer-map "uc" 'selectrum-previous-candidate)
-;; (key-chord-define selectrum-minibuffer-map "us" 'selectrum-next-page)
-;; (key-chord-define selectrum-minibuffer-map "ud" 'selectrum-previous-page)
-;; (key-chord-mode t)
 
 ;; Multi Cursors
 (straight-use-package 'multiple-cursors)
@@ -966,9 +939,8 @@
   (add-hook 'find-file-hooks 'bm-buffer-restore)
   (add-hook 'kill-buffer-hook #'bm-buffer-save)
   (add-hook 'kill-emacs-hook #'(lambda nil
-                                (bm-buffer-save-all)
-                                (bm-repository-save)
-										  ))
+											(bm-buffer-save-all)
+											(bm-repository-save)))
   (add-hook 'after-save-hook #'bm-buffer-save)
   (add-hook 'after-revert-hook #'bm-buffer-restore)
   (add-hook 'vc-before-checkin-hook #'bm-buffer-save)
@@ -976,12 +948,10 @@
   ;; Currently, fringe-bitmap 'bm-marker is non-configable.
   (setq bm-marker 'bm-marker-left
         bm-recenter t
-        bm-highlight-style 'bm-highlight-only-fringe
-		  )
+        bm-highlight-style 'bm-highlight-only-fringe)
   ;; These are not working.
-  (add-hook 'bm-show-mode-hook #'ryo-enable)
-  (add-hook 'bm-show-mode-hook #'hl-line-mode)
-  )
+  (add-hook 'bm-show-mode-hook 'ryo-enable)
+  (add-hook 'bm-show-mode-hook 'hl-line-mode))
 (add-hook 'bookmark-bmenu-mode-hook 'ryo-enable)
 
 ;; MODAL EDITING
@@ -989,11 +959,9 @@
 (defun ryo-enable ()
   (interactive)
   (unless ryo-modal-mode
-	 (ryo-modal-mode)
-	 )
+	 (ryo-modal-mode))
   (ryo-cursor-update)
-  (selected-off)
-  )
+  (selected-off))
 
 ;; Keybindings.
 ;; TODO: This does not work:
@@ -1015,8 +983,7 @@
 
   (ryo-modal-keys
    (:exit t)
-   ("t" ryo-modal-mode :name "Insert Mode")
-	)
+   ("t" ryo-modal-mode :name "Insert Mode"))
 
   (ryo-modal-keys
 	("r" execute-extended-command)
@@ -1059,6 +1026,7 @@
 	("{" xah-select-block)
 	("[" rectangle-mark-mode)
 	(")" mark-sexp)
+	("+" mark-whole-buffer :name "Select All")
 
 	;; Multi-cursor
 	("M-o" mc/mark-previous-like-this)
@@ -1066,13 +1034,13 @@
 
 	;; Bookmarks
 	;; ("p" (
-			;; TODO: Configure bookmarks.
-			;; ("e" bm-next :name "Bookmark Down")
-			;; ("u" bm-toggle :name "Bookmark Toggle")
-			;; ("h" bm-show :name "Bookmark Jump")
-			;; ("N" bm-remove-all-current-buffer "Remove All")
-			;; )
-	 ;; )
+	;; TODO: Configure bookmarks.
+	;; ("e" bm-next :name "Bookmark Down")
+	;; ("u" bm-toggle :name "Bookmark Toggle")
+	;; ("h" bm-show :name "Bookmark Jump")
+	;; ("N" bm-remove-all-current-buffer "Remove All")
+	;; )
+	;; )
 	)
 
   (ryo-modal-keys
@@ -1100,58 +1068,59 @@
 	("w" ctrlf-forward-fuzzy)
 	("W" ctrlf-forward-literal)
 	("g" xah-shrink-whitespaces)
-	("2" grugru))
+	("_" grugru))
 
   ;; Buffer management hydra
   (ryo-modal-keys
 	;; ("SPC" (
 	;; ("SPC g" :hydra
 	("q" :hydra
-		  ;; ("SPC g" :hydra
-		  '(hydra-buffer (:color red)
-			 "Buffer Hydra"
-			 ("e" split-window-below "Split Vertically")
-			 ("a" split-window-right "Split Rightward")
-			 ("M-e" buf-move-down "Swap Down")
-			 ("M-o" buf-move-up "Swap Up")
-			 ("M-a" buf-move-right "Swap Right")
-			 ("M-u" buf-move-left "Swap Left")
-			 ("E" windmove-down "Focus Down")
-			 ("O" windmove-up "Focus Up")
-			 ("U" windmove-left "Focus Left")
-			 ("A" windmove-right "Focus Right")
-			 ("n" delete-window "Kill")
-			 ("=" ace-delete-window "Kill Other")
-			 ("q" ace-delete-other-windows "Kill All Except")
-			 ("k" switch-to-buffer "Switch")
+	 ;; ("SPC g" :hydra
+	 '(hydra-buffer (:color red)
+						 "Buffer Hydra"
+						 ("e" split-window-below "Split Vertically")
+						 ("a" split-window-right "Split Rightward")
+						 ("M-e" buf-move-down "Swap Down")
+						 ("M-o" buf-move-up "Swap Up")
+						 ("M-a" buf-move-right "Swap Right")
+						 ("M-u" buf-move-left "Swap Left")
+						 ("E" windmove-down "Focus Down")
+						 ("O" windmove-up "Focus Up")
+						 ("U" windmove-left "Focus Left")
+						 ("A" windmove-right "Focus Right")
+						 ("n" delete-window "Kill")
+						 ("=" ace-delete-window "Kill Other")
+						 ("q" ace-delete-other-windows "Kill All Except")
+						 ("k" switch-to-buffer "Switch")
 
-			 ;; Resizing
-			 ("H" enlarge-window :name "Grow Vert")
-			 ("N" shrink-window :name "Shrink Vert")
-			 ("T" enlarge-window-horizontally :name "Grow Hor")
-			 ("S" shrink-window-horizontally :name "Shrink Hor")
-			 ("g" balance-windows)
-			 ;; TODO: Configure IBuffer commands.
-			 ("h" ibuffer "IBuffer")
-			 ("<ESCAPE>" nil "Cancel" :color blue)))
+						 ;; Resizing
+						 ("H" enlarge-window :name "Grow Vert")
+						 ("N" shrink-window :name "Shrink Vert")
+						 ("T" enlarge-window-horizontally :name "Grow Hor")
+						 ("S" shrink-window-horizontally :name "Shrink Hor")
+						 ("g" balance-windows)
+						 ;; TODO: Configure IBuffer commands.
+						 ("h" ibuffer "IBuffer")
+						 ("<ESCAPE>" nil "Cancel" :color blue)))
 
 	;; Multi-cursor bindings
 	;; TODO: This would be better as
 	;; "2" when a selection exists.
-	("_" (
-			("e" mc/edit-lines)
-			("d" mc/edit-beginnings-of-lines)
-			("s" mc/edit-ends-of-lines)
-			("+" mc/mark-all-in-region)
-			(")" mc/mark-all-dwim))))
+	;; ("2" (
+	;; 		("e" mc/edit-lines)
+	;; 		("d" mc/edit-beginnings-of-lines)
+	;; 		("s" mc/edit-ends-of-lines)
+	;; 		("+" mc/mark-all-in-region)
+	;; 		(")" mc/mark-all-dwim)))
+	)
 
   (ryo-modal-keys
 	;; Leader key
-	("SPC" (
-			  ("r" mark-whole-buffer :name "Select All")
+	("SPC" (("r" format-all-buffer :name "Format")
 			  ("w" exchange-point-and-mark :name "Reverse Selection")
 			  ;; TODO: https://github.com/Fuco1/smartparens/wiki/Hybrid-S-expressions
 			  ("k" sp-kill-hybrid-sexp)
+			  ("s" dupl-down :name "Duplicate")
 
 			  ;; Inserts
 			  ("n" (
@@ -1217,8 +1186,18 @@
 					  ("h" flyspell-correct-wrapper :name "Suggestions")
 					  ("e" flyspell-correct-next :name "Next")
 					  ("o" flyspell-correct-previous :name "Previous"))
-				:name "Spell Checking"))
-	 :name "LEADER"))
+				:name "Spell Checking")
+			  
+			  ;; Toggles
+			  ("_" (
+					  ("x" nocomments-mode))
+				:name "Toggles")
+
+			  ;; Comments
+			  ("x" (
+					  ("s" temp-comment)
+					  ))
+			  ) :name "LEADER"))
 
   (ryo-modal-keys
 	;; Dired Mode
@@ -1246,7 +1225,7 @@
 					  ("e" dired-create-directory :name "Create Directory"))
 				)
 			  ("e" (
-					  ("h" dired-do-load :name "Load Elisp")
+					  ("u" dired-do-load :name "Load Elisp")
 					  ("w" quit-window :name "Close Dired"))
 				)
 			  ("w" (
