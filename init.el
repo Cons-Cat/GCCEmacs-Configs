@@ -31,6 +31,20 @@
 (persistent-soft-fetch 'hundred "mydatastore")
 													 ;(persistent-soft-fetch 'thousand "mydatastore")
 
+;; (add-hook 'after-init-hook (lambda (
+;; 												(recentf-mode)
+;; 												;; (recentf-load-list)
+;; 												)))
+(recentf-mode t)
+(setq recentf-max-menu-items 25)
+(setq recentf-max-saved-items 25)
+(run-at-time nil (* 5 60) 'recentf-save-list)
+;; (add-hook 'kill-emacs-hook 'recentf-save-list)
+;; (add-hook 'after-save-hook 'recentf-save-list)
+
+(straight-use-package 'smartparens)
+(smartparens-mode t)
+
 ;; Vertical completion.
 (straight-use-package 'selectrum)
 (selectrum-mode t)
@@ -131,7 +145,6 @@
 (define-key company-active-map (kbd "<backtab>") 'company-select-previous)
 (define-key company-active-map (kbd "RET") nil)
 
-
 ;; Debugging
 ;; TODO: Configure debugger.
 (straight-use-package 'dap-mode)
@@ -185,39 +198,40 @@
 
 ;; Elisp
 ;; https://github.com/Fuco1/.emacs.d/blob/master/files/smartparens.el
-;(sp-with-modes sp--lisp-modes
-;  (sp-local-pair "(" nil
-;                 :wrap "C-("
-;                 :pre-handlers '(my-add-space-before-sexp-insertion)
-;                 :post-handlers '(my-add-space-after-sexp-insertion))
-;  (sp-local-pair "'" nil :actions nil)
-;  )
+(sp-with-modes sp--lisp-modes
+  (sp-local-pair "(" nil
+                 :wrap "C-("
+                 :pre-handlers '(my-add-space-before-sexp-insertion)
+                 :post-handlers '(my-add-space-after-sexp-insertion))
+  (sp-local-pair "'" nil :actions nil))
 
-;; (defun my-add-space-after-sexp-insertion (id action _context)
-;;   (when (eq action 'insert)
-;;     (save-excursion
-;;       (forward-char (sp-get-pair id :cl-l))
-;;       (when (or (eq (char-syntax (following-char)) ?w)
-;;                 (looking-at (sp--get-opening-regexp)))
-;;         (insert " ")))))
+(defun my-add-space-after-sexp-insertion (id action _context)
+	(when (eq action 'insert)
+     (save-excursion
+       (forward-char (sp-get-pair id :cl-l))
+       (when (or (eq (char-syntax (following-char)) ?w)
+                 (looking-at (sp--get-opening-regexp)))
+			(insert " ")))))
 
-;; (defun my-add-space-before-sexp-insertion (id action _context)
-;;   (when (eq action 'insert)
-;;     (save-excursion
-;;       (backward-char (length id))
-;;       (when (or (eq (char-syntax (preceding-char)) ?w)
-;;                 (and (looking-back (sp--get-closing-regexp))
-;;                      (not (eq (char-syntax (preceding-char)) ?'))))
-;;         (insert " ")))))
+(defun my-add-space-before-sexp-insertion (id action _context)
+  (when (eq action 'insert)
+    (save-excursion
+      (backward-char (length id))
+      (when (or (eq (char-syntax (preceding-char)) ?w)
+                (and (looking-back (sp--get-closing-regexp))
+                     (not (eq (char-syntax (preceding-char)) ?'))))
+        (insert " ")))))
 
 
 (with-eval-after-load 'lsp-mode
-  (add-hook 'lsp-mode-hook 'lsp-enable-which-key-integration)
-  )
+  (add-hook 'lsp-mode-hook 'lsp-enable-which-key-integration))
 
+
+;; Debugging
 (use-package dap-mode
   :straight t
   )
+
 
 ;; Searching
 ;; TODO: Configure this
@@ -884,11 +898,6 @@
 ;; (electric-pair-mode t)
 ;; (show-paren-mode t)
 ;; (setq show-paren-style 'expression)
-(use-package smartparens
-  :straight t
-  :config
-  ;; (progshow-smartparens-global-mode t)
-  )
 (add-hook 'prog-mode-hook 'turn-on-smartparens-strict-mode)
 (add-hook 'markdown-mode-hook 'turn-on-smartparens-strict-mode)
 (straight-use-package 'comment-or-uncomment-sexp)
