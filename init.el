@@ -85,7 +85,6 @@
   (c-mode-hook . lsp-deferred)
   (c++-mode-hook . lsp-deferred)
   :config
-  (add-to-list 'company-backends '(company-lsp company-dabbrev))
   :custom
   (company-lsp-cache-candidates 'auto)
   (company-lsp-async t)
@@ -111,14 +110,14 @@
 (use-package company-tabnine
   :straight t
   :config
-  (add-to-list 'company-backends #'company-tabnine)
+  ;; (add-to-list 'company-backends #'company-tabnine)
   )
 
 (straight-use-package 'flx)
 (use-package company-fuzzy
   :straight t
   :config
-  (add-to-list 'company-fuzzy-history-backends 'company-yasnippet)
+  ;; (add-to-list 'company-fuzzy-history-backends 'company-yasnippet)
   :custom
   (company-fuzzy-sorting-backend 'flx)
   (company-fuzzy-prefix-on-top t)
@@ -149,24 +148,28 @@
 
 ;; C++
 (add-hook 'c-mode-common-hook 'tree-sitter-mode)
-;; (add-hook 'c-mode-common-hook #'lsp
+(add-hook 'c-mode-common-hook 'lsp)
 
-(use-package company-irony
-  :straight t
-  :init
-  (add-to-list 'company-backends 'company-irony)
-  )
+;; (use-package company-irony
+;;   :straight t
+;;   :init
+;;   (add-to-list 'company-backends 'company-irony)
+;;   )
+
 (setq gc-cons-threshold (* 100 1024 1024)
       read-process-output-max (* 1024 1024)
       treemacs-space-between-root-nodes nil
-      company-idle-delay 0.0
-      company-minimum-prefix-length 1
+      ;; company-idle-delay 0.0
+      ;; company-minimum-prefix-length 1
       lsp-idle-delay 0.1 ;; clangd is fast
       ;; be more ide-ish
       lsp-headerline-breadcrumb-enable t
 		)
 
-(straight-use-package 'cmake-ide)
+;(sp-local-pair 'c++-mode "/*" "*/" :post-handlers '((" | " "SPC")
+;                                                    ("* ||\n[i]" "RET"))
+;					)
+;; (straight-use-package 'cmake-ide)
 
 ;; MySQL
 (straight-use-package 'exec-path-from-shell)
@@ -180,10 +183,41 @@
 ;;   :load-path "~/.emacs.d/hlsl/hlsl-mode.el"
 ;;   )
 
+;; Elisp
+;; https://github.com/Fuco1/.emacs.d/blob/master/files/smartparens.el
+;(sp-with-modes sp--lisp-modes
+;  (sp-local-pair "(" nil
+;                 :wrap "C-("
+;                 :pre-handlers '(my-add-space-before-sexp-insertion)
+;                 :post-handlers '(my-add-space-after-sexp-insertion))
+;  (sp-local-pair "'" nil :actions nil)
+;  )
+
+;; (defun my-add-space-after-sexp-insertion (id action _context)
+;;   (when (eq action 'insert)
+;;     (save-excursion
+;;       (forward-char (sp-get-pair id :cl-l))
+;;       (when (or (eq (char-syntax (following-char)) ?w)
+;;                 (looking-at (sp--get-opening-regexp)))
+;;         (insert " ")))))
+
+;; (defun my-add-space-before-sexp-insertion (id action _context)
+;;   (when (eq action 'insert)
+;;     (save-excursion
+;;       (backward-char (length id))
+;;       (when (or (eq (char-syntax (preceding-char)) ?w)
+;;                 (and (looking-back (sp--get-closing-regexp))
+;;                      (not (eq (char-syntax (preceding-char)) ?'))))
+;;         (insert " ")))))
+
+
 (with-eval-after-load 'lsp-mode
-  (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
+  (add-hook 'lsp-mode-hook 'lsp-enable-which-key-integration)
   )
 
+(use-package dap-mode
+  :straight t
+  )
 
 ;; Searching
 ;; TODO: Configure this
@@ -231,8 +265,7 @@
 
 (setq-default
  tab-width 3
- electric-pair-mode t
- )
+  )
 
 (add-hook 'before-save-hook #'delete-trailing-whitespace)
 (setq-default require-final-newline t)
@@ -372,12 +405,7 @@
 				  (message "On Monitor")
 				  )
 			 (progn
-				(message "Failed")
-				)
-			 )
-		  )
-		)
-	 )
+				(message "Failed"))))))
   ;; )
   )
 
@@ -810,6 +838,7 @@
                                   (concat git-dir (plist-get info :filename))))))
            vc-msg-git-extra))
   )
+(add-hook 'after-save-hook 'magit-after-save-refresh-status)
 
 (use-package git-gutter
   :straight t
@@ -849,7 +878,35 @@
 (straight-use-package 'yasnippet-snippets)
 
 
-;; PONY FLY KEYS
+;; Manage parens
+(straight-use-package 'tab-jump-out)
+(tab-jump-out-mode)
+;; (electric-pair-mode t)
+;; (show-paren-mode t)
+;; (setq show-paren-style 'expression)
+(use-package smartparens
+  :straight t
+  :config
+  ;; (progshow-smartparens-global-mode t)
+  )
+(add-hook 'prog-mode-hook 'turn-on-smartparens-strict-mode)
+(add-hook 'markdown-mode-hook 'turn-on-smartparens-strict-mode)
+(straight-use-package 'comment-or-uncomment-sexp)
+
+(use-package embrace
+  :straight t
+  )
+(add-hook 'prog-mode-hook
+			 (lambda ()
+			   (embrace-add-pair ?e "(" ")")
+				(embrace-add-pair ?a "{" "}")
+				(embrace-add-pair ?i "[" "]")
+				(embrace-add-pair ?o  "\"" "\"")
+				(embrace-add-pair ?c  "\'" "\'")
+				(embrace-add-pair ?_  "<" ">")))
+(setq embrace-show-help-p nil)
+
+;; Pony FLY KEYS
 (native-compile-async "~/.emacs.d/Pony-Fly-Keys/" 'recursively)
 (add-to-list 'load-path "~/.emacs.d/Pony-Fly-Keys/")
 (load "pony-fly-keys")
@@ -971,9 +1028,13 @@
 	("i" xah-end-of-line-or-block)
 	("Y" pony-binary-beginning-of-line)
 	("I" pony-binary-end-of-line)
+	("f" sp-backward-up-sexp)
+	("," sp-up-sexp)
+	;; TODO:
+	;; https://github.com/palikar/vsexp
 
 	;; Basic deletion commands.
-	("n" delete-backward-char)
+	("n" hungry-delete-backward)
 	("=" delete-char)
 	("h" pony-delete-left-word)
 	("H" subword-backward-kill)
@@ -988,6 +1049,7 @@
 	("(" mark-word)
 	("{" xah-select-block)
 	("[" rectangle-mark-mode)
+	(")" mark-sexp)
 
 	;; Multi-cursor
 	("M-o" mc/mark-previous-like-this)
@@ -1024,13 +1086,12 @@
 	("M" undo-redo)
 	("b" kill-region)
 	("l" pony-copy-current-word)
-	("d" yank)
+	("d" yank-from-kill-ring)
 	("v" pony-toggle-mark)
 	("w" ctrlf-forward-fuzzy)
 	("W" ctrlf-forward-literal)
 	("g" xah-shrink-whitespaces)
-	("2" grugru)
-	)
+	("2" grugru))
 
   ;; Buffer management hydra
   (ryo-modal-keys
@@ -1063,9 +1124,7 @@
 			 ("g" balance-windows)
 			 ;; TODO: Configure IBuffer commands.
 			 ("h" ibuffer "IBuffer")
-			 ("<ESCAPE>" nil "Cancel" :color blue)
-			 )
-		  )
+			 ("<ESCAPE>" nil "Cancel" :color blue)))
 
 	;; Multi-cursor bindings
 	;; TODO: This would be better as
@@ -1075,38 +1134,36 @@
 			("d" mc/edit-beginnings-of-lines)
 			("s" mc/edit-ends-of-lines)
 			("+" mc/mark-all-in-region)
-			(")" mc/mark-all-dwim)
-			)
-	 )
-	)
+			(")" mc/mark-all-dwim))))
 
   (ryo-modal-keys
 	;; Leader key
 	("SPC" (
-			  ("r" mark-whole-buffer "Select All")
-			  ("w" exchange-point-and-mark "Exchange Point and Mark")
+			  ("r" mark-whole-buffer :name "Select All")
+			  ("w" exchange-point-and-mark :name "Reverse Selection")
+			  ;; TODO: https://github.com/Fuco1/smartparens/wiki/Hybrid-S-expressions
+			  ("k" sp-kill-hybrid-sexp)
 
 			  ;; Inserts
 			  ("n" (
 					  ;; TODO: Consider company-yasnippet
-					  ("n" yas-insert-snippet :name "Snippet")
+					  ("r" yas-insert-snippet :name "Snippet")
+					  ("n" embrace-delete :name "Remove")
+					  ("t" embrace-change :name "Change")
 					  ("u" xah-insert-brace :name "{}")
 					  ("e" xah-insert-paren :name "()")
 					  ("a" xah-insert-square-bracket :name "[]")
 					  ("o" xah-insert-ascii-double-quote :name "\"\"")
 					  ("c" xah-insert-ascii-double-quote :name "\'\'")
 					  ("j" pony-insert-region-pair :name "Region")
+					  ("_" pony-insert-angle-pair :name "<>")
 					  ("i" (
 							  ("e" mc/insert-numbers)
 							  ("u" mc/insert-letters)
 							  ("j" mc/sort-regions)
-							  ("a" mc/reverse-regions)
-							  )
-						:name "Multi-Cursor"
-						)
-					  )
-				:name "Insert"
-				)
+							  ("a" mc/reverse-regions))
+						:name "Multi-Cursor"))
+				:name "Insert")
 
 			  ;; File Management
 			  ("o" (
@@ -1116,22 +1173,18 @@
 					  ("h" dired-jump :name "Dired")
                  ("r" magit-status :name "Git")
 					  ("x" xah-show-in-desktop :name "Explorer")
-					  ;; ("h" recentf-open-files :name "Open Recent")
+					  ("o" recentf-open-files :name "Open Recent")
 					  ("a" xah-new-empty-buffer :name "New File")
 					  ("m" xah-open-last-closed :name "Open Last Closed")
 					  ("v" xah-open-recently-closed :name "Open Recent Closed")
-					  ("u" eval-dwim :name "Evaluate")
-                 )
-            :name "File"
-            )
+					  ("u" eval-dwim :name "Evaluate"))
+            :name "File")
 
 			  ;; Frames
 			  ("j" (
 					  ("a" view-buffer-other-frame :name "New Frame")
 					  ("s" make-frame :name "Duplicate Frame")
-					  ("h" other-frame :name "Other Frame")
-					  )
-				)
+					  ("h" other-frame :name "Other Frame")))
 
 			  ;; Large Motions
            ("e" (
@@ -1147,23 +1200,16 @@
 					  ("h" avy-goto-line :name "Line Jump")
                  ("k" avy-goto-word-1 :name "Word Jump")
 					  ("y" beginning-of-buffer "Buffer Start")
-					  ("i" end-of-buffer "Buffer End")
-                 )
-            :name "Large Motion"
-            )
+					  ("i" end-of-buffer "Buffer End"))
+            :name "Large Motion")
 
 			  ;; Spellcheck
 			  ("g" (
 					  ("h" flyspell-correct-wrapper :name "Suggestions")
 					  ("e" flyspell-correct-next :name "Next")
-					  ("o" flyspell-correct-previous :name "Previous")
-					  )
-				:name "Spell Checking"
-				)
-           )
-    :name "LEADER"
-    )
-   )
+					  ("o" flyspell-correct-previous :name "Previous"))
+				:name "Spell Checking"))
+	 :name "LEADER"))
 
   (ryo-modal-keys
 	;; Dired Mode
@@ -1188,55 +1234,42 @@
 			  ("x" dired-mark-omitted :name "Omit")
 			  ("o" (
 					  ("a" find-file :name "Create File")
-					  ("e" dired-create-directory :name "Create Directory")
-			 		  )
+					  ("e" dired-create-directory :name "Create Directory"))
 				)
 			  ("e" (
 					  ("h" dired-do-load :name "Load Elisp")
-					  ("w" quit-window :name "Close Dired")
-					  )
+					  ("w" quit-window :name "Close Dired"))
 				)
 			  ("w" (
 					  ("h" dired-mark-extension)
-					  ("w" dired-do-find-regexp)
-					  )
+					  ("w" dired-do-find-regexp))
 				;; :name "Finding"
-				)
-			  )
-	 )
-	)
+				))))
 
   (ryo-modal-keys
 	;; Org Mode
 	(:mode 'org-mode)
 	("x" (
-			("t" org-table-create)
-			)
-	 :name "Table"
-	 )
+			("t" org-table-create))
+	 :name "Table")
 
 	("TAB" org-todo)
 	("M-o" org-move-subtree-up)
 	("M-e" org-move-subtree-down)
 
-	("SPC" (
-			  ("a" org-do-demote)
+	("SPC" (("a" org-do-demote)
 			  ("u" org-do-promote)
 			  ("i" org-forward-heading-same-level)
 			  ("y" org-backward-heading-same-level)
 			  ("TAB" org-cycle)
 			  ("t" (
 					  ("a" org-insert-todo-subheading)
-					  ("e" org-insert-todo-heading)
-					  )
-				:name "TODOs"
-				)
+					  ("e" org-insert-todo-heading))
+				:name "TODOs")
 			  ;; TODO: This should be "n".
 			  ("s" (
 					  ("a" org-insert-subheading)
-					  ("e" org-insert-heading)
-					  )
-				)
+					  ("e" org-insert-heading)))
 			  ("SPC" (
 						 ("TAB" org-toggle-narrow-to-subtree)
 						 ("t" org-next-visible-heading)
@@ -1246,12 +1279,7 @@
 						 ("h" outline-up-heading)
 						 ("n" org-goto)
 						 )
-				:name "Headings"
-				)
-			  )
-	 )
-	)
-  )
+				:name "Headings")))))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
