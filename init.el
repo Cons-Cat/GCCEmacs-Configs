@@ -281,9 +281,12 @@
  tab-width 3
  )
 
+;; Crux
+(straight-use-package 'crux)
+
 ;; Comments
 (straight-use-package 'banner-comment)
-(straight-use-package 'smart-comment)
+;; (straight-use-package 'smart-comment)
 (straight-use-package 'nocomments-mode)
 
 ;; (add-hook 'before-save-hook #'delete-trailing-whitespace)
@@ -1119,8 +1122,10 @@
 	("SPC" (("r" format-all-buffer :name "Format")
 			  ("w" exchange-point-and-mark :name "Reverse Selection")
 			  ;; TODO: https://github.com/Fuco1/smartparens/wiki/Hybrid-S-expressions
-			  ("k" sp-kill-hybrid-sexp)
-			  ("s" dupl-down :name "Duplicate")
+			  ("h" crux-kill-line-backwards)
+			  ("K" sp-kill-hybrid-sexp)
+			  ("k" crux-smart-kill-line)
+			  ("s" crux-duplicate-current-line-or-region :name "Duplicate")
 
 			  ;; Inserts
 			  ("n" (
@@ -1154,8 +1159,9 @@
 					  ("o" recentf-open-files :name "Open Recent")
 					  ("a" xah-new-empty-buffer :name "New File")
 					  ("m" xah-open-last-closed :name "Open Last Closed")
-					  ("v" xah-open-recently-closed :name "Open Recent Closed")
-					  ("u" eval-dwim :name "Evaluate"))
+					  ("v" crux-find-user-init-file :name "Init")
+					  ("u" eval-dwim :name "Evaluate")
+					  )
             :name "File")
 
 			  ;; Frames
@@ -1195,7 +1201,7 @@
 
 			  ;; Comments
 			  ("x" (
-					  ("s" temp-comment)
+					  ("s" crux-duplicate-and-comment-current-line-or-region)
 					  ))
 			  ) :name "LEADER"))
 
