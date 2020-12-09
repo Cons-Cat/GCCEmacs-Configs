@@ -44,6 +44,8 @@
 
 (straight-use-package 'smartparens)
 (smartparens-mode t)
+(add-hook 'prog-mode-hook 'smartparens-mode)
+(add-hook 'text-mode-hook 'smartparens-mode)
 
 ;; Vertical completion.
 (straight-use-package 'selectrum)
@@ -80,7 +82,7 @@
   (company-begin-commands '(self-insert-command))
   (company-require-match nil)
   (company-idle-delay .6)
-  (company-minimum-prefix-length 2)
+  (company-minimum-prefix-length 1)
   (company-show-numbers t)
   (company-tooltip-align-annotations t)
   ;; (company-idle-delay 0)
@@ -341,9 +343,7 @@
                                                  :inherit 'mode-line))))
                     '(powerline-active1 ((t (:background "#6272a4"
                                                          :foregound "#50fa7b"
-                                                         :inherit 'mode-line))))
-						  )
-  )
+                                                         :inherit 'mode-line))))))
 (setq spaceline-all-the-icons-separator-type 'wave)
 
 (straight-use-package 'all-the-icons-dired)
@@ -447,7 +447,7 @@
                                        "!!." ">=>" ">>=" ">>>" ">>-" ">->" "->>" "-->" "---" "-<<"
                                        "<~~" "<~>" "<*>" "<||" "<|>" "<$>" "<==" "<=>" "<=<" "<->"
                                        "<--" "<-<" "<<=" "<<-" "<<<" "<+>" "</>" "###" "#_(" "..<"
-                                       "..." "+++" "/==" "///" "_|_" "ligature" "&&" "^=" "~~" "~@" "~="
+                                       "..." "+++" "/==" "///" "_|_" "&&" "^=" "~~" "~@" "~=" "/*"
                                        "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|>" "{|" "|-" "-|" "-|-"
                                        "[|" "]#" "::" ":=" ":>" ":<" "$>" "==" "=>" "!=" "!!" ">:"
                                        ">=" ">>" ">-" "-~" "-|" "->" "--" "-<" "<~" "<*" "<|" "<:"
@@ -459,6 +459,7 @@
   (global-ligature-mode t)
   )
 (add-to-list 'ligature-composition-table `(text-mode ("=" . ,(rx (+ "=")))))
+(add-to-list 'ligature-composition-table `(prog-mode ("=" . ,(rx (+ "=")))))
 
 ;; This takes too long to set up. Not needed yet.
 ;; (straight-use-package 'unicode-fonts)
@@ -467,7 +468,7 @@
 (use-package rainbow-delimiters
   :straight t
   :init
-  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+  (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
   )
 
 ;; Highlight current line
@@ -644,7 +645,7 @@
   :straight t
   :init
   (grugru-default-setup))
-
+(add-hook 'prog-mode-hook #'grugru-highlight-mode)
 
 ;; Spell Checking
 
@@ -881,15 +882,23 @@
 
 ;; Manage parens
 (straight-use-package 'tab-jump-out)
-(tab-jump-out-mode)
+;; (add-hook 'prog-mode-hook 'tab-jump-out-mode)
+(define-globalized-minor-mode global-tab-jump-out-mode
+  tab-jump-out-mode tab-jump-out-mode )
+(global-tab-jump-out-mode t)
+;; (add-hook 'text-mode-hook 'tab-jump-out-mode)
+
 ;; (electric-pair-mode t)
 ;; (show-paren-mode t)
 ;; (setq show-paren-style 'expression)
-(add-hook 'prog-mode-hook 'turn-on-smartparens-strict-mode)
-(add-hook 'markdown-mode-hook 'turn-on-smartparens-strict-mode)
+(add-hook 'prog-mode-hook 'turn-on-smartparens-mode)  
+(add-hook 'markdown-mode-hook 'turn-on-smartparens-mode)
 (straight-use-package 'comment-or-uncomment-sexp)
 
-(straight-use-package 'embrace)
+(use-package embrace
+  :straight t
+  :init
+  )
 (add-hook 'prog-mode-hook
 			 (lambda ()
 			   (embrace-add-pair ?e "(" ")")
@@ -898,7 +907,8 @@
 				(embrace-add-pair ?o  "\"" "\"")
 				(embrace-add-pair ?c  "\'" "\'")
 				(embrace-add-pair ?_  "<" ">")))
-(setq embrace-show-help-p nil)
+(add-hook 'org-mode-hook #'embrace-org-mode-hook)
+(setq embrace-show-help-p t)
 
 ;; Pony FLY KEYS
 (native-compile-async "~/.emacs.d/Pony-Fly-Keys/" 'recursively)
@@ -910,7 +920,7 @@
 (selected-global-mode t)
 
 ;; This seems redundant.
-(add-hook 'ryo-modal-mode-hook 'ryo-cursor-update)
+(remove-hook 'ryo-modal-mode-hook 'ryo-cursor-update)
 
 ;; I'm using some of Xah's utilities rn.
 ;; (straight-use-package 'xah-fly-keys)
@@ -957,6 +967,10 @@
   (add-hook 'bm-show-mode-hook 'hl-line-mode))
 (add-hook 'bookmark-bmenu-mode-hook 'ryo-enable)
 
+;; Expand Region
+(use-package expand-region
+  :straight t)
+
 ;; MODAL EDITING
 (setq-default cursor-type (cons 'bar 2))
 (defun ryo-enable ()
@@ -965,6 +979,8 @@
 	 (ryo-modal-mode))
   (ryo-cursor-update)
   (selected-off))
+
+(add-hook 'prog-mode-hook 'ryo-enable)
 
 ;; Keybindings.
 ;; TODO: This does not work:
@@ -1030,7 +1046,9 @@
 	("[" rectangle-mark-mode)
 	(")" mark-sexp)
 	("+" mark-whole-buffer :name "Select All")
-
+	("=" er/expand-region)
+	("-" er/contract-region)
+	
 	;; Multi-cursor
 	("M-o" mc/mark-previous-like-this)
 	("M-e" mc/mark-next-like-this)
@@ -1104,7 +1122,7 @@
 						 ("g" balance-windows)
 						 ;; TODO: Configure IBuffer commands.
 						 ("h" ibuffer "IBuffer")
-						 ("<ESCAPE>" nil "Cancel" :color blue)))
+						 ("<tab>" nil "Cancel" :color blue)))
 
 	;; Multi-cursor bindings
 	;; TODO: This would be better as
@@ -1126,6 +1144,10 @@
 			  ("K" sp-kill-hybrid-sexp)
 			  ("k" crux-smart-kill-line)
 			  ("s" crux-duplicate-current-line-or-region :name "Duplicate")
+			  ("f" sp-slurp-hybrid-sexp :name "Slurp")
+			  ("," sp-dedent-adjust-sexp :name "Barf")
+			  ("<" sp-push-hybrid-sexp :name "Push Sexp")
+			  ("F" sp-transpose-hybrid-sexp :name "Transpose Sexp")
 
 			  ;; Inserts
 			  ("n" (
@@ -1180,6 +1202,7 @@
                  ;; r can be used for scroll without moving cursor
                  ("n" recenter-top-bottom :name "Recenter Point")
                  ("t" move-to-window-line-top-bottom :name "Point at Center")
+					  ("p" move-to-window-line-top-bottom)
 					  ("f" kill-this-buffer :name "Kill This Buffer")
 					  ("h" avy-goto-line :name "Line Jump")
                  ("k" avy-goto-word-1 :name "Word Jump")
