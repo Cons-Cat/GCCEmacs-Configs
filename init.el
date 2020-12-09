@@ -11,6 +11,7 @@
       (goto-char (point-max))
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
+(setq straight-use-package-by-default t)
 
 (straight-use-package 'use-package)
 
@@ -59,6 +60,15 @@
 (selectrum-prescient-mode t)
 (prescient-persist-mode t)
 
+;; ;; Enable richer annotations using the Marginalia package
+(native-compile-async "~/.emacs.d/marginalia/" 'recursively)
+(add-to-list 'load-path "~/.emacs.d/marginalia/")
+(load "marginalia")
+(marginalia-mode)
+(setq marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light))
+
+
+;; Tree
 (straight-use-package 'treemacs)
 
 ;; Projectile
@@ -353,6 +363,7 @@
 (add-to-list 'custom-theme-load-path (expand-file-name "./dracula-pro-theme/" user-emacs-directory))
 (load-theme 'dracula-pro t)
 (use-package dracula-pro-theme
+  :straight nil
   :defer 3
   :load-path "~/wgooch/.emacs.d/dracula-pro-theme"
   :init
@@ -442,7 +453,8 @@
 						 :branch "master")
   :config
   (ligature-set-ligatures 't '("www"))
-  (ligature-set-ligatures 'prog-mode '("|||>" "<|||" "<==>" "<!--" "####" "~~>" "***" "||=" "||>"
+  (ligature-set-ligatures 'prog-mode '(
+													"|||>" "<|||" "<==>" "<!--" "####" "~~>" "***" "||=" "||>"
                                        ":::" "::=" "=:=" "===" "==>" "=!=" "=>>" "=<<" "=/=" "!=="
                                        "!!." ">=>" ">>=" ">>>" ">>-" ">->" "->>" "-->" "---" "-<<"
                                        "<~~" "<~>" "<*>" "<||" "<|>" "<$>" "<==" "<=>" "<=<" "<->"
@@ -454,12 +466,14 @@
                                        "<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
                                        "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
                                        "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
-                                       "\\" "://" "||-"))
+                                       "\\\\" "://" "||-"
+													))
   (ligature-set-ligatures 'text-mode '("|-" "-|-" "-|" "---"))
-  (global-ligature-mode t)
+  :init
+  ;; (global-ligature-mode t)
   )
-(add-to-list 'ligature-composition-table `(text-mode ("=" . ,(rx (+ "=")))))
-(add-to-list 'ligature-composition-table `(prog-mode ("=" . ,(rx (+ "=")))))
+(add-to-list 'ligature-composition-table '(text-mode ("=" . ,(rx (+ "=")))))
+(add-to-list 'ligature-composition-table '(prog-mode ("=" . ,(rx (+ "=")))))
 
 ;; This takes too long to set up. Not needed yet.
 ;; (straight-use-package 'unicode-fonts)
@@ -920,7 +934,7 @@
 (selected-global-mode t)
 
 ;; This seems redundant.
-(remove-hook 'ryo-modal-mode-hook 'ryo-cursor-update)
+(add-hook 'ryo-modal-mode-hook 'ryo-cursor-update)
 
 ;; I'm using some of Xah's utilities rn.
 ;; (straight-use-package 'xah-fly-keys)
@@ -1306,4 +1320,4 @@
  '(custom-safe-themes
 	'("89ba918121c69681960ac1e4397296b5a756b1293325cee0cb543d70418bd556" "bcb58b7e1a372e677f44e25e3da88f283090dbd506550c137d02907446c7d11c" "7451f243a18b4b37cabfec57facc01bd1fe28b00e101e488c61e1eed913d9db9" default))
  '(line-number-mode nil)
- '(warning-suppress-types '((comp) (comp) (comp) (comp) (comp) (comp))))
+ '(warning-suppress-types '((comp) (comp) (comp) (comp) (comp) (comp)))) 
