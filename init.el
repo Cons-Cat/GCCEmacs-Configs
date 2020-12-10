@@ -15,19 +15,20 @@
 
 (straight-use-package 'use-package)
 
-(eval-when-compile
-  (require 'use-package)
-  )
+;; (eval-when-compile
+  ;; (require 'use-package)
+  ;; )
+(straight-use-package 'diminish)
 ;; TODO: Use Diminish for RYO
 													 ;(require 'diminish)
-(require 'bind-key)
-(require 'use-package-ensure)
-(setq use-package-always-ensure t)
+;; (require 'bind-key)
+;; (require 'use-package-ensure)
+;; (setq use-package-always-ensure t)
 
 ;; Persient Soft
 (straight-use-package 'pcache)
 (straight-use-package 'persistent-soft)
-(require 'persistent-soft)
+;; (require 'persistent-soft)
 													 ;(persistent-soft-store 'hundred 100 "mydatastore")
 (persistent-soft-fetch 'hundred "mydatastore")
 													 ;(persistent-soft-fetch 'thousand "mydatastore")
@@ -60,13 +61,17 @@
 (selectrum-prescient-mode t)
 (prescient-persist-mode t)
 
-;; ;; Enable richer annotations using the Marginalia package
+;; Enable richer annotations using the Marginalia package
 (native-compile-async "~/.emacs.d/marginalia/" 'recursively)
 (add-to-list 'load-path "~/.emacs.d/marginalia/")
 (load "marginalia")
 (marginalia-mode)
 (setq marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light))
 
+;; Folding
+(straight-use-package
+							 '(origami :type git :host github :repo "jcs-elpa/origami.el"))
+(global-origami-mode t)
 
 ;; Tree
 (straight-use-package 'treemacs)
@@ -81,7 +86,7 @@
 
 ;; Completion
 (straight-use-package 'flycheck)
-(add-hook 'after-init-hook #'global-flycheck-mode)
+(add-hook 'prog-mode-hook 'flycheck-mode)
 (use-package company
   :straight t
   :diminish
@@ -120,13 +125,10 @@
   (company-lsp-async t)
   (company-lsp-enable-snippet t)
   (company-lsp-enable-recompletion t)
-  :commands (lsp lsp-deferred)
-  ;; :commands lsp
-  )
+  :commands (lsp lsp-deferred))
 (use-package lsp-ui
   :straight t
-  :commands lsp-ui-mode
-  )
+  :commands lsp-ui-mode)
 (add-to-list 'load-path "~/.emacs.d/cask/core/")
 (add-to-list 'load-path "~/.emacs.d/cask/lisp/")
 (add-to-list 'load-path "~/.emacs.d/cask/langs/")
@@ -134,8 +136,7 @@
   :straight t
   :commands lsp-treemacs-errors-list
   :config
-  (add-to-list 'company-backends '(company-lsp company-dabbrev))
-  )
+  (add-to-list 'company-backends '(company-lsp company-dabbrev)))
 
 (use-package company-tabnine
   :straight t
@@ -151,8 +152,7 @@
   :custom
   (company-fuzzy-sorting-backend 'flx)
   (company-fuzzy-prefix-on-top t)
-  (company-fuzzy-show-annotation t)
-  )
+  (company-fuzzy-show-annotation t))
 
 
 ;; Company keybindings
@@ -165,15 +165,13 @@
 ;; TODO: Configure debugger.
 (straight-use-package 'dap-mode)
 (add-hook 'dap-stopped-hook
-          (lambda (arg) (call-interactively #'dap-hydra))
-			 )
+          (lambda (arg) (call-interactively #'dap-hydra)))
 
 
 ;; Languages
 ;; V
 (straight-use-package
- '(vlang-mode :type git :host github :repo "Naheel-Azawy/vlang-mode")
- )
+ '(vlang-mode :type git :host github :repo "Naheel-Azawy/vlang-mode"))
 
 ;; C++
 (add-hook 'c-mode-common-hook 'tree-sitter-mode)
@@ -192,8 +190,7 @@
       ;; company-minimum-prefix-length 1
       lsp-idle-delay 0.1 ;; clangd is fast
       ;; be more ide-ish
-      lsp-headerline-breadcrumb-enable t
-		)
+      lsp-headerline-breadcrumb-enable t)
 
 													 ;(sp-local-pair 'c++-mode "/*" "*/" :post-handlers '((" | " "SPC")
 													 ;                                                    ("* ||\n[i]" "RET"))
@@ -323,38 +320,146 @@
 
 ;; MODELINE
 (straight-use-package 'all-the-icons)
-(use-package powerline
-  :straight t
-  :config
-  (powerline-center-theme))
-(setq powerline-default-separator 'wave)
+;; (straight-use-package 'rich-minority)
+;; (rich-minority-mode t)
+;; (setf rm-blacklist "")
 
-(use-package spaceline
-  :straight t
-  :demand t
-  :config
-  (require 'spaceline-config))
+;; (defvar hidden-minor-modes ; example, write your own list of hidden
+;;   '(
+;; 	 ;; abbrev-mode            ; minor modes
+;;     ;; auto-fill-function
+;; 	 company-box
+;;     flycheck-mode
+;;     flyspell-mode
+;; 	 projectile
+;;     ;; inf-haskell-mode
+;;     ;; haskell-indent-mode
+;;     ;; haskell-doc-mode
+;;     ;; smooth-scroll-mode
+;; 	 ))
 
-(use-package spaceline-all-the-icons
-  :straight t
-  :after spaceline
-  :defer t
-  :config
-  (spaceline-all-the-icons-theme)
-  (spaceline-all-the-icons--setup-git-ahead)
-  (custom-set-faces '(spaceline-highlight-face ((t (:background "#cb619e"
-                                                                :foreground "#f8f8f2"
-                                                                :inherit 'mode-line))))
-                    '(powerline-active2 ((t (:background "#44475a"
-                                                         :foregound "#50fa7b"
-                                                         :inherit 'mode-line))))
-                    '(mode-line ((t (:background "#282a36"
-                                                 :foregound "#50fa7b"
-                                                 :inherit 'mode-line))))
-                    '(powerline-active1 ((t (:background "#6272a4"
-                                                         :foregound "#50fa7b"
-                                                         :inherit 'mode-line))))))
-(setq spaceline-all-the-icons-separator-type 'wave)
+;; (defun purge-minor-modes ()
+;;   (interactive)
+;;   (dolist (x hidden-minor-modes nil)
+;;     (let ((trg (cdr (assoc x minor-mode-alist))))
+;;       (when trg
+;;         (setcar trg "")))))
+
+;; (add-hook 'after-change-major-mode-hook 'purge-minor-modes)
+
+;; (use-package powerline
+;;   :straight t
+;;   :config
+;;   (powerline-center-theme))
+;; (setq powerline-default-separator 'wave)
+
+;; (straight-use-package 'fancy-battery)
+;; (add-hook 'after-init-hook #'fancy-battery-mode)
+(display-time-mode t)
+
+(straight-use-package 'telephone-line)
+
+(setq
+ telephone-line-primary-right-separator 'telephone-line-abs-right
+ telephone-line-secondary-right-separator 'telephone-line-abs-hollow-right
+ telephone-line-primary-left-separator 'telephone-line-tan-right
+ telephone-line-secondary-left-separator 'telephone-line-tan-hollow-right
+		;; telephone-line-height 12
+		)
+;; (setq
+ ;; telephone-line-primary-left-separator 'telephone-line-abs-left
+ ;; telephone-line-primary-right-separator 'telephone-line-abs-hollow-left
+ ;; telephone-line-secondary-left-separator 'telephone-line-nil
+;; telephone-line-secondary-right-separator 'telephone-line-abs-left)
+
+(defface my-red '((t (:foreground "white" :background "red"))) "")
+(defface my-orangered '((t (:foreground "white" :background "orange red"))) "")
+(defface my-orange '((t (:foreground "dim grey" :background "orange"))) "")
+(defface my-gold '((t (:foreground "dim grey" :background "gold"))) "")
+(defface my-yellow '((t (:foreground "dim grey" :background "yellow"))) "")
+(defface my-chartreuse '((t (:foreground "dim grey" :background "chartreuse"))) "")
+(defface my-green '((t (:foreground "dim grey" :background "green"))) "")
+(defface my-sgreen '((t (:foreground "dim grey" :background "spring green"))) "")
+(defface my-cyan '((t (:foreground "dim grey" :background "cyan"))) "")
+(defface my-blue '((t (:foreground "white" :background "blue"))) "")
+(defface my-dmagenta '((t (:foreground "white" :background "dark magenta"))) "")
+(defface my-space-pink '((t (:foreground "floral white" :background "#cb619e"))) "")
+(defface my-space-blue '((t (:foreground "floral white" :background "#6272a4"))) "")
+;; (defface my-space-blue '((t (:foreground "white" :background "#282a36"))) "")
+(defface my-space-gray '((t (:foreground "floral white" :background "#44475a"))) "")
+
+(setq telephone-line-faces
+      '((red . (my-red . my-red))
+        (ored . (my-orangered . my-orangered))
+        (orange . (my-orange . my-orange))
+        (gold . (my-gold . my-gold))
+        (yellow . (my-yellow . my-yellow))
+        (chartreuse . (my-chartreuse . my-chartreuse))
+        (green . (my-green . my-green))
+        (sgreen . (my-sgreen . my-sgreen))
+        (cyan . (my-cyan . my-cyan))
+        (blue . (my-blue . my-blue))
+        (dmagenta . (my-dmagenta . my-dmagenta))
+        (space-pink . (my-space-pink . my-space-pink))
+        (space-blue . (my-space-blue . my-space-blue))
+        (comment . (font-lock-comment-face . my-dmagenta))
+        (accent . (telephone-line-accent-active . telephone-line-accent-inactive))
+        (nil . (mode-line . mode-line-inactive))))
+
+(setq telephone-line-lhs
+      '((space-pink . (telephone-line-vc-segment))
+        (accent . (telephone-line-projectile-segment
+						 telephone-line-erc-modified-channels-segment
+                   telephone-line-process-segment))
+		  (space-blue . (telephone-line-flycheck-segment))
+		  (space-pink . (telephone-line-ryo-modal-segment))
+        ;; (space-gray    . (
+												  ;; telephone-line-minor-mode-segment
+								  ;; telephone-line-buffer-segment))
+		  (nil . ())
+		  ))
+
+(setq telephone-line-rhs
+      '(
+		  (nil . ())
+		  (space-blue . (telephone-line-misc-info-segment
+							  telephone-line-filesize-segment))
+		  (space-pink . ())
+        (space-blue . (telephone-line-major-mode-segment))))
+
+;; (setq telephone-line-filesize-segment nil)
+(telephone-line-mode t)
+
+;; (use-package spaceline
+;;   :straight t
+;;   :demand t
+;;   :config
+;;   (spaceline-minor-modes-p nil)
+;;   )
+;; (spaceline-toggle-minor-modes-off)
+;; (spaceline-toggle-battery-on)
+
+
+;; (use-package spaceline-all-the-icons
+;;   :straight t
+;;   :after spaceline
+;;   :defer t
+;;   :config
+;;   (spaceline-all-the-icons-theme)
+;;   (spaceline-all-the-icons--setup-git-ahead)
+;;   (custom-set-faces '(spaceline-highlight-face ((t (:background "#cb619e"
+;;                                                                 :foreground "#f8f8f2"
+;;                                                                 :inherit 'mode-line))))
+;;                     '(powerline-active2 ((t (:background "#44475a"
+;;                                                          :foregound "#50fa7b"
+;;                                                          :inherit 'mode-line))))
+;;                     '(mode-line ((t (:background "#282a36"
+;;                                                  :foregound "#50fa7b"
+;;                                                  :inherit 'mode-line))))
+;;                     '(powerline-active1 ((t (:background "#6272a4"
+;;                                                          :foregound "#50fa7b"
+;;                                                          :inherit 'mode-line))))))
+;; (setq spaceline-all-the-icons-separator-type 'wave)
 
 (straight-use-package 'all-the-icons-dired)
 (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
@@ -624,21 +729,27 @@
 		(eval-region (region-beginning) (region-end))
 	 (eval-buffer)))
 
-(defun dupl-down ()
-  (interactive)
-  (setq $s (buffer-substring-no-properties (line-beginning-position) (line-end-position)))
-  (end-of-line)
-  (newline)
-  (insert $s)
-  )
+;; https://www.emacswiki.org/emacs/HalfScrolling
+(defun zz-scroll-half-page (direction)
+  "Scrolls half page up if `direction' is non-nil, otherwise will scroll half page down."
+  (let ((opos (cdr (nth 6 (posn-at-point)))))
+    ;; opos = original position line relative to window
+    (move-to-window-line nil)  ;; Move cursor to middle line
+    (if direction
+        (recenter-top-bottom -1)  ;; Current line becomes last
+      (recenter-top-bottom 0))  ;; Current line becomes first
+    (move-to-window-line opos)))  ;; Restore cursor/point position
 
-(defun temp-comment ()
+(defun zz-scroll-half-page-down ()
+  "Scrolls exactly half page down keeping cursor/point position."
   (interactive)
-  (dupl-down)
-  (previous-logical-line)
-  (comment-line 1)
-  (end-of-line)
-  )
+  (zz-scroll-half-page nil))
+
+(defun zz-scroll-half-page-up ()
+  "Scrolls exactly half page up keeping cursor/point position."
+  (interactive)
+  (zz-scroll-half-page t))
+
 
 ;; Avy
 (use-package avy
@@ -648,9 +759,8 @@
    avy-keys
    '(
      ?t ?u ?n ?e ?s ?a ?r ?i  ;; 'power eight': can type them without any movement of the hand.
-     ?h ?o ?k ?c ?g ?j ?p ?y ;; close to home rows; no pinkes
-     ?d ?f ?l ?q ?b ?\,
-     ;; ?z ?\_ ?m ?v ;; diagonals, pinkie moves
+     ?h ?o ?k ?c ?g ?j ?p ?y ;; close to home rows; no pinkes.
+     ?d ?f ?l ?q ?b ?\, ;; Bottom row.
 	  )))
 
 
@@ -1320,4 +1430,14 @@
  '(custom-safe-themes
 	'("89ba918121c69681960ac1e4397296b5a756b1293325cee0cb543d70418bd556" "bcb58b7e1a372e677f44e25e3da88f283090dbd506550c137d02907446c7d11c" "7451f243a18b4b37cabfec57facc01bd1fe28b00e101e488c61e1eed913d9db9" default))
  '(line-number-mode nil)
- '(warning-suppress-types '((comp) (comp) (comp) (comp) (comp) (comp)))) 
+ '(warning-suppress-types '((comp) (comp) (comp) (comp) (comp) (comp))))
+
+;; (eval-after-load "filladapt"
+(diminish 'company)
+(diminish 'org)
+(diminish 'org-roam)
+(diminish 'ryo-modal)
+(diminish 'projectile)
+(diminish 'yasnippet)
+(diminish 'gitgutter)
+;; )
