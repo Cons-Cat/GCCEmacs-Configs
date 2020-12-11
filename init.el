@@ -86,11 +86,13 @@
 
 ;; Completion
 (straight-use-package 'flycheck)
-(add-hook 'prog-mode-hook 'flycheck-mode)
+;; (add-hook 'prog-mode-hook 'flycheck-mode)
+(global-flycheck-mode)
+
 (use-package company
   :straight t
   :diminish
-  :hook (company-mode . company-box-mode)
+  ;; :hook (company-mode . company-box-mode)
   :config
   (add-to-list 'company-backends '(company-files company-dabbrev))
   :custom
@@ -99,15 +101,16 @@
   (company-idle-delay .6)
   (company-minimum-prefix-length 1)
   (company-show-numbers t)
-  (company-tooltip-align-annotations t)
-  ;; (company-idle-delay 0)
-  ;; (company-dabbrev-downcase nil)
-  (global-company-mode t)
-  )
-(add-hook 'prog-mode-hook 'company-mode)
+  (company-tooltip-align-annotations t))
+;; (company-idle-delay 0)
+;; (company-dabbrev-downcase nil)
+(global-company-mode t)
+
+;; (add-hook 'prog-mode-hook 'company-mode)
 
 (straight-use-package 'company-posframe)
 (straight-use-package 'company-box)
+(add-hook 'company-mode-hook 'company-box-mode)
 
 ;; Formatting
 (straight-use-package 'format-all)
@@ -176,6 +179,15 @@
 ;; C++
 (add-hook 'c-mode-common-hook 'tree-sitter-mode)
 (add-hook 'c-mode-common-hook 'lsp)
+
+(straight-use-package 'cmake-project)
+(defun maybe-cmake-project-mode ()
+  (if (or (file-exists-p "CMakeLists.txt")
+          (file-exists-p (expand-file-name "CMakeLists.txt" (car (project-roots (project-current))))))
+      (cmake-project-mode)))
+
+(add-hook 'c-mode-hook 'maybe-cmake-project-mode)
+(add-hook 'c++-mode-hook 'maybe-cmake-project-mode)
 
 ;; (use-package company-irony
 ;;   :straight t
@@ -320,41 +332,6 @@
 
 ;; MODELINE
 (straight-use-package 'all-the-icons)
-;; (straight-use-package 'rich-minority)
-;; (rich-minority-mode t)
-;; (setf rm-blacklist "")
-
-;; (defvar hidden-minor-modes ; example, write your own list of hidden
-;;   '(
-;; 	 ;; abbrev-mode            ; minor modes
-;;     ;; auto-fill-function
-;; 	 company-box
-;;     flycheck-mode
-;;     flyspell-mode
-;; 	 projectile
-;;     ;; inf-haskell-mode
-;;     ;; haskell-indent-mode
-;;     ;; haskell-doc-mode
-;;     ;; smooth-scroll-mode
-;; 	 ))
-
-;; (defun purge-minor-modes ()
-;;   (interactive)
-;;   (dolist (x hidden-minor-modes nil)
-;;     (let ((trg (cdr (assoc x minor-mode-alist))))
-;;       (when trg
-;;         (setcar trg "")))))
-
-;; (add-hook 'after-change-major-mode-hook 'purge-minor-modes)
-
-;; (use-package powerline
-;;   :straight t
-;;   :config
-;;   (powerline-center-theme))
-;; (setq powerline-default-separator 'wave)
-
-;; (straight-use-package 'fancy-battery)
-;; (add-hook 'after-init-hook #'fancy-battery-mode)
 (display-time-mode t)
 
 (straight-use-package 'telephone-line)
@@ -363,14 +340,7 @@
  telephone-line-primary-right-separator 'telephone-line-abs-right
  telephone-line-secondary-right-separator 'telephone-line-abs-hollow-right
  telephone-line-primary-left-separator 'telephone-line-tan-right
- telephone-line-secondary-left-separator 'telephone-line-tan-hollow-right
-		;; telephone-line-height 12
-		)
-;; (setq
- ;; telephone-line-primary-left-separator 'telephone-line-abs-left
- ;; telephone-line-primary-right-separator 'telephone-line-abs-hollow-left
- ;; telephone-line-secondary-left-separator 'telephone-line-nil
-;; telephone-line-secondary-right-separator 'telephone-line-abs-left)
+ telephone-line-secondary-left-separator 'telephone-line-tan-hollow-right)
 
 (defface my-red '((t (:foreground "white" :background "red"))) "")
 (defface my-orangered '((t (:foreground "white" :background "orange red"))) "")
@@ -406,13 +376,49 @@
         (accent . (telephone-line-accent-active . telephone-line-accent-inactive))
         (nil . (mode-line . mode-line-inactive))))
 
+;; (straight-use-package 'fancy-battery)
+;; (fancy-battery-mode)
+
+
+;; (telephone-line-defsegment* telephone-line-fancy-battery ()
+  ;; (:propertize ("%s" fancy-battery-last-status)
+					;; (:propertize ("%s" battery-status-function)
+					
+					 ;; (let* ((time (cdr (assq ?t fancy-battery-last-status)))
+           ;; (face (pcase (cdr (assq ?b fancy-battery-last-status))
+                   ;; ("!" 'fancy-battery-critical)
+                   ;; ("+" 'fancy-battery-charging)
+                   ;; (_ 'fancy-battery-discharging)))
+           ;; (percentage (cdr (assq ?p fancy-battery-last-status)))
+           ;; (status (if (or fancy-battery-show-percentage (string= time "N/A"))
+                       ;; (and percentage (concat percentage "%%"))
+                     ;; time)))
+      ;; (if status
+          ;; (propertize status 'face face)
+        ;; Battery status is not available
+        ;; (propertize "N/A" 'face 'error)))
+					 ;; ))
+
+(display-battery-mode)
+;; (straight-use-package 'spinner)
+;; (spinner-start 'moon)
+;; (spinner-start 'minibox)
+
+(telephone-line-defsegment* telephone-line-ryo-modal-segment-pony ()
+  (let ((tag (if (bound-and-true-p ryo-modal-mode)
+                 "NORMAL" "INSERT")))
+    (if telephone-line-evil-use-short-tag
+        (seq-take tag 1)
+      tag)))
+
 (setq telephone-line-lhs
       '((space-pink . (telephone-line-vc-segment))
-        (accent . (telephone-line-projectile-segment
+        (space-blue . ())
+		  (accent . (telephone-line-projectile-segment
 						 telephone-line-erc-modified-channels-segment
                    telephone-line-process-segment))
 		  (space-blue . (telephone-line-flycheck-segment))
-		  (space-pink . (telephone-line-ryo-modal-segment))
+		  (space-pink . (telephone-line-ryo-modal-segment-pony))
         ;; (space-gray    . (
 												  ;; telephone-line-minor-mode-segment
 								  ;; telephone-line-buffer-segment))
@@ -424,6 +430,7 @@
 		  (nil . ())
 		  (space-blue . (telephone-line-misc-info-segment
 							  telephone-line-filesize-segment))
+		  ;; (accent . (telephone-line-fancy-battery))
 		  (space-pink . ())
         (space-blue . (telephone-line-major-mode-segment))))
 
@@ -458,6 +465,7 @@
 ;;                                                  :inherit 'mode-line))))
 ;;                     '(powerline-active1 ((t (:background "#6272a4"
 ;;                                                          :foregound "#50fa7b"
+;;
 ;;                                                          :inherit 'mode-line))))))
 ;; (setq spaceline-all-the-icons-separator-type 'wave)
 
@@ -475,6 +483,32 @@
   (load-theme 'dracula-pro t)
   )
 (setq custom-safe-themes t)
+
+(straight-use-package 'compact-docstrings)
+(setq compact-docstrings-only-doc-blocks nil)
+(add-hook 'after-init-hook #'global-compact-docstrings--mode)
+
+(use-package whitespace
+  :straight
+  :config
+  ;; Make whitespace-mode with very basic background coloring for whitespaces.
+  ;; http://ergoemacs.org/emacs/whitespace-mode.html
+  (setq
+   whitespace-style '(face spaces space-mark
+									tabs tab-mark
+									newline newline-mark
+									trailing
+									)
+   ;; Make whitespace-mode and whitespace-newline-mode use “↵" for end of line char and “⇥" for tab.
+   whitespace-display-mappings
+    '((space-mark 32 [183] [46]) ; SPACE 32 「 」, 183 MIDDLE DOT 「·」, 46 FULL STOP 「.」
+      (newline-mark 10 [?↵ 10])
+      (tab-mark ?\t [?⇥ ?\t])))
+  ;; :hook
+  ;; (prog-mode . whitespace-mode)
+  )
+(add-hook 'prog-mode-hook 'whitespace-mode)
+;; (add-hook 'emacs-lisp-mode-hook 'whitespace-mode)
 
 (menu-bar-mode -1)
 (tool-bar-mode -1)
@@ -573,10 +607,9 @@
                                        "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
                                        "\\\\" "://" "||-"
 													))
-  (ligature-set-ligatures 'text-mode '("|-" "-|-" "-|" "---"))
-  :init
-  ;; (global-ligature-mode t)
+  ;; (ligature-set-ligatures 'text-mode '("|-" "-|-" "-|" "---"))
   )
+(add-hook 'prog-mode-hook 'ligature-mode)
 (add-to-list 'ligature-composition-table '(text-mode ("=" . ,(rx (+ "=")))))
 (add-to-list 'ligature-composition-table '(prog-mode ("=" . ,(rx (+ "=")))))
 
@@ -654,6 +687,19 @@
 (add-to-list 'load-path "~/.emacs.d/dired-posframe.el/")
 (load "dired-posframe")
 
+(straight-use-package 'ranger)
+(add-hook 'ranger-mode-hook 'wdired-change-to-wdired-mode)
+
+(setq ranger-modify-header nil)
+(setq ranger-footer-delay 0.2)
+(setq ranger-preview-delay 0.040)
+
+(setq ranger-width-parents 0.12)
+(setq ranger-max-parent-width 0.5)
+(setq ranger-width-preview 0.25)
+(setq ranger-dont-show-binary t)
+(setq ranger-parent-depth 3)
+
 ;; I've submitted a pull request adding this. If it's accepted, I'll uncomment.
 ;; (use-package dired-posframe
 ;; :straight t
@@ -694,6 +740,7 @@
 		(message "INSERT MODE"))))
 
 (defun pony-toggle-mark ()
+  "Toggle whether a region is being selected."
   (interactive)
   (if (region-active-p)
 		(progn
@@ -707,6 +754,7 @@
 		(message "Selecting"))))
 
 (defun dired-posframe-toggle ()
+  "Toggle the posframe."
   (interactive)
   (if (bound-and-true-p dired-posframe-mode)
 		(progn
@@ -720,10 +768,12 @@
 		(message "Posframe Enabled"))))
 
 (defun dired-alternate-up ()
+  "Navigate up one directory."
   (interactive)
   (find-alternate-file ".."))
 
 (defun eval-dwim ()
+  "Evaluate a selected region or current buffer."
   (interactive)
   (if (region-active-p)
 		(eval-region (region-beginning) (region-end))
@@ -731,7 +781,7 @@
 
 ;; https://www.emacswiki.org/emacs/HalfScrolling
 (defun zz-scroll-half-page (direction)
-  "Scrolls half page up if `direction' is non-nil, otherwise will scroll half page down."
+  "Scrolls half page up if `DIRECTION' is non-nil, otherwise will scroll half page down."
   (let ((opos (cdr (nth 6 (posn-at-point)))))
     ;; opos = original position line relative to window
     (move-to-window-line nil)  ;; Move cursor to middle line
@@ -768,7 +818,8 @@
 (use-package grugru
   :straight t
   :init
-  (grugru-default-setup))
+  (grugru-default-setup)
+  (setq grugru-highlight-idle-delay 0.15))
 (add-hook 'prog-mode-hook #'grugru-highlight-mode)
 
 ;; Spell Checking
@@ -1015,7 +1066,7 @@
 ;; (electric-pair-mode t)
 ;; (show-paren-mode t)
 ;; (setq show-paren-style 'expression)
-(add-hook 'prog-mode-hook 'turn-on-smartparens-mode)  
+(add-hook 'prog-mode-hook 'turn-on-smartparens-mode)
 (add-hook 'markdown-mode-hook 'turn-on-smartparens-mode)
 (straight-use-package 'comment-or-uncomment-sexp)
 
@@ -1201,22 +1252,26 @@
    ("6" "M-6")
    ("7" "M-7")
    ("8" "M-8")
-   ("9" "M-9")
-
-	;; Basic operations.
-	("m" undo)
-	("M" undo-redo)
+   ("9" "M-9"))
+  
+  (ryo-modal-keys
+	(:norepeat t)
+	;; Clipboard operations.
 	("b" kill-region)
 	("l" pony-copy-current-word)
 	("d" yank-from-kill-ring)
 	("v" pony-toggle-mark)
+
+	;; Basic operations.
+	("m" undo)
+	("M" undo-redo)
 	("w" ctrlf-forward-fuzzy)
 	("W" ctrlf-forward-literal)
 	("g" xah-shrink-whitespaces)
 	("_" grugru))
 
-  ;; Buffer management hydra
   (ryo-modal-keys
+	;; Buffer management hydra
 	;; ("SPC" (
 	;; ("SPC g" :hydra
 	("q" :hydra
@@ -1300,6 +1355,7 @@
                  ("s" write-file :name "Save As")
                  ("g" dired :name "Dired Path")
 					  ("h" dired-jump :name "Dired")
+					  ;; ("h" ranger :name "Dired")
                  ("r" magit-status :name "Git")
 					  ("x" xah-show-in-desktop :name "Explorer")
 					  ("o" recentf-open-files :name "Open Recent")
@@ -1379,7 +1435,8 @@
 				)
 			  ("e" (
 					  ("u" dired-do-load :name "Load Elisp")
-					  ("w" quit-window :name "Close Dired"))
+					  ;; ("w" quit-window :name "Close Dired"))
+					  ("w" ranger-close :name "Close Dired"))
 				)
 			  ("w" (
 					  ("h" dired-mark-extension)

@@ -79,6 +79,7 @@ read it before opening a new issue about your will.")
 ;; Assigment form: VARIABLE COLOR [256-COLOR [TTY-COLOR]]
 (let ((colors '(;; Upstream theme color
                 (dracula-bg      "#22212c" "unspecified-bg" "unspecified-bg") ; official background
+					 (dracula-dark    "#1d1e26" "unspecified-bg" "unspecified-bg")
                 (dracula-fg      "#f2f2f2" "#ffffff" "brightwhite") ; official foreground
                 (dracula-current "#2B2640" "#303030" "brightblack") ; official current-line/selection
                 ;; (dracula-current "#44475a" "#303030" "brightblack") ; official current-line/selection
@@ -109,6 +110,8 @@ read it before opening a new issue about your will.")
                (hl-line :background ,dracula-current :extend t)
                (region :background "#635937" :foreground "#FAFAFA")
                (selectrum-current-candidate :background ,bg2)
+					;; (grugru-highlight-face :box (:color ,dracula-pink :line-width 1 :style nil) :background ,dracula-dark)
+					(grugru-highlight-face :underline ,dracula-pink :background ,dracula-dark)
                ;; (marginalia-documentation :background ,dracula-bg :foregound ,dracula-comment)
                ;; (marginalia-lighter :background ,dracula-bg :foregound ,dracula-comment)
                ;; (marginalia-annotate-face :foregound ,dracula-comment :background ,dracula-bg)
@@ -161,17 +164,22 @@ read it before opening a new issue about your will.")
                                        :foreground ,dracula-green)
                (company-scrollbar-bg :background ,dracula-comment)
                (company-scrollbar-fg :foreground ,other-blue)
-               (company-tooltip :foreground ,dracula-fg :background ,dracula-current)
+               (company-tooltip :foreground ,dracula-fg :background ,dracula-dark)
                (company-tooltip-search :foreground ,dracula-green
                                        :underline t)
                (company-tooltip-search-selection :background ,dracula-green
                                                  :foreground ,dracula-bg)
-               (company-tooltip-selection :inherit match)
-               (company-tooltip-mouse :background ,dracula-bg)
+               (company-tooltip-selection :inherit match :background ,dracula-current :foreground ,dracula-fg)
+               ;; (company-tooltip-mouse :background ,dracula-bg)
                (company-tooltip-common :foreground ,dracula-pink :weight bold)
                ;;(company-tooltip-common-selection :inherit company-tooltip-common)
                (company-tooltip-annotation :foreground ,dracula-cyan)
                ;;(company-tooltip-annotation-selection :inherit company-tooltip-annotation)
+					(company-box-background :background ,dracula-dark)
+					(company-box-tooltip :background ,dracula-dark)
+					(company-box-numbers :foreground ,dracula-comment :slant italic)
+					(company-box-selection :background ,dracula-current :foreground ,dracula-current)
+					(company-box-scrollbar :background ,dracula-comment :foreground ,dracula-comment)
                ;; diff-hl
                (diff-hl-change :foreground ,dracula-orange :background ,dracula-orange)
                (diff-hl-delete :foreground ,dracula-red :background ,dracula-red)
@@ -706,14 +714,14 @@ read it before opening a new issue about your will.")
                ;; whitespace
                (whitespace-big-indent :background ,dracula-red :foreground ,dracula-red)
                (whitespace-empty :background ,dracula-orange :foreground ,dracula-red)
-               (whitespace-hspace :background ,bg3 :foreground ,dracula-comment)
+               (whitespace-hspace :background ,dracula-bg :foreground ,dracula-comment)
                (whitespace-indentation :background ,dracula-orange :foreground ,dracula-red)
                (whitespace-line :background ,dracula-bg :foreground ,dracula-pink)
-               (whitespace-newline :foreground ,dracula-comment)
-               (whitespace-space :background ,dracula-bg :foreground ,dracula-comment)
+               ;; (whitespace-newline :foreground ,dracula-comment)
+               ;; (whitespace-space :background ,dracula-bg :foreground ,dracula-comment)
                (whitespace-space-after-tab :background ,dracula-orange :foreground ,dracula-red)
                (whitespace-space-before-tab :background ,dracula-orange :foreground ,dracula-red)
-               (whitespace-tab :background ,bg2 :foreground ,dracula-comment)
+               ;; (whitespace-tab :background ,bg2 :foreground ,dracula-comment)
                (whitespace-trailing :inherit trailing-whitespace)
                ;; yard-mode
                (yard-tag-face :inherit ,font-lock-builtin-face)
@@ -723,7 +731,12 @@ read it before opening a new issue about your will.")
                ;; linum
                (linum-relative-current-face :foreground ,fg4)
                (linum-number-current-line :background ,dracula-pink :foreground ,fg4)
-               )))
+					;; Whitespace custom
+					(font-lock-comment-face :slant italic)
+					(font-lock-keyword-face :slant italic)
+					(whitespace-tab :background ,dracula-bg :foreground ,dracula-bg)     ; Do not highlight indentation.
+					(whitespace-space :foreground ,dracula-bg)
+					(whitespace-newline :foreground ,dracula-bg :height 80))))
 
   (apply #'custom-theme-set-faces
          'dracula-pro
