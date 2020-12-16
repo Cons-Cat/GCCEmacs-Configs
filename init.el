@@ -8,7 +8,7 @@
         (url-retrieve-synchronously
          "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
          'silent 'inhibit-cookies)
-      (goto-char (point-max))
+		(goto-char (point-max))
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 (setq straight-use-package-by-default t)
@@ -29,9 +29,9 @@
 (straight-use-package 'pcache)
 (straight-use-package 'persistent-soft)
 ;; (require 'persistent-soft)
-													 ;(persistent-soft-store 'hundred 100 "mydatastore")
+;(persistent-soft-store 'hundred 100 "mydatastore")
 (persistent-soft-fetch 'hundred "mydatastore")
-													 ;(persistent-soft-fetch 'thousand "mydatastore")
+;(persistent-soft-fetch 'thousand "mydatastore")
 
 ;; (add-hook 'after-init-hook (lambda (
 ;; 												(recentf-mode)
@@ -54,6 +54,7 @@
 (selectrum-mode t)
 (straight-use-package 'prescient)
 ;; (prescient-filter-method fuzzy)
+
 
 ;; (straight-use-package 'company-prescient)
 ;; (company-prescient-mode t)
@@ -84,17 +85,97 @@
 (straight-use-package 'tree-sitter)
 (straight-use-package 'tree-sitter-langs)
 
+(require 'tree-sitter)
+(require 'tree-sitter-langs)
+;; (global-tree-sitter-mode)
+(add-hook 'tree-sitter-mode-hook 'tree-sitter-hl-mode)
+
+;; Indentation
+(straight-use-package 'smart-tabs-mode)
+(setq-default indent-tabs-mode t)
+
+(setq-default tab-width 3)
+(setq c-basic-offset 3)
+(setq cua-auto-tabify-rectangles nil)
+;; (setq-default tab-always-indent t)
+(setq-default indent-tabs-mode t)
+
+(defadvice align (around smart-tabs activate)
+  (let ((indent-tabs-mode nil)) ad-do-it))
+(defadvice align-regexp (around smart-tabs activate)
+  (let ((indent-tabs-mode nil)) ad-do-it))
+(defadvice indent-relative (around smart-tabs activate)
+  (let ((indent-tabs-mode nil)) ad-do-it))
+(defadvice indent-according-to-mode (around smart-tabs activate)
+  (let ((indent-tabs-mode indent-tabs-mode))
+    (if (memq indent-line-function
+              '(indent-relative
+                indent-relative-maybe))
+        (setq indent-tabs-mode nil))
+    ad-do-it))
+(defmacro smart-tabs-advice (function offset)
+  `(progn
+     (defvaralias ',offset 'tab-width)
+     (defadvice ,function (around smart-tabs activate)
+       (cond
+        (indent-tabs-mode
+         (save-excursion
+           (beginning-of-line)
+           (while (looking-at "\t*\\( +\\)\t+")
+             (replace-match "" nil nil nil 1)))
+         (setq tab-width tab-width)
+         (let ((tab-width fill-column)
+               (,offset fill-column)
+               (wstart (window-start)))
+           (unwind-protect
+               (progn ad-do-it)
+             (set-window-start (selected-window) wstart))))
+        (t
+         ad-do-it)))))
+
+(use-package aggressive-indent
+  :config
+  (add-to-list
+   'aggressive-indent-dont-indent-if
+   '(and (derived-mode-p 'c++-mode)
+         (null (string-match "\\([;{}]\\|\\b\\(if\\|for\\|while\\)\\b\\)"
+                             (thing-at-point 'line)))))
+  :init
+  ;; (add-hook 'emacs-lisp-mode-hook (lambda () (aggressive-indent-mode t)))
+  ;; (add-hook 'c-mode-common-hook #'aggressive-indent-mode)
+  ;; (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
+  )
+
+;; (add-hook 'emacs-lisp-mode-hook (lambda () (aggressive-indent-mode t)))
+;; (add-hook 'c-mode-common-hook (lambda () (aggressive-indent-mode t)))
+;; (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
+;; (add-hook 'c-mode-common-hook   #'aggressive-indent-mode)
+
+(use-package highlight-indent-guides
+  ;; :hook
+  ;; (prog-mode-hook . highlight-indent-guides)
+  ;; :init
+  )
+;; (add-hook 'c++-mode-hook #'highlight-indent-guides-mode)
+
+;; (add-hook 'prog-mode-hook #'highlight-indent-guides-mode)
+;; (add-hook 'prog-mode-hook (lambda () (highlight-indent-guides-mode t)))
+(setq highlight-indent-guides-method 'character)
+(setq highlight-indent-guides-responsive 'top)
+(setq highlight-indent-guides-delay 0)
+
 ;; Completion
 (straight-use-package 'flycheck)
-;; (add-hook 'prog-mode-hook 'flycheck-mode)
-(global-flycheck-mode)
+(add-hook 'prog-mode-hook 'flycheck-mode)
+;; (global-flycheck-mode)
 
 (use-package company
   :straight t
   :diminish
-  ;; :hook (company-mode . company-box-mode)
+  ;; :hook (company-mode . (lambda() (setq company-backend (company-capf :with company-dabbrev))))
   :config
-  (add-to-list 'company-backends '(company-files company-dabbrev))
+  (add-to-list 'company-backends '(company-files ))
+  (add-to-list 'company-backends '(company-capf ))
   :custom
   (company-begin-commands '(self-insert-command))
   (company-require-match nil)
@@ -102,10 +183,17 @@
   (company-minimum-prefix-length 1)
   (company-show-numbers t)
   (company-tooltip-align-annotations t))
-;; (company-idle-delay 0)
-;; (company-dabbrev-downcase nil)
-(global-company-mode t)
 
+;; (setq company-dabbrev-downcase nil)
+(setq-local completion-ignore-case nil)
+;; (setq company-dabbrev-code-ignore-case nil)
+;; (setq company-dabbrev-ignore-case nil)
+
+;; (push (apply-partially #'cl-remove-if
+                       ;; (lambda (c) (string-match-p "\\`[0-9]+\\'" c)))
+      ;; company-transformers)
+
+;; (add-hook 'org-mode-hook 'company-org-roam)
 ;; (add-hook 'prog-mode-hook 'company-mode)
 
 (straight-use-package 'company-posframe)
@@ -113,8 +201,8 @@
 (add-hook 'company-mode-hook 'company-box-mode)
 
 ;; Formatting
-(straight-use-package 'format-all)
-(add-hook 'prog-mode-hook 'format-all-mode)
+;; (straight-use-package 'format-all)
+;; (add-hook 'prog-mode-hook 'format-all-mode)
 
 (use-package lsp-mode
   :straight t
@@ -139,30 +227,36 @@
   :straight t
   :commands lsp-treemacs-errors-list
   :config
-  (add-to-list 'company-backends '(company-lsp company-dabbrev)))
+  (add-to-list 'company-backends '(company-lsp)))
 
-(use-package company-tabnine
-  :straight t
-  :config
-  ;; (add-to-list 'company-backends #'company-tabnine)
-  )
+;; Doesn't seem to work rn.
+;; (use-package company-tabnine
+;; :straight t
+;; :ensure t
+;; )
+;; (require 'company-tabnine)
+;; (add-to-list 'company-backends 'company-tabnine)
 
-(straight-use-package 'flx)
-(use-package company-fuzzy
-  :straight t
-  :config
-  ;; (add-to-list 'company-fuzzy-history-backends 'company-yasnippet)
-  :custom
-  (company-fuzzy-sorting-backend 'flx)
-  (company-fuzzy-prefix-on-top t)
-  (company-fuzzy-show-annotation t))
+;; (straight-use-package 'flx)
+;; (use-package company-fuzzy
+;;   :straight t
+;;   :config
+;;   ;; (add-to-list 'company-fuzzy-history-backends 'company-yasnippet)
+;;   :custom
+;;   (company-fuzzy-sorting-backend 'flx)
+;;   (company-fuzzy-prefix-on-top t)
+;;   (company-fuzzy-show-annotation t))
 
+(straight-use-package 'company-prescient)
+(add-hook 'company-mode-hook 'company-prescient-mode)
 
 ;; Company keybindings
 (add-hook 'company-mode-hook 'company-tng-mode)
 (define-key company-active-map (kbd "TAB") 'company-select-next)
 (define-key company-active-map (kbd "<backtab>") 'company-select-previous)
 (define-key company-active-map (kbd "RET") nil)
+
+(global-company-mode t)
 
 ;; Debugging
 ;; TODO: Configure debugger.
@@ -176,9 +270,16 @@
 (straight-use-package
  '(vlang-mode :type git :host github :repo "Naheel-Azawy/vlang-mode"))
 
+;; (smart-tabs-add-language-support vlang vlang-mode-hook
+  ;; ((c-indent-line . c-basic-offset)
+   ;; (c-indent-region . c-basic-offset)))
+
 ;; C++
-(add-hook 'c-mode-common-hook 'tree-sitter-mode)
-(add-hook 'c-mode-common-hook 'lsp)
+(add-hook 'c++-mode-hook 'tree-sitter-mode)
+;; (lambda () (setq indent-tabs-mode t)))
+
+(smart-tabs-advice c-indent-line c-basic-offset)
+(smart-tabs-advice c-indent-region c-basic-offset)
 
 (straight-use-package 'cmake-project)
 (defun maybe-cmake-project-mode ()
@@ -186,14 +287,14 @@
           (file-exists-p (expand-file-name "CMakeLists.txt" (car (project-roots (project-current))))))
       (cmake-project-mode)))
 
+(straight-use-package 'disaster)
+
 (add-hook 'c-mode-hook 'maybe-cmake-project-mode)
 (add-hook 'c++-mode-hook 'maybe-cmake-project-mode)
 
-;; (use-package company-irony
-;;   :straight t
-;;   :init
-;;   (add-to-list 'company-backends 'company-irony)
-;;   )
+(straight-use-package 'cmake-mode)
+(straight-use-package 'cmake-font-lock)
+(add-hook 'cmake-mode-hook 'cmake-font-lock-activate)
 
 (setq gc-cons-threshold (* 100 1024 1024)
       read-process-output-max (* 1024 1024)
@@ -204,12 +305,14 @@
       ;; be more ide-ish
       lsp-headerline-breadcrumb-enable t)
 
+(straight-use-package 'cpp-auto-include)
+
 													 ;(sp-local-pair 'c++-mode "/*" "*/" :post-handlers '((" | " "SPC")
 													 ;                                                    ("* ||\n[i]" "RET"))
 													 ;					)
 ;; (straight-use-package 'cmake-ide)
 
-;; MySQL
+;; SQL
 (straight-use-package 'exec-path-from-shell)
 (straight-use-package 'emacsql)
 (straight-use-package 'emacsql-mysql)
@@ -251,6 +354,10 @@
 (with-eval-after-load 'lsp-mode
   (add-hook 'lsp-mode-hook 'lsp-enable-which-key-integration))
 
+
+;; https://www.emacswiki.org/emacs/SmartTabs
+;; (smart-tabs-insinuate 'c ;; 'vlang
+                      ;; 'c++)
 
 ;; Debugging
 (use-package dap-mode
@@ -297,10 +404,6 @@
 													 ;   'grep-find-command
 													 ;   '("rg -n -H --no-heading -e '' $(git rev-parse --show-toplevel || pwd)" . 27)
 													 ;	)
-
-(setq-default
- tab-width 3
- )
 
 ;; Crux
 (straight-use-package 'crux)
@@ -437,52 +540,63 @@
 ;; (setq telephone-line-filesize-segment nil)
 (telephone-line-mode t)
 
-;; (use-package spaceline
-;;   :straight t
-;;   :demand t
-;;   :config
-;;   (spaceline-minor-modes-p nil)
-;;   )
-;; (spaceline-toggle-minor-modes-off)
-;; (spaceline-toggle-battery-on)
-
-
-;; (use-package spaceline-all-the-icons
-;;   :straight t
-;;   :after spaceline
-;;   :defer t
-;;   :config
-;;   (spaceline-all-the-icons-theme)
-;;   (spaceline-all-the-icons--setup-git-ahead)
-;;   (custom-set-faces '(spaceline-highlight-face ((t (:background "#cb619e"
-;;                                                                 :foreground "#f8f8f2"
-;;                                                                 :inherit 'mode-line))))
-;;                     '(powerline-active2 ((t (:background "#44475a"
-;;                                                          :foregound "#50fa7b"
-;;                                                          :inherit 'mode-line))))
-;;                     '(mode-line ((t (:background "#282a36"
-;;                                                  :foregound "#50fa7b"
-;;                                                  :inherit 'mode-line))))
-;;                     '(powerline-active1 ((t (:background "#6272a4"
-;;                                                          :foregound "#50fa7b"
-;;
-;;                                                          :inherit 'mode-line))))))
-;; (setq spaceline-all-the-icons-separator-type 'wave)
-
 (straight-use-package 'all-the-icons-dired)
 (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
 
+;; TABS
+(use-package centaur-tabs
+  :straight t
+  :demand
+  :config
+  (centaur-tabs-mode t)
+  :hook
+  (dired-mode . centaur-tabs-local-mode)
+)
+(setq centaur-tabs-style "chamfer")
+(setq centaur-tabs-set-icons t)
+(setq centaur-tabs-plain-icons t)
+(setq centaur-tabs-gray-out-icons 'buffer)
+(setq centaur-tabs-set-bar 'under)
+(setq x-underline-at-descent-line t)
+(setq centaur-tabs-set-close-button nil)
+;; (setq centaur-tabs-set-modified-marker t)
+;; (setq centaur-tabs-modified-marker "*")
+(setq centaur-tabs-height 9)
+(setq centaur-tabs-icon-scale-factor 0.6)
+(setq centaur-tabs-icon-v-adjust -0.05)
+(centaur-tabs-change-fonts "Fira Code" 80)
+
 ;; AESTHETICS
+
+;; Dracula
 (add-to-list 'custom-theme-load-path (expand-file-name "./dracula-pro-theme/" user-emacs-directory))
-(load-theme 'dracula-pro t)
+;; (load-theme 'dracula-pro t)
 (use-package dracula-pro-theme
   :straight nil
   :defer 3
   :load-path "~/wgooch/.emacs.d/dracula-pro-theme"
-  :init
-  (load-theme 'dracula-pro t)
+  ;; :init
+  ;; (load-theme 'dracula-pro t)
   )
+
+;; Pink Cat Boo
+(add-to-list 'custom-theme-load-path (expand-file-name "./pink-cat-boo-buffy/" user-emacs-directory))
+;; (load-theme 'pink-cat-boo-buffy t)
+(use-package pink-cat-boo-buffy-theme
+  :straight nil
+  :defer 3
+  :load-path "~/wgooch/.emacs.d/pink-cat-boo-buffy"
+  :init
+  (load-theme 'pink-cat-boo-buffy t)
+  )
+
 (setq custom-safe-themes t)
+
+;; (straight-use-package 'highlight-thing)
+;; (global-highlight-thing-mode)
+;; (setq highlight-thing-case-sensitive-p nil)
+;; (setq highlight-thing-all-visible-buffers-p t)
+;; (setq highlight-thing-ignore-list '("False" "True" "t" "nil"))
 
 (straight-use-package 'compact-docstrings)
 (setq compact-docstrings-only-doc-blocks nil)
@@ -510,6 +624,14 @@
 (add-hook 'prog-mode-hook 'whitespace-mode)
 ;; (add-hook 'emacs-lisp-mode-hook 'whitespace-mode)
 
+(use-package show-eol
+  :straight t
+  ;; :custom
+  )
+;; (global-show-eol-mode t)
+(add-hook 'whitespace-mode-hook 'show-eol-mode)
+
+;; nil does not work.
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (toggle-scroll-bar -1)
@@ -588,7 +710,7 @@
 ;; The quick brown fox jumped over the lazy dog.
 
 (use-package ligature
-  :straight (:host github :repo "mickeynp/ligature.el"
+:straight (:host github :repo "mickeynp/ligature.el"
 						 :branch "master")
   :config
   (ligature-set-ligatures 't '("www"))
@@ -599,17 +721,17 @@
                                        "<~~" "<~>" "<*>" "<||" "<|>" "<$>" "<==" "<=>" "<=<" "<->"
                                        "<--" "<-<" "<<=" "<<-" "<<<" "<+>" "</>" "###" "#_(" "..<"
                                        "..." "+++" "/==" "///" "_|_" "&&" "^=" "~~" "~@" "~=" "/*"
-                                       "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|>" "{|" "|-" "-|" "-|-"
+                                       "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|>" "{|" "|-" "-|" ;; "-|-"
                                        "[|" "]#" "::" ":=" ":>" ":<" "$>" "==" "=>" "!=" "!!" ">:"
                                        ">=" ">>" ">-" "-~" "-|" "->" "--" "-<" "<~" "<*" "<|" "<:"
-                                       "<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
+"<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
                                        "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
                                        "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
                                        "\\\\" "://" "||-"
 													))
-  ;; (ligature-set-ligatures 'text-mode '("|-" "-|-" "-|" "---"))
+  (ligature-set-ligatures 'text-mode '("|-" "-|-" "-|" "---"))
   )
-(add-hook 'prog-mode-hook 'ligature-mode)
+
 (add-to-list 'ligature-composition-table '(text-mode ("=" . ,(rx (+ "=")))))
 (add-to-list 'ligature-composition-table '(prog-mode ("=" . ,(rx (+ "=")))))
 
@@ -619,9 +741,8 @@
 
 (use-package rainbow-delimiters
   :straight t
-  :init
-  (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
-  )
+  ;; :init
+   )
 
 ;; Highlight current line
 ;; (use-package hl-line+
@@ -635,7 +756,6 @@
 ;; (hl-line-when-idle-interval 10)
 ;; )
 (add-hook 'text-mode-hook 'hl-line-mode)
-(add-hook 'prog-mode-hook 'hl-line-mode)
 (add-hook 'dired-mode-hook 'hl-line-mode)
 
 ;; Line Numbers
@@ -723,7 +843,6 @@
 
 (setq-default dired-omit-files-p t)
 (setq dired-omit-verbose nil)
-(put 'dired-find-alternate-file 'disabled nil)
 
 ;; Custom utility scripts.
 ;; There exist states, such as after kill-region, when the cursor color is incorrect.
@@ -1022,12 +1141,6 @@
   )
 (add-hook 'prog-mode-hook 'git-gutter-mode)
 (add-hook 'org-mode-hook 'git-gutter-mode)
-(custom-set-variables
- '(git-gutter:update-interval 2)
- '(git-gutter:window-width 1)
- '(git-gutter:modified-sign " ")
- '(git-gutter:added-sign "|")
- '(git-gutter:deleted-sign " "))
 
 (set-face-foreground 'git-gutter:added "orange")
 
@@ -1054,6 +1167,7 @@
 (yas-global-mode t)
 (straight-use-package 'yasnippet-snippets)
 
+(delete-selection-mode t)
 
 ;; Manage parens
 (straight-use-package 'tab-jump-out)
@@ -1104,6 +1218,9 @@
 
 ;; Hydra
 (straight-use-package 'hydra)
+
+;; Case Changing
+(straight-use-package 'string-inflection)
 
 ;; Multi Cursors
 (straight-use-package 'multiple-cursors)
@@ -1161,14 +1278,19 @@
 ;; TODO: This does not work:
 (global-unset-key "\C-n")
 (global-set-key "\C-n" 'keyboard-quit)
+;; (global-unset-key "<f13>")
+;; (global-set-key (kbd "<f13>") 'ryo-enable)
+;; (global-set-key  [f13] 'ryo-enable)
 
 (use-package ryo-modal
   :straight t
   :commands ryo-modal-mode
   :bind
-  ("M-SPC" . ryo-enable)
-  ("C-SPC" . ryo-enable)
-  ("S-SPC" . ryo-enable)
+  ;; ("M-SPC" . ryo-enable)
+  ;; ("C-SPC" . ryo-enable)
+  ;; ("S-SPC" . ryo-enable)
+  ("C-S-M-SPC" . ryo-enable)
+  ;; ("<f23>"   . ryo-enable)
   ;; :init
   ;; (global-set-key [escape] 'ryo-enable)
   :config
@@ -1188,16 +1310,16 @@
 	("o" previous-logical-line)
    ("O" previous-line)
 	;; ("C-c" selectrum-previous-candidate)
-	("c" backward-char)
-   ("j" forward-char)
+	("y" backward-char)
+   ("i" forward-char)
    ("u" pony-move-left-word)
 	("U" syntax-subword-left)
 	("a" pony-move-right-word)
 	("A" syntax-subword-right)
-	("y" xah-beginning-of-line-or-block)
-	("i" xah-end-of-line-or-block)
-	("Y" pony-binary-beginning-of-line)
-	("I" pony-binary-end-of-line)
+	("c" xah-beginning-of-line-or-block)
+	("j" xah-end-of-line-or-block)
+	("C" pony-binary-beginning-of-line)
+	("J" pony-binary-end-of-line)
 	("f" sp-backward-up-sexp)
 	("," sp-up-sexp)
 	;; TODO:
@@ -1316,7 +1438,7 @@
 
   (ryo-modal-keys
 	;; Leader key
-	("SPC" (("r" format-all-buffer :name "Format")
+	("SPC" (;; ("r" format-all-buffer :name "Format")
 			  ("w" exchange-point-and-mark :name "Reverse Selection")
 			  ;; TODO: https://github.com/Fuco1/smartparens/wiki/Hybrid-S-expressions
 			  ("h" crux-kill-line-backwards)
@@ -1327,6 +1449,7 @@
 			  ("," sp-dedent-adjust-sexp :name "Barf")
 			  ("<" sp-push-hybrid-sexp :name "Push Sexp")
 			  ("F" sp-transpose-hybrid-sexp :name "Transpose Sexp")
+			  ("_" origami-toggle-node)
 
 			  ;; Inserts
 			  ("n" (
@@ -1396,15 +1519,32 @@
 					  ("e" flyspell-correct-next :name "Next")
 					  ("o" flyspell-correct-previous :name "Previous"))
 				:name "Spell Checking")
-			  
+
+			  ("u" (
+					  ;; lower
+					  ("n" string-inflection-underscore :name "snake_case")
+					  ("t" string-inflection-lower-camelcase :name "camelCase")
+					  ("r" string-inflection-kebab-case :name "kebab-case")
+					  ("s" downcase-dwim :name "lowercase")
+					  ("S" subword-downcase)
+					  ;; UPPER
+					  ("h" string-inflection-capital-underscore :name "CONSTANT_CASE")
+					  ("k" string-inflection-camelcase :name "PascalCase")
+					  ("z" string-inflection-kebab-case :name "kebab-case")
+					  ("g" upcase-dwim :name "UPPERCASE")
+					  ("G" subword-upcase)
+					  )
+				:name "Letter Case")
+
 			  ;; Toggles
-			  ("_" (
-					  ("x" nocomments-mode))
-				:name "Toggles")
+			  ;; ("_" (
+					  ;; ("x" nocomments-mode))
+				;; :name "Toggles")
 
 			  ;; Comments
 			  ("x" (
 					  ("s" crux-duplicate-and-comment-current-line-or-region)
+					  ("_" nocomments-mode)
 					  ))
 			  ) :name "LEADER"))
 
@@ -1435,8 +1575,8 @@
 				)
 			  ("e" (
 					  ("u" dired-do-load :name "Load Elisp")
-					  ;; ("w" quit-window :name "Close Dired"))
-					  ("w" ranger-close :name "Close Dired"))
+					  ("w" quit-window :name "Close Dired"))
+					  ;; ("w" ranger-close :name "Close Dired"))
 				)
 			  ("w" (
 					  ("h" dired-mark-extension)
@@ -1479,16 +1619,6 @@
 						 )
 				:name "Headings")))))
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-	'("89ba918121c69681960ac1e4397296b5a756b1293325cee0cb543d70418bd556" "bcb58b7e1a372e677f44e25e3da88f283090dbd506550c137d02907446c7d11c" "7451f243a18b4b37cabfec57facc01bd1fe28b00e101e488c61e1eed913d9db9" default))
- '(line-number-mode nil)
- '(warning-suppress-types '((comp) (comp) (comp) (comp) (comp) (comp))))
-
 ;; (eval-after-load "filladapt"
 (diminish 'company)
 (diminish 'org)
@@ -1498,3 +1628,57 @@
 (diminish 'yasnippet)
 (diminish 'gitgutter)
 ;; )
+
+;; (custom-set-variables
+;;  ;; custom-set-variables was added by Custom.
+;;  ;; If you edit it by hand, you could mess it up, so be careful.
+;;  ;; Your init file should contain only one such instance.
+;;  ;; If there is more than one, they won't work right.
+;;  '(c++-mode-hook
+;;    '((lambda nil
+;;        (smart-tabs-mode-enable)
+;;        (smart-tabs-advice c-indent-line c-basic-offset)
+;;        (smart-tabs-advice c-indent-region c-basic-offset))
+;;      maybe-cmake-project-mode highlight-indent-guides-mode))
+;;  '(custom-safe-themes
+;;    '("89ba918121c69681960ac1e4397296b5a756b1293325cee0cb543d70418bd556" "bcb58b7e1a372e677f44e25e3da88f283090dbd506550c137d02907446c7d11c" "7451f243a18b4b37cabfec57facc01bd1fe28b00e101e488c61e1eed913d9db9" default))
+;;  '(git-gutter:added-sign "|")
+;;  '(git-gutter:deleted-sign " ")
+;;  '(git-gutter:modified-sign " ")
+;;  '(git-gutter:update-interval 2)
+;;  '(git-gutter:window-width 1)
+;;  '(line-number-mode nil)
+;;  '(warning-suppress-types '((comp) (comp) (comp) (comp) (comp) (comp))))
+(add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
+;; (add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode)
+(add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
+ 
+(add-hook 'prog-mode-hook 'lsp)
+(add-hook 'prog-mode-hook 'hl-line-mode)
+(add-hook 'prog-mode-hook 'tree-sitter-mode)
+
+;; (add-hook 'c-mode-common-hook
+          ;; 'smart-tabs-mode)
+(add-hook 'c-mode-common-hook
+			 (lambda () (
+							 (smart-tabs-mode)
+							 (tree-sitter-hl-mode)
+							 (electric-indent-mode)
+							 (company-capf)
+							 (setq indent-tabs-mode t))))
+
+(setq whitespace-cleanup-mode nil)
+;; (add-hook 'prog-mode-hook 'ligature-mode)
+
+(defun my-c++-mode-before-save-hook ()
+  (when (eq major-mode 'c++-mode)
+    (cpp-auto-include)))
+
+(add-hook 'before-save-hook #'my-c++-mode-before-save-hook)
+
+;; (setq tab-always-indent 'complete)
+	
+;; (add-hook 'c-mode-common-hook #'aggressive-indent-mode)
+;; (add-hook 'prog-mode-hook 'aggressive-indent-mode)
+;; (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
+(put 'dired-find-alternate-file 'disabled nil)

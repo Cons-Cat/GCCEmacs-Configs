@@ -153,7 +153,7 @@ read it before opening a new issue about your will.")
                (font-lock-variable-name-face :foreground ,dracula-fg
                                              :weight bold)
                (font-lock-warning-face :foreground ,dracula-orange :background ,bg2)
-               ;; auto-complete
+					;; auto-complete
                (ac-completion-face :underline t :foreground ,dracula-pink)
                ;; company
                (company-echo-common :foreground ,dracula-bg :background ,dracula-fg)
@@ -736,7 +736,20 @@ read it before opening a new issue about your will.")
 					(font-lock-keyword-face :slant italic)
 					(whitespace-tab :background ,dracula-bg :foreground ,dracula-bg)     ; Do not highlight indentation.
 					(whitespace-space :foreground ,dracula-bg)
-					(whitespace-newline :foreground ,dracula-bg :height 80))))
+					(whitespace-newline :foreground ,dracula-bg :height 80)
+					;; Centaur Tabs
+					(centaur-tabs-selected :background ,dracula-bg :foreground ,fg3 :height 80)
+					(centaur-tabs-selected-modified :background ,dracula-bg :foreground ,fg3 :height 80)
+					(centaur-tabs-unselected :background ,dracula-dark :foreground ,fg4 :height 80)
+					(centaur-tabs-unselected-modified :background ,dracula-dark :foreground ,fg4 :height 80)
+					(centaur-tabs-default :background ,dracula-dark)
+					(centaur-tabs-active-bar-face :background ,dracula-dark)
+					;;
+					(highlight-indent-guides-character-face :foreground ,dracula-comment)
+					(highlight-indent-guides-top-character-face :foreground ,dracula-orange)
+					;;
+					(highlight-thing :background ,bg3)
+)))
 
   (apply #'custom-theme-set-faces
          'dracula-pro
