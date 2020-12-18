@@ -12,18 +12,7 @@
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 (setq straight-use-package-by-default t)
-
 (straight-use-package 'use-package)
-
-;; (eval-when-compile
-  ;; (require 'use-package)
-  ;; )
-(straight-use-package 'diminish)
-;; TODO: Use Diminish for RYO
-													 ;(require 'diminish)
-;; (require 'bind-key)
-;; (require 'use-package-ensure)
-;; (setq use-package-always-ensure t)
 
 ;; Persient Soft
 (straight-use-package 'pcache)
@@ -31,36 +20,25 @@
 ;; (require 'persistent-soft)
 ;(persistent-soft-store 'hundred 100 "mydatastore")
 (persistent-soft-fetch 'hundred "mydatastore")
-;(persistent-soft-fetch 'thousand "mydatastore")
 
-;; (add-hook 'after-init-hook (lambda (
-;; 												(recentf-mode)
-;; 												;; (recentf-load-list)
-;; 												)))
 (recentf-mode t)
 (setq recentf-max-menu-items 25)
 (setq recentf-max-saved-items 25)
 (run-at-time nil (* 5 60) 'recentf-save-list)
-;; (add-hook 'kill-emacs-hook 'recentf-save-list)
-;; (add-hook 'after-save-hook 'recentf-save-list)
 
 (straight-use-package 'smartparens)
-(smartparens-mode t)
-(add-hook 'prog-mode-hook 'smartparens-mode)
-(add-hook 'text-mode-hook 'smartparens-mode)
+(require 'smartparens-config)
 
 ;; Vertical completion.
 (straight-use-package 'selectrum)
 (selectrum-mode t)
+
 (straight-use-package 'prescient)
-;; (prescient-filter-method fuzzy)
-
-
-;; (straight-use-package 'company-prescient)
-;; (company-prescient-mode t)
 (straight-use-package 'selectrum-prescient)
 (selectrum-prescient-mode t)
 (prescient-persist-mode t)
+
+(straight-use-package 'posframe)
 
 ;; Enable richer annotations using the Marginalia package
 (native-compile-async "~/.emacs.d/marginalia/" 'recursively)
@@ -71,7 +49,7 @@
 
 ;; Folding
 (straight-use-package
-							 '(origami :type git :host github :repo "jcs-elpa/origami.el"))
+ '(origami :type git :host github :repo "jcs-elpa/origami.el"))
 (global-origami-mode t)
 
 ;; Tree
@@ -87,7 +65,6 @@
 
 (require 'tree-sitter)
 (require 'tree-sitter-langs)
-;; (global-tree-sitter-mode)
 (add-hook 'tree-sitter-mode-hook 'tree-sitter-hl-mode)
 
 ;; Indentation
@@ -98,7 +75,7 @@
 (setq c-basic-offset 3)
 (setq cua-auto-tabify-rectangles nil)
 ;; (setq-default tab-always-indent t)
-(setq-default indent-tabs-mode t)
+;; (setq-default indent-tabs-mode t)
 
 (defadvice align (around smart-tabs activate)
   (let ((indent-tabs-mode nil)) ad-do-it))
@@ -133,72 +110,42 @@
         (t
          ad-do-it)))))
 
-(use-package aggressive-indent
-  :config
-  (add-to-list
-   'aggressive-indent-dont-indent-if
-   '(and (derived-mode-p 'c++-mode)
-         (null (string-match "\\([;{}]\\|\\b\\(if\\|for\\|while\\)\\b\\)"
-                             (thing-at-point 'line)))))
-  :init
-  ;; (add-hook 'emacs-lisp-mode-hook (lambda () (aggressive-indent-mode t)))
-  ;; (add-hook 'c-mode-common-hook #'aggressive-indent-mode)
-  ;; (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
-  )
+;; (use-package aggressive-indent
+;;   :config
+;;   (add-to-list
+;;    'aggressive-indent-dont-indent-if
+;;    '(and (derived-mode-p 'c++-mode)
+;;          (null (string-match "\\([;{}]\\|\\b\\(if\\|for\\|while\\)\\b\\)"
+;;                              (thing-at-point 'line)))))
+;;     )
 
-;; (add-hook 'emacs-lisp-mode-hook (lambda () (aggressive-indent-mode t)))
-;; (add-hook 'c-mode-common-hook (lambda () (aggressive-indent-mode t)))
-;; (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
-;; (add-hook 'c-mode-common-hook   #'aggressive-indent-mode)
-
-(use-package highlight-indent-guides
-  ;; :hook
-  ;; (prog-mode-hook . highlight-indent-guides)
-  ;; :init
-  )
-;; (add-hook 'c++-mode-hook #'highlight-indent-guides-mode)
-
-;; (add-hook 'prog-mode-hook #'highlight-indent-guides-mode)
-;; (add-hook 'prog-mode-hook (lambda () (highlight-indent-guides-mode t)))
+(straight-use-package 'highlight-indent-guides)
 (setq highlight-indent-guides-method 'character)
 (setq highlight-indent-guides-responsive 'top)
 (setq highlight-indent-guides-delay 0)
 
 ;; Completion
 (straight-use-package 'flycheck)
-(add-hook 'prog-mode-hook 'flycheck-mode)
-;; (global-flycheck-mode)
 
 (use-package company
   :straight t
-  :diminish
-  ;; :hook (company-mode . (lambda() (setq company-backend (company-capf :with company-dabbrev))))
   :config
-  (add-to-list 'company-backends '(company-files ))
-  (add-to-list 'company-backends '(company-capf ))
+  (add-to-list 'company-backends '(company-files))
+  (add-to-list 'company-backends '(company-capf))
   :custom
   (company-begin-commands '(self-insert-command))
   (company-require-match nil)
-  (company-idle-delay .6)
+  (company-idle-delay .5)
   (company-minimum-prefix-length 1)
+  (company-selection-wrap-around t)
   (company-show-numbers t)
-  (company-tooltip-align-annotations t))
-
-;; (setq company-dabbrev-downcase nil)
-(setq-local completion-ignore-case nil)
-;; (setq company-dabbrev-code-ignore-case nil)
-;; (setq company-dabbrev-ignore-case nil)
-
-;; (push (apply-partially #'cl-remove-if
-                       ;; (lambda (c) (string-match-p "\\`[0-9]+\\'" c)))
-      ;; company-transformers)
-
-;; (add-hook 'org-mode-hook 'company-org-roam)
-;; (add-hook 'prog-mode-hook 'company-mode)
+  (company-tooltip-align-annotations t)
+  (setq-local completion-ignore-case nil)
+  :init
+  (setq company-backends nil))
 
 (straight-use-package 'company-posframe)
 (straight-use-package 'company-box)
-(add-hook 'company-mode-hook 'company-box-mode)
 
 ;; Formatting
 ;; (straight-use-package 'format-all)
@@ -237,16 +184,6 @@
 ;; (require 'company-tabnine)
 ;; (add-to-list 'company-backends 'company-tabnine)
 
-;; (straight-use-package 'flx)
-;; (use-package company-fuzzy
-;;   :straight t
-;;   :config
-;;   ;; (add-to-list 'company-fuzzy-history-backends 'company-yasnippet)
-;;   :custom
-;;   (company-fuzzy-sorting-backend 'flx)
-;;   (company-fuzzy-prefix-on-top t)
-;;   (company-fuzzy-show-annotation t))
-
 (straight-use-package 'company-prescient)
 (add-hook 'company-mode-hook 'company-prescient-mode)
 
@@ -270,14 +207,7 @@
 (straight-use-package
  '(vlang-mode :type git :host github :repo "Naheel-Azawy/vlang-mode"))
 
-;; (smart-tabs-add-language-support vlang vlang-mode-hook
-  ;; ((c-indent-line . c-basic-offset)
-   ;; (c-indent-region . c-basic-offset)))
-
 ;; C++
-(add-hook 'c++-mode-hook 'tree-sitter-mode)
-;; (lambda () (setq indent-tabs-mode t)))
-
 (smart-tabs-advice c-indent-line c-basic-offset)
 (smart-tabs-advice c-indent-region c-basic-offset)
 
@@ -306,11 +236,6 @@
       lsp-headerline-breadcrumb-enable t)
 
 (straight-use-package 'cpp-auto-include)
-
-													 ;(sp-local-pair 'c++-mode "/*" "*/" :post-handlers '((" | " "SPC")
-													 ;                                                    ("* ||\n[i]" "RET"))
-													 ;					)
-;; (straight-use-package 'cmake-ide)
 
 ;; SQL
 (straight-use-package 'exec-path-from-shell)
@@ -394,7 +319,6 @@
   :config
   (global-hungry-delete-mode)
   )
-;; (straight-use-package 'duplicate-thing)
 
 (straight-use-package 'syntax-subword)
 (global-syntax-subword-mode t)
@@ -413,15 +337,8 @@
 ;; (straight-use-package 'smart-comment)
 (straight-use-package 'nocomments-mode)
 
-;; (add-hook 'before-save-hook #'delete-trailing-whitespace)
 (setq-default require-final-newline t)
-(add-hook 'org-mode-hook (lambda () (require-final-newline nil)))
-
-;; This is disabled because it causes Avy to be slow.
-;; This is a known Avy issue. I very much wish I'll be able to
-;; enable it in all modes one day.
-;; (global-visual-line-mode)
-(add-hook 'text-mode 'visual-line-mode)
+;; (add-hook 'org-mode-hook require-final-newline nil)
 
 ;; (use-package super-save
 ;;   :straight t
@@ -603,7 +520,7 @@
 (add-hook 'after-init-hook #'global-compact-docstrings--mode)
 
 (use-package whitespace
-  :straight
+  :straight t
   :config
   ;; Make whitespace-mode with very basic background coloring for whitespaces.
   ;; http://ergoemacs.org/emacs/whitespace-mode.html
@@ -617,17 +534,10 @@
    whitespace-display-mappings
     '((space-mark 32 [183] [46]) ; SPACE 32 「 」, 183 MIDDLE DOT 「·」, 46 FULL STOP 「.」
       (newline-mark 10 [?↵ 10])
-      (tab-mark ?\t [?⇥ ?\t])))
-  ;; :hook
-  ;; (prog-mode . whitespace-mode)
-  )
-(add-hook 'prog-mode-hook 'whitespace-mode)
-;; (add-hook 'emacs-lisp-mode-hook 'whitespace-mode)
+      (tab-mark ?\t [?⇥ ?\t]))))
 
 (use-package show-eol
-  :straight t
-  ;; :custom
-  )
+  :straight t)
 ;; (global-show-eol-mode t)
 (add-hook 'whitespace-mode-hook 'show-eol-mode)
 
@@ -635,13 +545,6 @@
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (toggle-scroll-bar -1)
-
-(defun graphic-p ()
-  (display-graphic-p))
-(when (graphic-p)
-  ;;  transparent frame
-  (add-to-list 'default-frame-alist'(ns-transparent-titlebar . t))
-  (add-to-list 'default-frame-alist'(alpha . (95 . 89))))
 
 ;; Font
 (add-hook 'prog-mode 'font-lock-mode)
@@ -670,29 +573,30 @@
 						  :weight 'SemiBold
 						  :height 90)
 
+;; TODO
 ;; Change font size by monitor.
-(defun fontify-frame ()
-  (interactive)
-  ;; (if window-system
-  (progn
-	 ;; (if (eq (x-display-pixel-width) 1920)
-    (if (equal 'x-display-pixel-width 1920)
-		  ;; (if (eq x-display-name "172.22.192.1:0.0")
-		  ;; (if (eq (display-monitor-attributes-list . )
-		  (progn
-			 ;; Laptop
-          (set-frame-parameter (selected-frame) 'font "Fira Code 10")
-			 (message "On Laptop")
-			 )
-		(progn
-		  (if (eq (x-display-pixel-width) 1050)
-				(progn
-				  ;; Monitor
-				  (set-frame-parameter (selected-frame) 'font "Fira Code 8")
-				  (message "On Monitor")
-				  )
-			 (progn
-				(message "Failed")))))))
+;; (defun fontify-frame ()
+;;   (interactive)
+;;   ;; (if window-system
+;;   (progn
+;; 	 ;; (if (eq (x-display-pixel-width) 1920)
+;;     (if (equal 'x-display-pixel-width 1920)
+;; 		  ;; (if (eq x-display-name "172.22.192.1:0.0")
+;; 		  ;; (if (eq (display-monitor-attributes-list . )
+;; 		  (progn
+;; 			 ;; Laptop
+;;           (set-frame-parameter (selected-frame) 'font "Fira Code 10")
+;; 			 (message "On Laptop")
+;; 			 )
+;; 		(progn
+;; 		  (if (eq (x-display-pixel-width) 1050)
+;; 				(progn
+;; 				  ;; Monitor
+;; 				  (set-frame-parameter (selected-frame) 'font "Fira Code 8")
+;; 				  (message "On Monitor")
+;; 				  )
+;; 			 (progn
+;; 				(message "Failed")))))))
 
 ;; Fontify current frame
 ;; (fontify-frame nil)
@@ -710,7 +614,7 @@
 ;; The quick brown fox jumped over the lazy dog.
 
 (use-package ligature
-:straight (:host github :repo "mickeynp/ligature.el"
+  :straight (:host github :repo "mickeynp/ligature.el"
 						 :branch "master")
   :config
   (ligature-set-ligatures 't '("www"))
@@ -728,9 +632,7 @@
                                        "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
                                        "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
                                        "\\\\" "://" "||-"
-													))
-  (ligature-set-ligatures 'text-mode '("|-" "-|-" "-|" "---"))
-  )
+													)))
 
 (add-to-list 'ligature-composition-table '(text-mode ("=" . ,(rx (+ "=")))))
 (add-to-list 'ligature-composition-table '(prog-mode ("=" . ,(rx (+ "=")))))
@@ -740,23 +642,7 @@
 ;; (unicode-fonts-setup)
 
 (use-package rainbow-delimiters
-  :straight t
-  ;; :init
-   )
-
-;; Highlight current line
-;; (use-package hl-line+
-;; :load-path "./random-libs"
-;; :init
-;; (setq hl-line-overlay-priority 100)
-;; (set-face-attribute hl-line-face nil :box t)
-;; (set-face-foreground 'hl-line "#9580FF")
-;; (set-face-underline-p 'highlight t)
-;; (toggle-hl-line-when-idle t)
-;; (hl-line-when-idle-interval 10)
-;; )
-(add-hook 'text-mode-hook 'hl-line-mode)
-(add-hook 'dired-mode-hook 'hl-line-mode)
+  :straight t)
 
 ;; Line Numbers
 (use-package linum-relative
@@ -766,23 +652,6 @@
   (setq linum-relative-backend 'display-line-numbers-mode)
   (setq linum-relative-current-symbol "")
   (linum-relative-global-mode nil))
-
-;; (use-package yascroll
-;;   :straight t)
-
-;; (setq yascroll:delay-to-hide 9.0)
-;; (global-yascroll-bar-mode t)
-;; (setq scroll-preserve-screen-position t)
-
-;; (use-package sublimity
-;;   :straight t
-;;   :init
-;;   (sublimity-mode t)
-;;   )
-;; (require 'sublimity-scroll)
-;; (setq sublimity-scroll-weight 2
-;; 		sublimity-scroll-drift-length 2
-;; 		)
 
 (setq x-stretch-cursor t)
 (setq cursor-in-non-selected-windows nil)
@@ -800,12 +669,12 @@
 ;; DIRED
 (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
 (add-hook 'dired-mode-hook 'ryo-enable)
-(straight-use-package 'posframe)
+(add-hook 'dired-mode-hook 'hl-line-mode)
 
 ;; Load posframe locally.
-(native-compile-async "~/.emacs.d/dired-posframe.el/" 'recursively)
-(add-to-list 'load-path "~/.emacs.d/dired-posframe.el/")
-(load "dired-posframe")
+;;(native-compile-async "~/.emacs.d/dired-posframe.el/" 'recursively)
+;;(add-to-list 'load-path "~/.emacs.d/dired-posframe.el/")
+;;(load "dired-posframe")
 
 (straight-use-package 'ranger)
 (add-hook 'ranger-mode-hook 'wdired-change-to-wdired-mode)
@@ -872,19 +741,19 @@
 		(setq cursor-type 'hbox)
 		(message "Selecting"))))
 
-(defun dired-posframe-toggle ()
-  "Toggle the posframe."
-  (interactive)
-  (if (bound-and-true-p dired-posframe-mode)
-		(progn
-		  (setq dired-posframe-mode nil)
-		  (dired-posframe-teardown)
-		  (message "Posframe Disabled"))
-	 (progn
-		(setq dired-posframe-mode t)
-		(dired-posframe-setup)
-		(dired-posframe-show)
-		(message "Posframe Enabled"))))
+;; (defun dired-posframe-toggle ()
+;;   "Toggle the posframe."
+;;   (interactive)
+;;   (if (bound-and-true-p dired-posframe-mode)
+;; 		(progn
+;; 		  (setq dired-posframe-mode nil)
+;; 		  (dired-posframe-teardown)
+;; 		  (message "Posframe Disabled"))
+;; 	 (progn
+;; 		(setq dired-posframe-mode t)
+;; 		(dired-posframe-setup)
+;; 		(dired-posframe-show)
+;; 		(message "Posframe Enabled"))))
 
 (defun dired-alternate-up ()
   "Navigate up one directory."
@@ -939,7 +808,7 @@
   :init
   (grugru-default-setup)
   (setq grugru-highlight-idle-delay 0.15))
-(add-hook 'prog-mode-hook #'grugru-highlight-mode)
+;; (add-hook 'prog-mode-hook #'grugru-highlight-mode)
 
 ;; Spell Checking
 
@@ -1005,48 +874,70 @@
   :straight t
   :config
   (setq-default
-	org-src-fontify-natively t
+	;; org-src-fontify-natively t
 	org-hide-emphasis-markers t
 	org-pretty-entities t
 	org-pretty-entities-include-sub-superscripts t)
   (add-to-list 'auto-mode-alist '("\\.org$" . org-mode)))
 
-(use-package org-bullets
-  :straight t
-  :init
-  ;; (setq org-bullets-face-name "Inconsolata-12")
-  (setq org-bullets-bullet-list
-        '("◎" "⚫" "○" "►" "◇"))
-  :config
-  (add-hook 'org-mode-hook (lambda () (org-bullets-mode t))))
+;; (setq org-src-fontify-natively nil)
 
-(add-hook 'org-mode-hook 'variable-pitch-mode)
+;; (use-package org-bullets
+;;   :straight t
+;;   :init
+;;   ;; (setq org-bullets-face-name "Inconsolata-12")
+;;   (setq org-bullets-bullet-list
+;;         '("◎" "⚫" "○" "►" "◇"))
+;;   :config
+;;   (add-hook 'org-mode-hook (lambda () (org-bullets-mode t))))
+
+;; (use-package org-visual-outline
+  ;; :straight t
+  ;; :straight (:host github :repo "https://github.com/legalnonsense/org-visual-outline"
+						 ;; :branch "master")
+;; )
+
+;; (straight-use-package
+ ;; '(org-visual-outline :type git :host github :repo "/legalnonsense/org-visual-outline"))
+
+;; (org-dynamic-bullets-mode)
+;; (org-visual-indent-mode)
+
+;; (add-hook 'org-mode-hook 'variable-pitch-mode)
 
 ;; Org Babel
-;; (org-babel-do-load-languages
-;; 'org-babel-load-languages
-;; '((mysql . t))
-;; )
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '(;; (mysql . t)
+	(emacs-lisp . t)
+   (C . t))
+)
+
+  (setq org-confirm-babel-evaluate nil
+        org-src-fontify-natively t
+        org-src-tab-acts-natively t
+		  org-confirm-babel-evaluate nil)
 
 ;; (set-face-attribute 'org-code nil :inherit 'fixed-pitch)
 ;; (set-face-attribute 'org-table nil :inherit 'fixed-pitch)
-(defun my-adjoin-to-list-or-symbol (element list-or-symbol)
-  (let ((list (if (not (listp list-or-symbol))
-                  (list list-or-symbol)
-                list-or-symbol)))
-    (require 'cl-lib)
-    (cl-adjoin element list)))
 
-(eval-after-load "org"
-  '(mapc
-    (lambda (face)
-      (set-face-attribute
-       face nil
-       :inherit
-       (my-adjoin-to-list-or-symbol
-        'fixed-pitch
-        (face-attribute face :inherit))))
-    (list 'org-code 'org-block 'org-table)))
+;; (defun my-adjoin-to-list-or-symbol (element list-or-symbol)
+;;   (let ((list (if (not (listp list-or-symbol))
+;;                   (list list-or-symbol)
+;;                 list-or-symbol)))
+;;     (require 'cl-lib)
+;;     (cl-adjoin element list)))
+
+;; (eval-after-load "org"
+;;   '(mapc
+;;     (lambda (face)
+;;       (set-face-attribute
+;;        face nil
+;;        :inherit
+;;        (my-adjoin-to-list-or-symbol
+;;         'fixed-pitch
+;;         (face-attribute face :inherit))))
+;;     (list 'org-code 'org-block 'org-table)))
 
 ;; Make Bibtex export in PDF
 (setq org-latex-pdf-process
@@ -1054,13 +945,16 @@
 
 (setq org-todo-keyword-faces
       '(
-		  ("NOTE" . (:foreground "lightgreen" :weight bold))
-		  ("LOW" . (:foreground "#cb4b16" :background "snow" :weight bold :box (:line-width -1)))
-        ("MED" . (:foreground "goldenrod" :background "cornsilk" :weight bold :box (:line-width -1)))
-        ("HIGH" . (:foreground "darkgreen" :background "honeydew" :weight bold :box (:line-width -1)))
-		  ("TODO" . (:foreground "black" :background "snow" :weight bold :box (:line-width -1)))
+		  ;; ("NOTE" . (:foreground "lightgreen" :weight bold))
+		  ;; ("LOW" . (:foreground "#cb4b16" :background "snow" :weight bold :box (:line-width -1)))
+        ;; ("MED" . (:foreground "goldenrod" :background "cornsilk" :weight bold :box (:line-width -1)))
+        ;; ("HIGH" . (:foreground "darkgreen" :background "honeydew" :weight bold :box (:line-width -1)))
+		  ("TODO" . org-todo)
+		  ("WAIT" . (:foreground "#FAE8B6" :background "#1e1e1e" :weight bold :box (:color "#b6b6b2" :line-width -1)))
         ("DONE" . org-done)
-        ("WONTFIX" . org-done)))
+        ;; ("WONTFIX" . org-done)
+		  ))
+(setq org-todo-keywords '((sequence "TODO" "WAIT" "DONE")))
 
 (executable-find "sqlite3")
 (use-package org-roam
@@ -1080,11 +974,8 @@
 (use-package company-org-roam
   ;; :when (featurep! :completion company)
   :straight t
-  :after org-roam
-  :config
-  ;; (set-company-backend! 'org-mode '(company-org-roam company-yasnippet company-dabbrev))
-  )
-(add-to-list 'company-backends '(company-org-roam))
+  :after org-roam)
+;; (add-to-list 'company-backends '(company-org-roam))
 
 ;; (use-package org-journal
 ;;   :straight t
@@ -1139,7 +1030,7 @@
 (use-package git-gutter
   :straight t
   )
-(add-hook 'prog-mode-hook 'git-gutter-mode)
+;; (add-hook 'prog-mode-hook 'git-gutter-mode)
 (add-hook 'org-mode-hook 'git-gutter-mode)
 
 (set-face-foreground 'git-gutter:added "orange")
@@ -1180,25 +1071,40 @@
 ;; (electric-pair-mode t)
 ;; (show-paren-mode t)
 ;; (setq show-paren-style 'expression)
-(add-hook 'prog-mode-hook 'turn-on-smartparens-mode)
-(add-hook 'markdown-mode-hook 'turn-on-smartparens-mode)
+;; (add-hook 'prog-mode-hook 'turn-on-smartparens-mode)
+;; (add-hook 'markdown-mode-hook 'turn-on-smartparens-mode)
 (straight-use-package 'comment-or-uncomment-sexp)
 
 (use-package embrace
   :straight t
   :init
   )
-(add-hook 'prog-mode-hook
-			 (lambda ()
-			   (embrace-add-pair ?e "(" ")")
-				(embrace-add-pair ?a "{" "}")
-				(embrace-add-pair ?i "[" "]")
-				(embrace-add-pair ?o  "\"" "\"")
-				(embrace-add-pair ?c  "\'" "\'")
-				(embrace-add-pair ?_  "<" ">")))
+;; (add-hook 'prog-mode-hook
+;; 			 (lambda ()
+;; 			   (embrace-add-pair ?e "(" ")")
+;; 				(embrace-add-pair ?a "{" "}")
+;; 				(embrace-add-pair ?i "[" "]")
+;; 				(embrace-add-pair ?o  "\"" "\"")
+;; 				(embrace-add-pair ?c  "\'" "\'")
+;; 				(embrace-add-pair ?_  "<" ">")))
 (add-hook 'org-mode-hook #'embrace-org-mode-hook)
 (setq embrace-show-help-p t)
 
+;; (use-package poly-markdown
+;;   :straight t
+;;   :ensure t)
+;; (add-to-list 'auto-mode-alist '("\\.md" . poly-markdown-mode))
+
+;;(use-package polymode
+;;  :ensure t
+;;  :mode ("\.py$" . poly-python-sql-mode)
+;;  :config
+;;  (setq polymode-prefix-key (kbd "C-c n"))
+;;  (define-hostmode poly-python-hostmode :mode 'c++-mode)
+
+;; (straight-use-package 'poly-org)  
+;; (add-hook 'org-mode-hook 'poly-org-mode)
+  
 ;; Pony FLY KEYS
 (native-compile-async "~/.emacs.d/Pony-Fly-Keys/" 'recursively)
 (add-to-list 'load-path "~/.emacs.d/Pony-Fly-Keys/")
@@ -1272,7 +1178,7 @@
   (ryo-cursor-update)
   (selected-off))
 
-(add-hook 'prog-mode-hook 'ryo-enable)
+;; (add-hook 'prog-mode-hook 'ryo-enable)
 
 ;; Keybindings.
 ;; TODO: This does not work:
@@ -1321,7 +1227,9 @@
 	("C" pony-binary-beginning-of-line)
 	("J" pony-binary-end-of-line)
 	("f" sp-backward-up-sexp)
+	("F" xah-backward-left-bracket)
 	("," sp-up-sexp)
+	("<" xah-forward-right-bracket)
 	;; TODO:
 	;; https://github.com/palikar/vsexp
 
@@ -1545,8 +1453,7 @@
 			  ("x" (
 					  ("s" crux-duplicate-and-comment-current-line-or-region)
 					  ("_" nocomments-mode)
-					  ))
-			  ) :name "LEADER"))
+					  ))) :name "LEADER"))
 
   (ryo-modal-keys
 	;; Dired Mode
@@ -1567,7 +1474,7 @@
 			  ("," dired-do-compress-to)
 			  ("G" dired-do-compress)
 			  ("m" dired-unmark-all-marks :name "Unmark All")
-			  ("h" dired-posframe-toggle)
+			  ;; ("h" dired-posframe-toggle)
 			  ("x" dired-mark-omitted :name "Omit")
 			  ("o" (
 					  ("a" find-file :name "Create File")
@@ -1591,7 +1498,8 @@
 			("t" org-table-create))
 	 :name "Table")
 
-	("TAB" org-todo)
+	("TAB" org-cycle)
+	("_" org-todo)
 	("M-o" org-move-subtree-up)
 	("M-e" org-move-subtree-down)
 
@@ -1599,7 +1507,7 @@
 			  ("u" org-do-promote)
 			  ("i" org-forward-heading-same-level)
 			  ("y" org-backward-heading-same-level)
-			  ("TAB" org-cycle)
+			  ;; ("TAB" org-cycle)
 			  ("t" (
 					  ("a" org-insert-todo-subheading)
 					  ("e" org-insert-todo-heading))
@@ -1619,66 +1527,62 @@
 						 )
 				:name "Headings")))))
 
-;; (eval-after-load "filladapt"
-(diminish 'company)
-(diminish 'org)
-(diminish 'org-roam)
-(diminish 'ryo-modal)
-(diminish 'projectile)
-(diminish 'yasnippet)
-(diminish 'gitgutter)
-;; )
-
-;; (custom-set-variables
-;;  ;; custom-set-variables was added by Custom.
-;;  ;; If you edit it by hand, you could mess it up, so be careful.
-;;  ;; Your init file should contain only one such instance.
-;;  ;; If there is more than one, they won't work right.
-;;  '(c++-mode-hook
-;;    '((lambda nil
-;;        (smart-tabs-mode-enable)
-;;        (smart-tabs-advice c-indent-line c-basic-offset)
-;;        (smart-tabs-advice c-indent-region c-basic-offset))
-;;      maybe-cmake-project-mode highlight-indent-guides-mode))
-;;  '(custom-safe-themes
-;;    '("89ba918121c69681960ac1e4397296b5a756b1293325cee0cb543d70418bd556" "bcb58b7e1a372e677f44e25e3da88f283090dbd506550c137d02907446c7d11c" "7451f243a18b4b37cabfec57facc01bd1fe28b00e101e488c61e1eed913d9db9" default))
-;;  '(git-gutter:added-sign "|")
-;;  '(git-gutter:deleted-sign " ")
-;;  '(git-gutter:modified-sign " ")
-;;  '(git-gutter:update-interval 2)
-;;  '(git-gutter:window-width 1)
-;;  '(line-number-mode nil)
-;;  '(warning-suppress-types '((comp) (comp) (comp) (comp) (comp) (comp))))
-(add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
-;; (add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode)
-(add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
- 
-(add-hook 'prog-mode-hook 'lsp)
-(add-hook 'prog-mode-hook 'hl-line-mode)
-(add-hook 'prog-mode-hook 'tree-sitter-mode)
-
-;; (add-hook 'c-mode-common-hook
-          ;; 'smart-tabs-mode)
-(add-hook 'c-mode-common-hook
-			 (lambda () (
-							 (smart-tabs-mode)
-							 (tree-sitter-hl-mode)
-							 (electric-indent-mode)
-							 (company-capf)
-							 (setq indent-tabs-mode t))))
+(straight-use-package 'whitespace-cleanup-mode)
 
 (setq whitespace-cleanup-mode nil)
+;; (add-hook 'prog-mode-hook 'whitespace-cleanup-mode)
 ;; (add-hook 'prog-mode-hook 'ligature-mode)
 
 (defun my-c++-mode-before-save-hook ()
   (when (eq major-mode 'c++-mode)
     (cpp-auto-include)))
 
+(setq company-backends (delete 'company-dabbrev company-backends))
+
 (add-hook 'before-save-hook #'my-c++-mode-before-save-hook)
 
+(defun prog-hook-fn ()
+  (interactive)
+  (highlight-indent-guides-mode)
+  (rainbow-delimiters-mode)
+  (hl-line-mode)
+  (whitespace-cleanup-mode)
+  (ryo-enable)
+  (flycheck-mode)
+  (smartparens-mode)
+  (company-box-mode)
+  (whitespace-cleanup-mode)
+  (grugru-highlight-mode)
+  (embrace-add-pair ?e "(" ")")
+  (embrace-add-pair ?a "{" "}")
+  (embrace-add-pair ?i "[" "]")
+  (embrace-add-pair ?o  "\"" "\"")
+  (embrace-add-pair ?c  "\'" "\'")
+  )
+(add-hook 'prog-mode-hook 'prog-hook-fn)
+
+(defun c-like-hook-fn ()
+  (interactive)
+  (lsp)
+  (smart-tabs-mode)
+  (tree-sitter-mode)
+  (electric-indent-mode)
+  (company-capf)
+  (setq indent-tabs-mode t)  
+  )
+
+(add-hook 'c-mode-common-hook
+			  'c-like-hook-fn)
+
 ;; (setq tab-always-indent 'complete)
-	
-;; (add-hook 'c-mode-common-hook #'aggressive-indent-mode)
-;; (add-hook 'prog-mode-hook 'aggressive-indent-mode)
-;; (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
+
 (put 'dired-find-alternate-file 'disabled nil)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(warning-suppress-log-types '((comp))))
+
+(provide 'init)
+;;; init.el ends here
