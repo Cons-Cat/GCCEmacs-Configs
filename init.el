@@ -11,7 +11,7 @@
 		(goto-char (point-max))
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
-
+ 
 ;;(setq straight-use-package-by-default t)
 
 ;;(straight :type git :host github
@@ -44,7 +44,7 @@
 (straight-use-package 'selectrum-prescient)
 (selectrum-prescient-mode t)
 (prescient-persist-mode t)
-
+ 
 (straight-use-package 'posframe)
 
 ;; Enable richer annotations using the Marginalia package
@@ -81,8 +81,8 @@
 (setq-default tab-width 3)
 (setq c-basic-offset 3)
 (setq cua-auto-tabify-rectangles nil)
-;; (setq-default tab-always-indent t)
-;; (setq-default indent-tabs-mode t)
+(setq-default tab-always-indent t)
+(setq-default indent-tabs-mode t)
 
 (defadvice align (around smart-tabs activate)
   (let ((indent-tabs-mode nil)) ad-do-it))
@@ -138,25 +138,27 @@
   :straight t
   :config
   (add-to-list 'company-backends '(company-files))
-  ;; (add-to-list 'company-backends '(company-capf))
+  (add-to-list 'company-backends '(company-capf))
   :custom
   (company-begin-commands '(self-insert-command))
   (company-require-match nil)
-  (company-idle-delay .5)
+  (company-idle-delay .4)
   (company-minimum-prefix-length 1)
   (company-selection-wrap-around t)
   (company-show-numbers t)
   (company-tooltip-align-annotations t)
   (setq-local completion-ignore-case nil)
   :init
-  (setq company-backends nil))
+  (setq company-backends nil)
+  )
 
 (straight-use-package 'company-posframe)
 (straight-use-package 'company-box)
 (add-hook 'company-mode-hook 'company-posframe-mode)
 
 ;; Company keybindings
-(add-hook 'company-mode-hook 'company-tng-mode)
+;; TODO: tng now prevents a box from appearing.
+;; (add-hook 'company-mode-hook 'company-tng-mode)
 (define-key company-active-map (kbd "TAB") 'company-select-next)
 (define-key company-active-map (kbd "<backtab>") 'company-select-previous)
 (define-key company-active-map (kbd "RET") nil)
@@ -188,15 +190,67 @@
   (add-to-list 'company-backends '(company-lsp)))
 
 ;; Doesn't seem to work rn.
-;; (use-package company-tabnine
-;; :straight t
-;; :ensure t
+(use-package company-tabnine
+:straight t
+:custom
+(company-tabnine-max-num-results 9)
+:ensure t
+:hook
+  (lsp-after-open . (lambda ()
+                      (setq company-tabnine-max-num-results 4)
+                      (add-to-list 'company-transformers 'company//sort-by-tabnine t)
+                      (add-to-list 'company-backends '(company-capf :with company-tabnine :separate))))
+  (kill-emacs . company-tabnine-kill-process)
 ;; )
 ;; (require 'company-tabnine)
+;; (straight-use-package 'company-tabnine)
 ;; (add-to-list 'company-backends 'company-tabnine)
+
+;; (use-package company-tabnine
+;;   :defer 1
+;;   :custom
+;;   (company-tabnine-max-num-results 12)
+;;   :bind
+;;   ;; (("M-q" . company-other-backend)
+;;    ;; ("C-z t" . company-tabnine))
+;;   :hook
+;;   (lsp-after-open . (lambda ()
+;;                       (setq company-tabnine-max-num-results 5)
+;;                       (add-to-list 'company-transformers 'company//sort-by-tabnine t)
+;;                       (add-to-list 'company-backends '(company-capf :with company-tabnine :separate))))
+;;   (kill-emacs . company-tabnine-kill-process)
+  :config
+  ;; Enable TabNine on default
+  (add-to-list 'company-backends 'company-tabnine)
+
+  ;; Integrate company-tabnine with lsp-mode
+  (defun company//sort-by-tabnine (candidates)
+    (if (or (functionp company-backend)
+            (not (and (listp company-backend) (memq 'company-tabnine company-backends))))
+        candidates
+      (let ((candidates-table (make-hash-table :test #'equal))
+            candidates-lsp
+            candidates-tabnine)
+        (dolist (candidate candidates)
+          (if (eq (get-text-property 0 'company-backend candidate)
+                  'company-tabnine)
+              (unless (gethash candidate candidates-table)
+                (push candidate candidates-tabnine))
+            (push candidate candidates-lsp)
+            (puthash candidate t candidates-table)))
+        (setq candidates-lsp (nreverse candidates-lsp))
+        (setq candidates-tabnine (nreverse candidates-tabnine))
+        (nconc (seq-take candidates-tabnine 4)
+               (seq-take candidates-lsp 6))))))
+
+(global-set-key (kbd "C-T") 'company-dabbrev)
+(global-set-key (kbd "C-t") 'company-dabbrev-code)
 
 (straight-use-package 'company-prescient)
 (add-hook 'company-mode-hook 'company-prescient-mode)
+
+;; (straight-use-package 'company-emoji)
+;; (add-to-list 'company-backends 'company-emoji)
 
 (global-company-mode t)
 
@@ -234,10 +288,7 @@
 (setq gc-cons-threshold (* 100 1024 1024)
       read-process-output-max (* 1024 1024)
       treemacs-space-between-root-nodes nil
-      ;; company-idle-delay 0.0
-      ;; company-minimum-prefix-length 1
-      lsp-idle-delay 0.1 ;; clangd is fast
-      ;; be more ide-ish
+      lsp-idle-delay 0.1
       lsp-headerline-breadcrumb-enable t)
 
 (straight-use-package 'cpp-auto-include)
