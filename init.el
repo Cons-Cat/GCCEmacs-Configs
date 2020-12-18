@@ -11,7 +11,14 @@
 		(goto-char (point-max))
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
-(setq straight-use-package-by-default t)
+
+;;(setq straight-use-package-by-default t)
+
+;;(straight :type git :host github
+;;          :repo ,(format "%s/straight.el" straight-repository-user)
+;;          :files ("straight*.el")
+;;          :branch ,straight-repository-branch)
+
 (straight-use-package 'use-package)
 
 ;; Persient Soft
@@ -131,7 +138,7 @@
   :straight t
   :config
   (add-to-list 'company-backends '(company-files))
-  (add-to-list 'company-backends '(company-capf))
+  ;; (add-to-list 'company-backends '(company-capf))
   :custom
   (company-begin-commands '(self-insert-command))
   (company-require-match nil)
@@ -146,10 +153,14 @@
 
 (straight-use-package 'company-posframe)
 (straight-use-package 'company-box)
+(add-hook 'company-mode-hook 'company-posframe-mode)
 
-;; Formatting
-;; (straight-use-package 'format-all)
-;; (add-hook 'prog-mode-hook 'format-all-mode)
+;; Company keybindings
+(add-hook 'company-mode-hook 'company-tng-mode)
+(define-key company-active-map (kbd "TAB") 'company-select-next)
+(define-key company-active-map (kbd "<backtab>") 'company-select-previous)
+(define-key company-active-map (kbd "RET") nil)
+
 
 (use-package lsp-mode
   :straight t
@@ -186,12 +197,6 @@
 
 (straight-use-package 'company-prescient)
 (add-hook 'company-mode-hook 'company-prescient-mode)
-
-;; Company keybindings
-(add-hook 'company-mode-hook 'company-tng-mode)
-(define-key company-active-map (kbd "TAB") 'company-select-next)
-(define-key company-active-map (kbd "<backtab>") 'company-select-previous)
-(define-key company-active-map (kbd "RET") nil)
 
 (global-company-mode t)
 
@@ -236,6 +241,8 @@
       lsp-headerline-breadcrumb-enable t)
 
 (straight-use-package 'cpp-auto-include)
+
+
 
 ;; SQL
 (straight-use-package 'exec-path-from-shell)
@@ -963,13 +970,14 @@
   (after-init . org-roam-mode)
   :custom
   (org-roam-directory "/path/to/org-files/")
-  :bind (:map org-roam-mode-map
-              (("C-c n l" . org-roam)
-               ("C-c n f" . org-roam-find-file)
-               ("C-c n g" . org-roam-graph))
-              :map org-mode-map
-              (("C-c n i" . org-roam-insert))
-              (("C-c n I" . org-roam-insert-immediate))))
+  ;;:bind (:map org-roam-mode-map
+  ;;            (("C-c n l" . org-roam)
+  ;;             ("C-c n f" . org-roam-find-file)
+  ;;             ("C-c n g" . org-roam-graph))
+  ;;            :map org-mode-map
+  ;;            (("C-c n i" . org-roam-insert))
+  ;;            (("C-c n I" . org-roam-insert-immediate)))
+)
 
 (use-package company-org-roam
   ;; :when (featurep! :completion company)
