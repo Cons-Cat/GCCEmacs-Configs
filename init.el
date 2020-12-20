@@ -771,81 +771,6 @@
 (setq-default dired-omit-files-p t)
 (setq dired-omit-verbose nil)
 
-;; Custom utility scripts.
-;; There exist states, such as after kill-region, when the cursor color is incorrect.
-(defun ryo-cursor-update ()
-  (if ryo-modal-mode
-		(progn
-		  (setq cursor-type (cons 'box 2))
-		  (message "NORMAL MODE")
-
-		  (if (region-active-p)
-				(keyboard-quit)))
-	 (progn
-		(setq cursor-type (cons 'bar 2))
-		(message "INSERT MODE"))))
-
-(defun pony-toggle-mark ()
-  "Toggle whether a region is being selected."
-  (interactive)
-  (if (region-active-p)
-		(progn
-		  (setq cursor-type 'box)
-		  (keyboard-quit)
-		  (message "Cancel Selection")   ; This is not working.
-		  )
-	 (progn
-		(set-mark (point))
-		(setq cursor-type 'hbox)
-		(message "Selecting"))))
-
-;; (defun dired-posframe-toggle ()
-;;   "Toggle the posframe."
-;;   (interactive)
-;;   (if (bound-and-true-p dired-posframe-mode)
-;; 		(progn
-;; 		  (setq dired-posframe-mode nil)
-;; 		  (dired-posframe-teardown)
-;; 		  (message "Posframe Disabled"))
-;; 	 (progn
-;; 		(setq dired-posframe-mode t)
-;; 		(dired-posframe-setup)
-;; 		(dired-posframe-show)
-;; 		(message "Posframe Enabled"))))
-
-(defun dired-alternate-up ()
-  "Navigate up one directory."
-  (interactive)
-  (find-alternate-file ".."))
-
-(defun eval-dwim ()
-  "Evaluate a selected region or current buffer."
-  (interactive)
-  (if (region-active-p)
-		(eval-region (region-beginning) (region-end))
-	 (eval-buffer)))
-
-;; https://www.emacswiki.org/emacs/HalfScrolling
-(defun zz-scroll-half-page (direction)
-  "Scrolls half page up if `DIRECTION' is non-nil, otherwise will scroll half page down."
-  (let ((opos (cdr (nth 6 (posn-at-point)))))
-    ;; opos = original position line relative to window
-    (move-to-window-line nil)  ;; Move cursor to middle line
-    (if direction
-        (recenter-top-bottom -1)  ;; Current line becomes last
-      (recenter-top-bottom 0))  ;; Current line becomes first
-    (move-to-window-line opos)))  ;; Restore cursor/point position
-
-(defun zz-scroll-half-page-down ()
-  "Scrolls exactly half page down keeping cursor/point position."
-  (interactive)
-  (zz-scroll-half-page nil))
-
-(defun zz-scroll-half-page-up ()
-  "Scrolls exactly half page up keeping cursor/point position."
-  (interactive)
-  (zz-scroll-half-page t))
-
 
 ;; Avy
 (use-package avy
@@ -1149,6 +1074,8 @@
 (add-hook 'org-mode-hook #'embrace-org-mode-hook)
 (setq embrace-show-help-p t)
 
+;; TODO: show-smartparens-mode
+
 ;; (use-package poly-markdown
 ;;   :straight t
 ;;   :ensure t)
@@ -1168,13 +1095,6 @@
 (native-compile-async "~/.emacs.d/Pony-Fly-Keys/" 'recursively)
 (add-to-list 'load-path "~/.emacs.d/Pony-Fly-Keys/")
 (load "pony-fly-keys")
-
-;; Toggle mark state.
-(straight-use-package 'selected)
-(selected-global-mode t)
-
-;; This seems redundant.
-(add-hook 'ryo-modal-mode-hook 'ryo-cursor-update)
 
 ;; I'm using some of Xah's utilities rn.
 ;; (straight-use-package 'xah-fly-keys)
@@ -1228,8 +1148,134 @@
 (use-package expand-region
   :straight t)
 
+;; Custom utility scripts.
+;; There exist states, such as after kill-region, when the cursor color is incorrect.
+(defun ryo-cursor-update ()
+  (if ryo-modal-mode
+		(progn
+		  (setq cursor-type (cons 'box 2))
+		  (message "NORMAL MODE")
+
+		  (if (region-active-p)
+				(keyboard-quit)))
+	 (progn
+		(setq cursor-type (cons 'bar 2))
+		(message "INSERT MODE"))))
+
+(defun pony-toggle-mark ()
+  "Toggle whether a region is being selected."
+  (interactive)
+  (if (region-active-p)
+		(progn
+		  (setq cursor-type 'box)
+		  (keyboard-quit)
+		  (message "Cancel Selection")   ; This is not working.
+		  )
+	 (progn
+		(set-mark (point))
+		(setq cursor-type 'hbox)
+		(message "Selecting"))))
+
+;; (defun dired-posframe-toggle ()
+;;   "Toggle the posframe."
+;;   (interactive)
+;;   (if (bound-and-true-p dired-posframe-mode)
+;; 		(progn
+;; 		  (setq dired-posframe-mode nil)
+;; 		  (dired-posframe-teardown)
+;; 		  (message "Posframe Disabled"))
+;; 	 (progn
+;; 		(setq dired-posframe-mode t)
+;; 		(dired-posframe-setup)
+;; 		(dired-posframe-show)
+;; 		(message "Posframe Enabled"))))
+
+(defun dired-alternate-up ()
+  "Navigate up one directory."
+  (interactive)
+  (find-alternate-file ".."))
+
+(defun eval-dwim ()
+  "Evaluate a selected region or current buffer."
+  (interactive)
+  (if (region-active-p)
+		(eval-region (region-beginning) (region-end))
+	 (eval-buffer)))
+
+;; https://www.emacswiki.org/emacs/HalfScrolling
+(defun zz-scroll-half-page (direction)
+  "Scrolls half page up if `DIRECTION' is non-nil, otherwise will scroll half page down."
+  (let ((opos (cdr (nth 6 (posn-at-point)))))
+    ;; opos = original position line relative to window
+    (move-to-window-line nil)  ;; Move cursor to middle line
+    (if direction
+        (recenter-top-bottom -1)  ;; Current line becomes last
+      (recenter-top-bottom 0))  ;; Current line becomes first
+    (move-to-window-line opos)))  ;; Restore cursor/point position
+
+(defun zz-scroll-half-page-down ()
+  "Scrolls exactly half page down keeping cursor/point position."
+  (interactive)
+  (zz-scroll-half-page nil))
+
+(defun zz-scroll-half-page-up ()
+  "Scrolls exactly half page up keeping cursor/point position."
+  (interactive)
+  (zz-scroll-half-page t))
+
+;; (defun kak-forward-word ()
+;;   (interactive)
+;;   (kakoune-set-mark-here)
+;;   (setq superword-mode t)
+;;   (forward-word))
+
+;; (defun kak-backward-word ()
+;;   (interactive)
+;;   (kakoune-set-mark-here)
+;;   (setq superword-mode t)
+;;   (backward-word))
+
+
+;; (defun kak-next-log-line ()
+;;   (interactive)
+;;   (kakoune-set-mark-here)
+;;   (next-logical-line))
+
+;; (defun kak-backward-word ()
+;;   (interactive)
+;;    (previous-logical-line))
+
+(defun my-replace-comment ()
+  (interactive)
+  (er/mark-comment)
+  (delete-region)
+  (ryo-modal-mode)
+  )
+
+(defun my-delete-dwim ()
+  (interactive)
+  (if (use-region-p)
+		(progn
+		  (delete-region (region-beginning) (region-end))
+		  (if (looking-at " ")
+				(xah-shrink-whitespaces)))
+  (progn
+	 (backward-char)
+	 (if (looking-at "[\n\t ]+")
+		  (progn
+			 ;; (forward-char)
+			 (hungry-delete-backward 1)
+			 (message looking-at))
+		(progn
+		  (forward-char)
+		  ;; (backward-char)
+		  (xah-delete-backward-bracket-pair)
+		  ;; (xah-delete-forward-bracket-pairs)
+		  ))))
+  )
+
 ;; MODAL EDITING
-(setq-default cursor-type (cons 'bar 2))
+(setq-default cursor-type (cons 'bar 2)
 (defun ryo-enable ()
   (interactive)
   (unless ryo-modal-mode
@@ -1237,54 +1283,85 @@
   (ryo-cursor-update)
   (selected-off))
 
-;; (add-hook 'prog-mode-hook 'ryo-enable)
+(use-package kakoune
+  :straight t)
 
 ;; Keybindings.
-;; TODO: This does not work:
-(global-unset-key "\C-n")
-(global-set-key "\C-n" 'keyboard-quit)
-;; (global-unset-key "<f13>")
-;; (global-set-key (kbd "<f13>") 'ryo-enable)
-;; (global-set-key  [f13] 'ryo-enable)
+(global-unset-key "\C-u")
+(global-unset-key "\C-e")
+(global-unset-key "\C-a")
+(global-unset-key "\C-c")
+(global-unset-key "\C-o")
+(global-unset-key "\C-j")
+(global-unset-key "\C-y")
+(global-unset-key "\C-i")
+(global-unset-key "\C-f")
+;; (global-unset-key "\C-\,")
+;; (global-unset-key "\C-\,")
+
+;; Toggle mark state.
+;; (straight-use-package 'selected)
+(use-package selected
+  :straight t
+  :commands selected-minor-mode
+  :bind (:map selected-keymap
+				  ("X" . comment-region)))
+
+(selected-global-mode t)
+
+;; This seems redundant.
+(add-hook 'ryo-modal-mode-hook 'ryo-cursor-update)
 
 (use-package ryo-modal
   :straight t
   :commands ryo-modal-mode
   :bind
-  ;; ("M-SPC" . ryo-enable)
-  ;; ("C-SPC" . ryo-enable)
-  ;; ("S-SPC" . ryo-enable)
   ("C-S-M-SPC" . ryo-enable)
-  ;; ("<f23>"   . ryo-enable)
-  ;; :init
-  ;; (global-set-key [escape] 'ryo-enable)
   :config
   (setq ryo-modal-cursor-type t)
   (setq ryo-modal-cursor-color nil)
 
   (ryo-modal-keys
    (:exit t)
-   ("t" ryo-modal-mode :name "Insert Mode"))
+   ("t" ryo-modal-mode :first '(kakoune-deactivate-mark) :name "Insert Mode")
+   ("k" ryo-modal-mode :first '(delete-region) :name "Replace"))
 
   (ryo-modal-keys
 	("r" execute-extended-command)
 	;; Basic navigation controls.
-   ("e" next-logical-line)
-   ("E" next-line)
-	;; ("C-t" selectrum-next-candidate)
-	("o" previous-logical-line)
-   ("O" previous-line)
-	;; ("C-c" selectrum-previous-candidate)
-	("y" backward-char)
-   ("i" forward-char)
-   ("u" pony-move-left-word)
-	("U" syntax-subword-left)
-	("a" pony-move-right-word)
-	("A" syntax-subword-right)
-	("c" xah-beginning-of-line-or-block)
-	("j" xah-end-of-line-or-block)
-	("C" pony-binary-beginning-of-line)
-	("J" pony-binary-end-of-line)
+   ("e" next-logical-line :first '(kakoune-deactivate-mark))
+   ("C-e" next-logical-line :first '(kakoune-set-mark-if-inactive))
+   ("E" next-line :first '(kakoune-deactivate-mark))
+   ("C-E" next-line :first '(kakoune-set-mark-if-inactive))
+	("o" previous-logical-line :first '(kakoune-deactivate-mark))
+	("C-o" previous-logical-line :first '(kakoune-set-mark-if-inactive))
+   ("O" previous-line :first '(kakoune-deactivate-mark))
+   ("C-O" previous-line :first '(kakoune-set-mark-if-inactive))
+	("y" backward-char :first '(kakoune-deactivate-mark))
+	("C-y" backward-char :first '(kakoune-set-mark-if-inactive))
+   ("i" forward-char :first '(kakoune-deactivate-mark))
+   ("C-i" forward-char :first '(kakoune-set-mark-if-inactive))
+   ("u" pony-move-left-word
+	  :first '(kakoune-deactivate-mark)
+	 :then '(pony-mark-word-l))
+   ("C-u" pony-move-left-word
+	  :first '(kakoune-set-mark-if-inactive)
+	 :then '(pony-mark-word-l))
+   	("U" syntax-subword-left :first '(kakoune-set-mark-here))
+	("C-U" syntax-subword-left :first '(kakoune-set-mark-if-inactive))
+	("a" pony-move-right-word
+	 :first '(kakoune-set-mark-here)
+	 :then '(pony-mark-word-r))
+	("A" syntax-subword-right :first '(kakoune-set-mark-here))
+	("C-A" syntax-subword-right :first '(kakoune-set-mark-if-inactive))
+	("c" xah-beginning-of-line-or-block :first '(kakoune-deactivate-mark))
+	("C-c" xah-beginning-of-line-or-block :first '(kakoune-set-mark-if-inactive))
+	("j" xah-end-of-line-or-block :first '(kakoune-deactivate-mark))
+	("C-j" xah-end-of-line-or-block :first '(kakoune-set-mark-if-inactive))
+	("C" pony-binary-beginning-of-line :first '(kakoune-deactivate-mark))
+	("J" pony-binary-end-of-line :first '(kakoune-deactivate-mark))
+	("." kakoune-select-up-to-char :first '(kakoune-deactivate-mark))
+	("C-." kakoune-select-up-to-char :first '(kakoune-set-mark-if-inactive))
 	("f" sp-backward-up-sexp)
 	("F" xah-backward-left-bracket)
 	("," sp-up-sexp)
@@ -1293,12 +1370,13 @@
 	;; https://github.com/palikar/vsexp
 
 	;; Basic deletion commands.
-	("n" hungry-delete-backward)
-	("=" delete-char)
-	("h" pony-delete-left-word)
-	("H" subword-backward-kill)
-	("k" pony-delete-right-word)
-	("K" subword-kill)
+	;; ("n" hungry-delete-backward)
+	("n" my-delete-dwim)
+	;; ("=" delete-char)
+	;; ("h" pony-delete-left-word)
+	;; ("H" subword-backward-kill)
+	;; ("k" pony-delete-right-word)
+	;; ("K" subword-kill)
 
 	;; Commenting
 	("x" comment-line)
@@ -1436,7 +1514,8 @@
 							  ("u" mc/insert-letters)
 							  ("j" mc/sort-regions)
 							  ("a" mc/reverse-regions))
-						:name "Multi-Cursor"))
+						:name "Multi-Cursor")
+					  ("x" kill-comment))
 				:name "Insert")
 
 			  ;; File Management
@@ -1503,16 +1582,24 @@
 					  )
 				:name "Letter Case")
 
-			  ;; Toggles
-			  ;; ("_" (
-					  ;; ("x" nocomments-mode))
-				;; :name "Toggles")
-
 			  ;; Comments
 			  ("x" (
 					  ("s" crux-duplicate-and-comment-current-line-or-region)
 					  ("_" nocomments-mode)
-					  ))) :name "LEADER"))
+					  ("n" comment-or-uncomment-sexp)
+					  ("v" er/mark-comment)
+					  ("u" comment-box)
+					  ("j" xah-comment-dwim)
+					  ("e" c-indent-new-comment-line)
+					  ("a" comment-indent)
+					  ;; ("" indent-new-comment-line)
+					  ;; ("t" my-replace-comment)
+					  )
+				;; ("x" (
+				;; 		("t" er/mark-comment)
+				;; 		) :then '(delete-region) :exit t)
+				)
+			  ) :name "LEFT LEADER"))
 
   (ryo-modal-keys
 	;; Dired Mode
