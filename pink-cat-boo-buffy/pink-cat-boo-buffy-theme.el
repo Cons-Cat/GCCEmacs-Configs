@@ -76,7 +76,7 @@ read it before opening a new issue about your will.")
                 (pink-cat-boo-buffy-fg      "#EBA4AC" "#ffffff" "brightwhite") ; official foreground
                 (pink-cat-boo-buffy-current "#472541" "#303030" "brightblack") ; official current-line/selection
                 ;; (pink-cat-boo-buffy-current "#44475a" "#303030" "brightblack") ; official current-line/selection
-                (pink-cat-boo-buffy-comment "#A16193" "#5f5faf" "blue")	; official comment
+                (pink-cat-boo-buffy-comment "#A16193" "#5f5faf" "blue")	; official ommen
                 (pink-cat-boo-buffy-cyan    "#A2C2EB" "#87d7ff" "brightcyan")	; official cyan
                 (pink-cat-boo-buffy-green   "#58B896" "#5fff87" "green") ; official green
                 (pink-cat-boo-buffy-orange  "ffc85b" "#ffaf5f" "brightred") ; official orange
@@ -95,7 +95,8 @@ read it before opening a new issue about your will.")
                 (fg3             "#4747a1" "#c6c6c6" "white")
                 (fg4             "#b6b6b2" "#b2b2b2" "white")
                 (other-blue      "#A2C2EB" "#0087ff" "brightblue")
-					 (other-green     "9CD162" "#0087ff" "brightblue")))
+					 (other-green     "#9CD162" "#0087ff" "brightblue")
+					 (canon-comment     "#6D7A72" "#0087ff" "brightblue")))
       (faces '(;; default
                (cursor :background ,fg4)
                (completions-first-difference :foreground ,pink-cat-boo-buffy-pink :weight bold)
@@ -120,6 +121,7 @@ read it before opening a new issue about your will.")
                (linum :slant italic :foreground ,bg4 :background ,pink-cat-boo-buffy-bg)
                (line-number :slant italic :foreground ,pink-cat-boo-buffy-comment :background ,pink-cat-boo-buffy-bg)
                (match :background ,pink-cat-boo-buffy-yellow :foreground ,pink-cat-boo-buffy-bg)
+               (fic-face :background ,pink-cat-boo-buffy-dark :foreground ,canon-comment)
                (minibuffermpt
                 ,@(if pink-cat-boo-buffy-alternate-mode-line-and-minibuffer
                       (list :weight 'normal :foreground pink-cat-boo-buffy-fg)

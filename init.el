@@ -11,7 +11,14 @@
 		(goto-char (point-max))
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
- 
+
+;; (setq package-archives
+;;       '(("celpa" . "https://celpa.conao3.com/packages/")
+;;         ("melpa" . "https://melpa.org/packages/")
+;;         ("org" . "https://orgmode.org/elpa/")
+;;         ("gnu" . "https://elpa.gnu.org/packages/")))
+;; (package-initialize)
+
 ;;(setq straight-use-package-by-default t)
 
 ;;(straight :type git :host github
@@ -58,6 +65,8 @@
 (straight-use-package
  '(origami :type git :host github :repo "jcs-elpa/origami.el"))
 (global-origami-mode t)
+(straight-use-package 'lsp-origami)
+(add-hook 'lsp-after-open-hook #'lsp-origami-try-enable)
 
 ;; Tree
 (straight-use-package 'treemacs)
@@ -265,6 +274,8 @@
 ;; V
 (straight-use-package
  '(vlang-mode :type git :host github :repo "Naheel-Azawy/vlang-mode"))
+(add-to-list 'auto-mode-alist '("\\.v$" . vlang-mode))
+(load-file "~/.emacs.d/vls.el")
 
 ;; C++
 (smart-tabs-advice c-indent-line c-basic-offset)
@@ -394,6 +405,7 @@
 (straight-use-package 'banner-comment)
 ;; (straight-use-package 'smart-comment)
 (straight-use-package 'nocomments-mode)
+(straight-use-package 'fic-mode)
 
 (setq-default require-final-newline t)
 ;; (add-hook 'org-mode-hook require-final-newline nil)
@@ -576,6 +588,7 @@
 (straight-use-package 'compact-docstrings)
 (setq compact-docstrings-only-doc-blocks nil)
 (add-hook 'after-init-hook #'global-compact-docstrings--mode)
+(setq redisplay-dont-pause t)
 
 (use-package whitespace
   :straight t
@@ -783,7 +796,6 @@
      ?h ?o ?k ?c ?g ?j ?p ?y ;; close to home rows; no pinkes.
      ?d ?f ?l ?q ?b ?\, ;; Bottom row.
 	  )))
-
 
 ;; Word Rotation
 (use-package grugru
@@ -1090,7 +1102,17 @@
 
 ;; (straight-use-package 'poly-org)  
 ;; (add-hook 'org-mode-hook 'poly-org-mode)
-  
+
+;; Better Scroll
+(straight-use-package
+ '(good-scroll :type git :host github :repo "io12/good-scroll.el"))
+(good-scroll-mode t)
+(setq fast-but-imprecise-scrolling t
+		scroll-margin 3
+		scroll-conservatively 101
+		auto-window-vscroll nil)
+(straight-use-package 'better-scroll)
+
 ;; Pony FLY KEYS
 (native-compile-async "~/.emacs.d/Pony-Fly-Keys/" 'recursively)
 (add-to-list 'load-path "~/.emacs.d/Pony-Fly-Keys/")
@@ -1153,7 +1175,7 @@
 (defun ryo-cursor-update ()
   (if ryo-modal-mode
 		(progn
-		  (setq cursor-type (cons 'box 2))
+		  (setq cursor-type (cons 'hbox 2))
 		  (message "NORMAL MODE")
 
 		  (if (region-active-p)
@@ -1167,7 +1189,7 @@
   (interactive)
   (if (region-active-p)
 		(progn
-		  (setq cursor-type 'box)
+		  (setq cursor-type 'hbox)
 		  (keyboard-quit)
 		  (message "Cancel Selection")   ; This is not working.
 		  )
@@ -1223,40 +1245,18 @@
   (interactive)
   (zz-scroll-half-page t))
 
-;; (defun kak-forward-word ()
-;;   (interactive)
-;;   (kakoune-set-mark-here)
-;;   (setq superword-mode t)
-;;   (forward-word))
-
-;; (defun kak-backward-word ()
-;;   (interactive)
-;;   (kakoune-set-mark-here)
-;;   (setq superword-mode t)
-;;   (backward-word))
-
-
-;; (defun kak-next-log-line ()
-;;   (interactive)
-;;   (kakoune-set-mark-here)
-;;   (next-logical-line))
-
-;; (defun kak-backward-word ()
-;;   (interactive)
-;;    (previous-logical-line))
-
 (defun my-replace-comment ()
   (interactive)
   (er/mark-comment)
   (delete-region)
-  (ryo-modal-mode)
-  )
+  (ryo-modal-mode))
 
 (defun my-delete-dwim ()
   (interactive)
   (if (use-region-p)
 		(progn
 		  (delete-region (region-beginning) (region-end))
+		  ;; (delete-char 1)
 		  (if (looking-at " ")
 				(xah-shrink-whitespaces)))
   (progn
@@ -1269,13 +1269,19 @@
 		(progn
 		  (forward-char)
 		  ;; (backward-char)
-		  (xah-delete-backward-bracket-pair)
+		  (delete-forward-char 1)
+		  ;; (xah-delete-backward-bracket-pair)
 		  ;; (xah-delete-forward-bracket-pairs)
-		  ))))
-  )
+		  )))))
+
+(defun my-select-under ()
+  (interactive)
+  (if (looking-at "[\n]")
+		(progn)
+	 (set-mark (+ (point) 1))))
 
 ;; MODAL EDITING
-(setq-default cursor-type (cons 'bar 2)
+(setq-default cursor-type (cons 'box 2))
 (defun ryo-enable ()
   (interactive)
   (unless ryo-modal-mode
@@ -1288,11 +1294,11 @@
 
 ;; Keybindings.
 (global-unset-key "\C-u")
-(global-unset-key "\C-e")
+;; (global-unset-key "\C-e")
 (global-unset-key "\C-a")
 (global-unset-key "\C-c")
 (global-unset-key "\C-o")
-(global-unset-key "\C-j")
+;; (global-unset-key "\C-j")
 (global-unset-key "\C-y")
 (global-unset-key "\C-i")
 (global-unset-key "\C-f")
@@ -1329,17 +1335,17 @@
   (ryo-modal-keys
 	("r" execute-extended-command)
 	;; Basic navigation controls.
-   ("e" next-logical-line :first '(kakoune-deactivate-mark))
-   ("C-e" next-logical-line :first '(kakoune-set-mark-if-inactive))
-   ("E" next-line :first '(kakoune-deactivate-mark))
+   ("e" next-logical-line :first '(kakoune-deactivate-mark) :then '(my-select-under))
+    ("C-e" next-logical-line :first '(kakoune-set-mark-if-inactive))
+    ("E" next-line :first '(kakoune-deactivate-mark) :then '(my-select-under))
    ("C-E" next-line :first '(kakoune-set-mark-if-inactive))
-	("o" previous-logical-line :first '(kakoune-deactivate-mark))
+	("o" previous-logical-line :first '(kakoune-deactivate-mark) :then '(my-select-under))
 	("C-o" previous-logical-line :first '(kakoune-set-mark-if-inactive))
-   ("O" previous-line :first '(kakoune-deactivate-mark))
+   ("O" previous-line :first '(kakoune-deactivate-mark) :then '(my-select-under))
    ("C-O" previous-line :first '(kakoune-set-mark-if-inactive))
-	("y" backward-char :first '(kakoune-deactivate-mark))
+	("y" backward-char :first '(kakoune-deactivate-mark) :then '(my-select-under))
 	("C-y" backward-char :first '(kakoune-set-mark-if-inactive))
-   ("i" forward-char :first '(kakoune-deactivate-mark))
+   ("i" forward-char :first '(kakoune-deactivate-mark) :then '(my-select-under))
    ("C-i" forward-char :first '(kakoune-set-mark-if-inactive))
    ("u" pony-move-left-word
 	  :first '(kakoune-deactivate-mark)
@@ -1354,21 +1360,27 @@
 	 :then '(pony-mark-word-r))
 	("A" syntax-subword-right :first '(kakoune-set-mark-here))
 	("C-A" syntax-subword-right :first '(kakoune-set-mark-if-inactive))
-	("c" xah-beginning-of-line-or-block :first '(kakoune-deactivate-mark))
+	("c" xah-beginning-of-line-or-block :first '(kakoune-deactivate-mark) :then '(my-select-under))
 	("C-c" xah-beginning-of-line-or-block :first '(kakoune-set-mark-if-inactive))
-	("j" xah-end-of-line-or-block :first '(kakoune-deactivate-mark))
+	("j" xah-end-of-line-or-block :first '(kakoune-deactivate-mark) :then '(my-select-under))
 	("C-j" xah-end-of-line-or-block :first '(kakoune-set-mark-if-inactive))
-	("C" pony-binary-beginning-of-line :first '(kakoune-deactivate-mark))
-	("J" pony-binary-end-of-line :first '(kakoune-deactivate-mark))
-	("." kakoune-select-up-to-char :first '(kakoune-deactivate-mark))
+	("C" pony-binary-beginning-of-line :first '(kakoune-deactivate-mark) :then '(my-select-under))
+	("J" pony-binary-end-of-line :first '(kakoune-deactivate-mark) :then '(my-select-under))
+	("." kakoune-select-up-to-char :first '(kakoune-deactivate-mark) :then '(my-select-under))
 	("C-." kakoune-select-up-to-char :first '(kakoune-set-mark-if-inactive))
-	("f" sp-backward-up-sexp)
-	("F" xah-backward-left-bracket)
-	("," sp-up-sexp)
-	("<" xah-forward-right-bracket)
+	("f" sp-backward-up-sexp :first '(kakoune-deactivate-mark) :then '(my-select-under))
+	("C-f" sp-backward-up-sexp :first '(kakoune-set-mark-if-inactive))
+	("F" xah-backward-left-bracket :first '(kakoune-deactivate-mark) :then '(my-select-under))
+	("C-F" xah-backward-left-bracket :first '(kakoune-set-mark-if-inactive))
+	("," sp-up-sexp :first '(kakoune-deactivate-mark) :then '(my-select-under))
+	("C-," sp-up-sexp :first '(kakoune-set-mark-if-inactive))
+	("<" xah-forward-right-bracket :first '(kakoune-deactivate-mark) :then '(my-select-under))
+	("C-<" xah-forward-right-bracket :first '(kakoune-set-mark-if-inactive))
 	;; TODO:
 	;; https://github.com/palikar/vsexp
-
+	
+	("TAB" indent-for-tab-command)
+	
 	;; Basic deletion commands.
 	;; ("n" hungry-delete-backward)
 	("n" my-delete-dwim)
@@ -1377,7 +1389,7 @@
 	;; ("H" subword-backward-kill)
 	;; ("k" pony-delete-right-word)
 	;; ("K" subword-kill)
-
+	
 	;; Commenting
 	("x" comment-line)
 
@@ -1426,12 +1438,13 @@
 	;; Clipboard operations.
 	("b" kill-region)
 	("l" pony-copy-current-word)
-	("d" yank-from-kill-ring)
+	;; ("d" yank-from-kill-ring)
+	("d" yank :first '(kakoune-deactivate-mark))
 	("v" pony-toggle-mark)
 
 	;; Basic operations.
-	("m" undo)
-	("M" undo-redo)
+	("m" undo :first '(kakoune-deactivate-mark))
+	("M" undo-redo :first '(kakoune-deactivate-mark))
 	("w" ctrlf-forward-fuzzy)
 	("W" ctrlf-forward-literal)
 	("g" xah-shrink-whitespaces)
@@ -1542,21 +1555,43 @@
 					  ("h" other-frame :name "Other Frame")))
 
 			  ;; Large Motions
+           ;; ("e" (
+           ;;       ;; ("a" scroll-up :name "Page Down")
+           ;;       ("a" better-scroll-up :first '(kakoune-deactivate-mark) :name "Page Down")
+           ;;       ("A" zz-scroll-half-page-down :first '(kakoune-deactivate-mark) :name "Half-Page Down")
+           ;;       ;; g can be used for scroll without moving cursor
+           ;;       ;; ("u" scroll-down :name "Page Up")
+           ;;       ("u" better-scroll-down :first '(kakoune-deactivate-mark) :name "Page Up")
+           ;;       ("U" zz-scroll-half-page-up :first '(kakoune-deactivate-mark) :name "Half-Page Down")
+           ;;       ;; r can be used for scroll without moving cursor
+           ;;       ("n" recenter-top-bottom  :first '(kakoune-deactivate-mark) :name "Recenter Point")
+           ;;       ("t" move-to-window-line-top-bottom :name "Point at Center")
+			  ;; 		  ("p" move-to-window-line-top-bottom)
+			  ;; 		  ("f" kill-this-buffer :name "Kill This Buffer")
+			  ;; 		  ("h" avy-goto-line :first '(kakoune-deactivate-mark) :name "Line Jump")
+           ;;       ("k" avy-goto-word-1 :first '(kakoune-deactivate-mark) :name "Word Jump")
+			  ;; 		  ("y" beginning-of-buffer :first '(kakoune-deactivate-mark) "Buffer Start")
+			  ;; 		  ("i" end-of-buffer :first '(kakoune-deactivate-mark) "Buffer End"))
+           ;;  :name "Large Motion")
+
+			  ;; ;; Spellcheck
            ("e" (
-                 ("a" scroll-up :name "Page Down")
+                 ;; ("a" scroll-up :name "Page Down")
+                 ("a" better-scroll-up :name "Page Down")
                  ("A" zz-scroll-half-page-down :name "Half-Page Down")
                  ;; g can be used for scroll without moving cursor
-                 ("u" scroll-down :name "Page Up")
+                 ;; ("u" scroll-down :name "Page Up")
+                 ("u" better-scroll-down :name "Page Up")
                  ("U" zz-scroll-half-page-up :name "Half-Page Down")
                  ;; r can be used for scroll without moving cursor
-                 ("n" recenter-top-bottom :name "Recenter Point")
+                 ("n" recenter-top-bottom  :name "Recenter Point")
                  ("t" move-to-window-line-top-bottom :name "Point at Center")
 					  ("p" move-to-window-line-top-bottom)
 					  ("f" kill-this-buffer :name "Kill This Buffer")
 					  ("h" avy-goto-line :name "Line Jump")
                  ("k" avy-goto-word-1 :name "Word Jump")
-					  ("y" beginning-of-buffer "Buffer Start")
-					  ("i" end-of-buffer "Buffer End"))
+					  ("y" beginning-of-buffer :"Buffer Start")
+					  ("i" end-of-buffer :"Buffer End"))
             :name "Large Motion")
 
 			  ;; Spellcheck
@@ -1692,6 +1727,7 @@
   (highlight-indent-guides-mode)
   (rainbow-delimiters-mode)
   (hl-line-mode)
+  (fic-mode)
   (whitespace-cleanup-mode)
   (ryo-enable)
   (flycheck-mode)
