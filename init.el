@@ -275,7 +275,7 @@
 (straight-use-package
  '(vlang-mode :type git :host github :repo "Naheel-Azawy/vlang-mode"))
 (add-to-list 'auto-mode-alist '("\\.v$" . vlang-mode))
-(load-file "~/.emacs.d/vls.el")
+;; (load-file "~/.emacs.d/vls.el")
 
 ;; C++
 (smart-tabs-advice c-indent-line c-basic-offset)
@@ -1280,6 +1280,27 @@
 		(progn)
 	 (set-mark (+ (point) 1))))
 
+(defun my-back-brace ()
+  (interactive)
+  (backward-char)
+  (xah-backward-left-bracket)
+  (forward-char))
+(defun my-forward-brace ()
+  (interactive)
+  (forward-char)
+  (xah-forward-right-bracket)
+  (backward-char))
+(defun my-back-up-brace ()
+  (interactive)
+  (backward-char)
+  (sp-backward-up-sexp)
+  (forward-char))
+(defun my-forward-up-brace ()
+  (interactive)
+  (forward-char)
+  (sp-up-sexp)
+  (backward-char))
+
 ;; MODAL EDITING
 (setq-default cursor-type (cons 'box 2))
 (defun ryo-enable ()
@@ -1368,14 +1389,14 @@
 	("J" pony-binary-end-of-line :first '(kakoune-deactivate-mark) :then '(my-select-under))
 	("." kakoune-select-up-to-char :first '(kakoune-deactivate-mark) :then '(my-select-under))
 	("C-." kakoune-select-up-to-char :first '(kakoune-set-mark-if-inactive))
-	("f" sp-backward-up-sexp :first '(kakoune-deactivate-mark) :then '(my-select-under))
-	("C-f" sp-backward-up-sexp :first '(kakoune-set-mark-if-inactive))
-	("F" xah-backward-left-bracket :first '(kakoune-deactivate-mark) :then '(my-select-under))
-	("C-F" xah-backward-left-bracket :first '(kakoune-set-mark-if-inactive))
-	("," sp-up-sexp :first '(kakoune-deactivate-mark) :then '(my-select-under))
-	("C-," sp-up-sexp :first '(kakoune-set-mark-if-inactive))
-	("<" xah-forward-right-bracket :first '(kakoune-deactivate-mark) :then '(my-select-under))
-	("C-<" xah-forward-right-bracket :first '(kakoune-set-mark-if-inactive))
+	("f" my-back-up-brace :first '(kakoune-deactivate-mark) :then '(my-select-under))
+	("C-f" my-back-up-brace :first '(kakoune-set-mark-if-inactive))
+	("F" my-back-brace :first '(kakoune-deactivate-mark) :then '(my-select-under))
+	("C-F" my-back-brace :first '(kakoune-set-mark-if-inactive))
+	("," my-forward-up-brace :first '(kakoune-deactivate-mark) :then '(my-select-under))
+	("C-," my-forward-up-brace :first '(kakoune-set-mark-if-inactive))
+	("<" my-forward-brace :first '(kakoune-deactivate-mark) :then '(my-select-under))
+	("C-<" my-forward-brace :first '(kakoune-set-mark-if-inactive))
 	;; TODO:
 	;; https://github.com/palikar/vsexp
 	
