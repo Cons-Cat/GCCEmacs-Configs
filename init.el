@@ -55,12 +55,10 @@
 (straight-use-package 'posframe)
 
 ;; Enable richer annotations using the Marginalia package
-(native-compile-async "~/.emacs.d/marginalia/" 'recursively)
-(add-to-list 'load-path "~/.emacs.d/marginalia/")
-(load "marginalia")
+(straight-use-package 'marginalia)
 (marginalia-mode)
 (setq marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light))
-
+ 
 ;; Folding
 (straight-use-package
  '(origami :type git :host github :repo "jcs-elpa/origami.el"))
@@ -307,12 +305,12 @@
 
 
 ;; SQL
-(straight-use-package 'exec-path-from-shell)
-(straight-use-package 'emacsql)
-(straight-use-package 'emacsql-mysql)
+;; (straight-use-package 'exec-path-from-shell)
+;; (straight-use-package 'emacsql)
+;; (straight-use-package 'emacsql-mysql)
 
-;; ;; HLSL
-;; ;;(straight-use-package 'hlsl-mode)
+;; HLSL
+;;(straight-use-package 'hlsl-mode)
 ;; (use-package hlsl-mode
 ;;   ;; :straight t
 ;;   :load-path "~/.emacs.d/hlsl/hlsl-mode.el"
@@ -625,8 +623,8 @@
 						  :height 90)
 
 (set-face-attribute 'font-lock-comment-face nil
-						  :family "Liga OperatorMono Nerd Font"
-						  :weight 'Light
+						  :family "Operator Mono Lig"
+						  :weight 'Book
 						  :height 90
 						  :slant 'italic)
 
@@ -951,39 +949,6 @@
 		  ))
 (setq org-todo-keywords '((sequence "TODO" "WAIT" "DONE")))
 
-(executable-find "sqlite3")
-(use-package org-roam
-  :straight t
-  :hook
-  (after-init . org-roam-mode)
-  :custom
-  (org-roam-directory "/path/to/org-files/")
-  ;;:bind (:map org-roam-mode-map
-  ;;            (("C-c n l" . org-roam)
-  ;;             ("C-c n f" . org-roam-find-file)
-  ;;             ("C-c n g" . org-roam-graph))
-  ;;            :map org-mode-map
-  ;;            (("C-c n i" . org-roam-insert))
-  ;;            (("C-c n I" . org-roam-insert-immediate)))
-)
-
-(use-package company-org-roam
-  ;; :when (featurep! :completion company)
-  :straight t
-  :after org-roam)
-;; (add-to-list 'company-backends '(company-org-roam))
-
-;; (use-package org-journal
-;;   :straight t
-;;   :config
-;;   (setq org-journal-enable-agenda-integration t)
-;;   :custom
-;;   (org-journal-dir "~/Desktop/03-resources/org-roam/")
-;;   (org-journal-date-prefix "#+TITLE: ")
-;;   (org-journal-file-format "%Y-%m-%d.org")
-;;   (org-journal-date-format "%A, %d %B %Y")
-;;   )
-
 ;; WHICH KEY
 (use-package which-key
   :straight t
@@ -1256,28 +1221,15 @@
   (if (use-region-p)
 		(progn
 		  (delete-region (region-beginning) (region-end))
-		  ;; (delete-char 1)
-		  (if (looking-at " ")
+(if (looking-at " ")
 				(xah-shrink-whitespaces)))
-  (progn
-	 (backward-char)
-	 (if (looking-at "[\n\t ]+")
-		  (progn
-			 ;; (forward-char)
-			 (hungry-delete-backward 1)
-			 (message looking-at))
-		(progn
-		  (forward-char)
-		  ;; (backward-char)
-		  (delete-forward-char 1)
-		  ;; (xah-delete-backward-bracket-pair)
-		  ;; (xah-delete-forward-bracket-pairs)
-		  )))))
+  (progn (delete-forward-char 1))))
 
 (defun my-select-under ()
   (interactive)
   (if (looking-at "[\n]")
-		(progn)
+		(progn ;; Do nothing.
+		  )
 	 (set-mark (+ (point) 1))))
 
 (defun my-back-brace ()
@@ -1301,6 +1253,12 @@
   (sp-up-sexp)
   (backward-char))
 
+;; (defun my-tog-or-fold ()
+  ;; (interactive)
+  ;; (if (looking-at "\(\)")))
+
+;; (add-hook 'grugru-after-no-rotate-hook 'origami-toggle-node)
+
 ;; MODAL EDITING
 (setq-default cursor-type (cons 'box 2))
 (defun ryo-enable ()
@@ -1315,16 +1273,15 @@
 
 ;; Keybindings.
 (global-unset-key "\C-u")
-;; (global-unset-key "\C-e")
+(global-unset-key "\C-e")
 (global-unset-key "\C-a")
 (global-unset-key "\C-c")
+;;(define-key flycheck-mode-map (kbd "\C-c") nil)
 (global-unset-key "\C-o")
-;; (global-unset-key "\C-j")
+(global-unset-key "\C-j")
 (global-unset-key "\C-y")
 (global-unset-key "\C-i")
 (global-unset-key "\C-f")
-;; (global-unset-key "\C-\,")
-;; (global-unset-key "\C-\,")
 
 ;; Toggle mark state.
 ;; (straight-use-package 'selected)
@@ -1355,10 +1312,11 @@
 
   (ryo-modal-keys
 	("r" execute-extended-command)
+	
 	;; Basic navigation controls.
    ("e" next-logical-line :first '(kakoune-deactivate-mark) :then '(my-select-under))
-    ("C-e" next-logical-line :first '(kakoune-set-mark-if-inactive))
-    ("E" next-line :first '(kakoune-deactivate-mark) :then '(my-select-under))
+   ("C-e" next-logical-line :first '(kakoune-set-mark-if-inactive))
+   ("E" next-line :first '(kakoune-deactivate-mark) :then '(my-select-under))
    ("C-E" next-line :first '(kakoune-set-mark-if-inactive))
 	("o" previous-logical-line :first '(kakoune-deactivate-mark) :then '(my-select-under))
 	("C-o" previous-logical-line :first '(kakoune-set-mark-if-inactive))
@@ -1368,19 +1326,19 @@
 	("C-y" backward-char :first '(kakoune-set-mark-if-inactive))
    ("i" forward-char :first '(kakoune-deactivate-mark) :then '(my-select-under))
    ("C-i" forward-char :first '(kakoune-set-mark-if-inactive))
-   ("u" pony-move-left-word
-	  :first '(kakoune-deactivate-mark)
+   ("u" pony-sure-prev-word
+	 :first '(kakoune-deactivate-mark)
 	 :then '(pony-mark-word-l))
-   ("C-u" pony-move-left-word
-	  :first '(kakoune-set-mark-if-inactive)
+   ("C-u" pony-sure-prev-word
+	 :first '(kakoune-set-mark-if-inactive)
 	 :then '(pony-mark-word-l))
    	("U" syntax-subword-left :first '(kakoune-set-mark-here))
 	("C-U" syntax-subword-left :first '(kakoune-set-mark-if-inactive))
-	("a" pony-move-right-word
+	("a" pony-sure-forw-word
 	 :first '(kakoune-set-mark-here)
 	 :then '(pony-mark-word-r))
 	("A" syntax-subword-right :first '(kakoune-set-mark-here))
-	("C-A" syntax-subword-right :first '(kakoune-set-mark-if-inactive))
+	("C-A" pony-sure-forw-word :first '(kakoune-set-mark-if-inactive))
 	("c" xah-beginning-of-line-or-block :first '(kakoune-deactivate-mark) :then '(my-select-under))
 	("C-c" xah-beginning-of-line-or-block :first '(kakoune-set-mark-if-inactive))
 	("j" xah-end-of-line-or-block :first '(kakoune-deactivate-mark) :then '(my-select-under))
@@ -1403,13 +1361,7 @@
 	("TAB" indent-for-tab-command)
 	
 	;; Basic deletion commands.
-	;; ("n" hungry-delete-backward)
 	("n" my-delete-dwim)
-	;; ("=" delete-char)
-	;; ("h" pony-delete-left-word)
-	;; ("H" subword-backward-kill)
-	;; ("k" pony-delete-right-word)
-	;; ("K" subword-kill)
 	
 	;; Commenting
 	("x" comment-line)
@@ -1423,6 +1375,7 @@
 	("+" mark-whole-buffer :name "Select All")
 	("=" er/expand-region)
 	("-" er/contract-region)
+	("p" xah-select-line)
 	
 	;; Multi-cursor
 	("M-o" mc/mark-previous-like-this)
@@ -1461,13 +1414,13 @@
 	("l" pony-copy-current-word)
 	;; ("d" yank-from-kill-ring)
 	("d" yank :first '(kakoune-deactivate-mark))
-	("v" pony-toggle-mark)
+	("v" exchange-point-and-mark)
 
 	;; Basic operations.
 	("m" undo :first '(kakoune-deactivate-mark))
 	("M" undo-redo :first '(kakoune-deactivate-mark))
-	("w" ctrlf-forward-fuzzy)
-	("W" ctrlf-forward-literal)
+	("w" ctrlf-forward-fuzzy :first '(kakoune-deactivate-mark) :then '(my-select-under))
+	("W" ctrlf-forward-literal :first '(kakoune-deactivate-mark) :then '(my-select-under))
 	("g" xah-shrink-whitespaces)
 	("_" grugru))
 
@@ -1576,45 +1529,11 @@
 					  ("h" other-frame :name "Other Frame")))
 
 			  ;; Large Motions
-           ;; ("e" (
-           ;;       ;; ("a" scroll-up :name "Page Down")
-           ;;       ("a" better-scroll-up :first '(kakoune-deactivate-mark) :name "Page Down")
-           ;;       ("A" zz-scroll-half-page-down :first '(kakoune-deactivate-mark) :name "Half-Page Down")
-           ;;       ;; g can be used for scroll without moving cursor
-           ;;       ;; ("u" scroll-down :name "Page Up")
-           ;;       ("u" better-scroll-down :first '(kakoune-deactivate-mark) :name "Page Up")
-           ;;       ("U" zz-scroll-half-page-up :first '(kakoune-deactivate-mark) :name "Half-Page Down")
-           ;;       ;; r can be used for scroll without moving cursor
-           ;;       ("n" recenter-top-bottom  :first '(kakoune-deactivate-mark) :name "Recenter Point")
-           ;;       ("t" move-to-window-line-top-bottom :name "Point at Center")
-			  ;; 		  ("p" move-to-window-line-top-bottom)
-			  ;; 		  ("f" kill-this-buffer :name "Kill This Buffer")
-			  ;; 		  ("h" avy-goto-line :first '(kakoune-deactivate-mark) :name "Line Jump")
-           ;;       ("k" avy-goto-word-1 :first '(kakoune-deactivate-mark) :name "Word Jump")
-			  ;; 		  ("y" beginning-of-buffer :first '(kakoune-deactivate-mark) "Buffer Start")
-			  ;; 		  ("i" end-of-buffer :first '(kakoune-deactivate-mark) "Buffer End"))
-           ;;  :name "Large Motion")
-
-			  ;; ;; Spellcheck
-           ("e" (
-                 ;; ("a" scroll-up :name "Page Down")
-                 ("a" better-scroll-up :name "Page Down")
-                 ("A" zz-scroll-half-page-down :name "Half-Page Down")
-                 ;; g can be used for scroll without moving cursor
-                 ;; ("u" scroll-down :name "Page Up")
-                 ("u" better-scroll-down :name "Page Up")
-                 ("U" zz-scroll-half-page-up :name "Half-Page Down")
-                 ;; r can be used for scroll without moving cursor
-                 ("n" recenter-top-bottom  :name "Recenter Point")
-                 ("t" move-to-window-line-top-bottom :name "Point at Center")
-					  ("p" move-to-window-line-top-bottom)
-					  ("f" kill-this-buffer :name "Kill This Buffer")
-					  ("h" avy-goto-line :name "Line Jump")
-                 ("k" avy-goto-word-1 :name "Word Jump")
-					  ("y" beginning-of-buffer :"Buffer Start")
-					  ("i" end-of-buffer :"Buffer End"))
+			  ("e" (("n" recenter-top-bottom :name "Recenter Point")
+					  ("f" kill-this-buffer :name "Kill This Buffer"))
+				;; :first '(kakoune-deactivate-mark)
             :name "Large Motion")
-
+			  
 			  ;; Spellcheck
 			  ("g" (
 					  ("h" flyspell-correct-wrapper :name "Suggestions")
@@ -1664,10 +1583,10 @@
 	("h" dired-alternate-up)
 	("m" dired-mark)
 	("M" dired-unmark)
-	("o" dired-previous-line)
-	("e" dired-next-line)
-	("a" dired-next-dirline)
-	("u" dired-prev-dirline)
+	("o" dired-previous-line :first '(kakoune-deactivate-mark) :then '(my-select-under))
+	("e" dired-next-line :first '(kakoune-deactivate-mark) :then '(my-select-under))
+	("a" dired-next-dirline :first '(kakoune-deactivate-mark) :then '(my-select-under))
+	("u" dired-prev-dirline :first '(kakoune-deactivate-mark) :then '(my-select-under))
 	("w" find-name-dired)
 	("x" dired-omit-mode :name "Hide Details")
 	("n" dired-do-delete)
@@ -1729,8 +1648,17 @@
 						 )
 				:name "Headings")))))
 
-(straight-use-package 'whitespace-cleanup-mode)
+(ryo-modal-key "SPC e a" 'better-scroll-up :first '(kakoune-deactivate-mark) :then '(my-select-under) :name "Page Down")
+(ryo-modal-key "SPC e u" 'better-scroll-down :first '(kakoune-deactivate-mark) :then '(my-select-under) :name "Page Up")
+(ryo-modal-key "SPC e U" 'zz-scroll-half-page-up :first '(kakoune-deactivate-mark) :then '(my-select-under) :name "Half-Page Up")
+(ryo-modal-key "SPC e A" 'zz-scroll-half-page-down :first '(kakoune-deactivate-mark) :then '(my-select-under) :name "Half-Page Down")
+(ryo-modal-key "SPC e t" 'move-to-window-line-top-bottom :first '(kakoune-deactivate-mark) :then '(my-select-under) :name "Point at Center")
+(ryo-modal-key "SPC e h" 'avy-goto-line :first '(kakoune-deactivate-mark) :then '(my-select-under) :name "Line Jump")
+(ryo-modal-key "SPC e k" 'avy-goto-word-1 :first '(kakoune-deactivate-mark) :then '(my-select-under) :name "Word Jump")
+(ryo-modal-key "SPC e y" 'beginning-of-buffer :first '(kakoune-deactivate-mark) :then '(my-select-under) :name "Buffer Start")
+(ryo-modal-key "SPC e i" 'end-of-buffer :first '(kakoune-deactivate-mark) :then '(my-select-under) :name "Buffer End")
 
+(straight-use-package 'whitespace-cleanup-mode)
 (setq whitespace-cleanup-mode nil)
 ;; (add-hook 'prog-mode-hook 'whitespace-cleanup-mode)
 ;; (add-hook 'prog-mode-hook 'ligature-mode)

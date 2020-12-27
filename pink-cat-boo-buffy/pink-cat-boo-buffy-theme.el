@@ -624,9 +624,9 @@ read it before opening a new issue about your will.")
 					;; (highlight-thing :background ,bg3 :foreground ,fg4)
 					;; Tree Sitter
 					(tree-sitter-hl-face:function :foreground ,pink-cat-boo-buffy-cyan :weight Book :slant italic :family "Operator Mono Lig")
-					(tree-sitter-hl-face:function.call :foreground ,pink-cat-boo-buffy-orange :weight Light :slant italic :family "Liga OperatorMono Nerd Font")
-					(tree-sitter-hl-face:function.builtin :foreground ,pink-cat-boo-buffy-cyan :weight Light :slant italic :family "Liga OperatorMono Nerd Font")
-					(tree-sitter-hl-face:function.macro :foreground ,pink-cat-boo-buffy-green :weight Light :slant italic :family "Liga OperatorMono Nerd Font")
+					(tree-sitter-hl-face:function.call :foreground ,pink-cat-boo-buffy-orange :weight Light :slant italic :family "Operator Mono")
+					(tree-sitter-hl-face:function.builtin :foreground ,pink-cat-boo-buffy-cyan :weight Light :slant italic :family "Operator Mono")
+					(tree-sitter-hl-face:function.macro :foreground ,pink-cat-boo-buffy-green :weight Light :slant italic :family "Operator Mono")
 					
 					;; (tree-sitter-hl-face:variable :foreground ,fg2)
 					(tree-sitter-hl-face:variable :foreground ,pink-cat-boo-buffy-fg)
