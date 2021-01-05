@@ -138,7 +138,7 @@
 (setq highlight-indent-guides-responsive 'top)
 (setq highlight-indent-guides-delay 0)
 
-;; Completion
+; Completion
 (straight-use-package 'flycheck)
 
 (use-package company
@@ -171,6 +171,7 @@
 (define-key company-active-map (kbd "RET") nil)
 
 
+;; LSP
 (use-package lsp-mode
   :straight t
   :hook
@@ -266,6 +267,12 @@
 (straight-use-package 'dap-mode)
 (add-hook 'dap-stopped-hook
           (lambda (arg) (call-interactively #'dap-hydra)))
+(dap-mode 1)
+(require 'dap-ui)
+(require 'lsp-ui)
+(dap-ui-mode 1)
+(dap-tooltip-mode 1)
+(dap-ui-controls-mode 1)
 
 
 ;; Languages
@@ -302,6 +309,8 @@
       lsp-headerline-breadcrumb-enable t)
 
 (straight-use-package 'cpp-auto-include)
+;; (require 'dap-cpptools)
+(require 'dap-lldb)
 
 ;; Elisp
 ;; https://github.com/Fuco1/.emacs.d/blob/master/files/smartparens.el
@@ -342,6 +351,9 @@
 (use-package dap-mode
   :straight t
   )
+
+(add-hook 'dap-stopped-hook
+          (lambda (arg) (call-interactively #'dap-hydra)))
 
 
 ;; Searching
@@ -966,6 +978,7 @@
            vc-msg-git-extra))
   )
 (add-hook 'after-save-hook 'magit-after-save-refresh-status)
+(require 'magit)
 
 (use-package git-gutter
   :straight t
@@ -1583,14 +1596,32 @@
 
   (ryo-modal-keys
 	("<tab>" (
-			  ("e" (
+			  ("t" (
 					  ("e" avy-goto-line-below)
 					  ("o" avy-goto-line-above)
-					  ))
+					  ) :name "Lines")
 			  ("n" (
 					  ("e" avy-kill-whole-line)
-				))
-			  )))
+					  ) :name "Kill")
+			  ("r" (
+					  ;; TODO: Fix ui on startup.
+					  ("t" lsp-rename :name "Rename")
+					  ("n" lsp-ui-peek-mode)
+					  ("w" lsp-ui-find-workspace-symbol)
+					  ("W" lsp-ui-peek-find-workspace-symbol)
+					  ("e" lsp-find-definition :name "Goto Definition")
+					  ("E" lsp-ui-peek-find-definitions :name "Peek Definition")
+					  ("h" lsp-avy-lens)
+					  ("u" lsp-execute-code-action :name "Fixes")
+					  ("_" lsp-treemacs-symbols :name "Toggle Symbols")
+					  ) :name "LSP")
+			  ("h" (("_" dap-breakpoint-toggle)
+					  ("u" dap-breakpoint-condition)
+					  ;; ("h" dap-ui-breakpoints)
+					  ("e" dap-debug)
+					  ) :name "Debug")
+			  ("<tab>" indent-region)
+			  ("_" treemacs))))
 
   (ryo-modal-keys
 	;; CPP Mode
@@ -1598,10 +1629,9 @@
 	("SPC" (
 			  ("o" (
 					  ;; TODO: Make utility fn for this or c-macro-expand
-					  ("u" macro-math-eval-region :name "Eval Arithmetic")))))
-	)
+					  ("u" macro-math-eval-region :name "Eval Arithmetic"))))))
 
-  (ryo-modal-keys
+ (ryo-modal-keys
 	;; Dired Mode
 	(:norepeat t :mode 'dired-mode)
 	("l" dired-do-copy)
@@ -1683,8 +1713,8 @@
 (ryo-modal-key "SPC e t" 'move-to-window-line-top-bottom :first '(kakoune-deactivate-mark) :then '(my-select-under) :name "Point at Center")
 (ryo-modal-key "SPC e h" 'avy-goto-line :first '(kakoune-deactivate-mark) :then '(my-select-under) :name "Line Jump")
 (ryo-modal-key "SPC e k" 'avy-goto-word-1 :first '(kakoune-deactivate-mark) :then '(my-select-under) :name "Word Jump")
-(ryo-modal-key "SPC e y" 'beginning-of-buffer :first '(kakoune-deactivate-mark) :then '(my-select-under) :name "Buffer Start")
-(ryo-modal-key "SPC e i" 'end-of-buffer :first '(kakoune-deactivate-mark) :then '(my-select-under) :name "Buffer End")
+(ryo-modal-key "SPC e c" 'beginning-of-buffer :first '(kakoune-deactivate-mark) :then '(my-select-under) :name "Buffer Start")
+(ryo-modal-key "SPC e j" 'end-of-buffer :first '(kakoune-deactivate-mark) :then '(my-select-under) :name "Buffer End")
 
 (straight-use-package 'whitespace-cleanup-mode)
 (setq whitespace-cleanup-mode nil)
