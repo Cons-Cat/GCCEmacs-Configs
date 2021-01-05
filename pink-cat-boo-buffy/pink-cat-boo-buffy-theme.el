@@ -623,7 +623,7 @@ read it before opening a new issue about your will.")
 					;;
 					;; (highlight-thing :background ,bg3 :foreground ,fg4)
 					;; Tree Sitter
-					(tree-sitter-hl-face:function :foreground ,pink-cat-boo-buffy-cyan :weight Book :slant italic :family "Operator Mono Lig")
+					(tree-sitter-hl-face:function :foreground ,pink-cat-boo-buffy-cyan :weight Book :slant italic :family "Operator Mono")
 					(tree-sitter-hl-face:function.call :foreground ,pink-cat-boo-buffy-orange :weight Light :slant italic :family "Operator Mono")
 					(tree-sitter-hl-face:function.builtin :foreground ,pink-cat-boo-buffy-cyan :weight Light :slant italic :family "Operator Mono")
 					(tree-sitter-hl-face:function.macro :foreground ,pink-cat-boo-buffy-green :weight Light :slant italic :family "Operator Mono")
@@ -634,11 +634,11 @@ read it before opening a new issue about your will.")
 					(tree-sitter-hl-face:variable.parameter :foreground ,fg4)
 					;; (lsp-face-semhl-variable :background 
 
-					(tree-sitter-hl-face:type :foreground ,fg2 :weight Light :slant italic :family "Liga OperatorMono Nerd Font")
-					(tree-sitter-hl-face:type.parameter :foreground ,other-green :weight Light :slant italic :family "Liga OperatorMono Nerd Font")
-					(tree-sitter-hl-face:type.argument :foreground ,other-blue :weight Light :slant italic :family "Liga OperatorMono Nerd Font")
-					(tree-sitter-hl-face:type.builtin :foreground ,pink-cat-boo-buffy-purple :slant italic :family "Liga OperatorMono Nerd Font")
-					(tree-sitter-hl-face:type.super :foreground ,other-blue :weight Light :slant italic :family "Liga OperatorMono Nerd Font")
+					(tree-sitter-hl-face:type :foreground ,fg2 :weight Light :slant italic :family "Operator Mono")
+					(tree-sitter-hl-face:type.parameter :foreground ,other-green :weight Light :slant italic :family "Operator Mono")
+					(tree-sitter-hl-face:type.argument :foreground ,other-blue :weight Light :slant italic :family "Operator Mono")
+					(tree-sitter-hl-face:type.builtin :foreground ,pink-cat-boo-buffy-purple :slant italic :family "Operator Mono")
+					(tree-sitter-hl-face:type.super :foreground ,other-blue :weight Light :slant italic :family "Operator Mono")
 					
 					(tree-sitter-hl-face:keyword :foreground ,pink-cat-boo-buffy-pink)
 					(tree-sitter-hl-face:escape :foreground ,pink-cat-boo-buffy-pink)

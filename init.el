@@ -273,7 +273,8 @@
 (straight-use-package
  '(vlang-mode :type git :host github :repo "Naheel-Azawy/vlang-mode"))
 (add-to-list 'auto-mode-alist '("\\.v$" . vlang-mode))
-;; (load-file "~/.emacs.d/vls.el")
+(load "~/.emacs.d/vls.el")
+;; (load 'lsp-vlang)
 
 ;; C++
 (smart-tabs-advice c-indent-line c-basic-offset)
@@ -301,20 +302,6 @@
       lsp-headerline-breadcrumb-enable t)
 
 (straight-use-package 'cpp-auto-include)
-
-
-
-;; SQL
-;; (straight-use-package 'exec-path-from-shell)
-;; (straight-use-package 'emacsql)
-;; (straight-use-package 'emacsql-mysql)
-
-;; HLSL
-;;(straight-use-package 'hlsl-mode)
-;; (use-package hlsl-mode
-;;   ;; :straight t
-;;   :load-path "~/.emacs.d/hlsl/hlsl-mode.el"
-;;   )
 
 ;; Elisp
 ;; https://github.com/Fuco1/.emacs.d/blob/master/files/smartparens.el
@@ -366,26 +353,18 @@
 
 
 ;; EDITOR SETTINGS
-;; (when (display-graphic-p) ; Start full screen
-;; (add-to-list 'default-frame-alist '(fullscreen . t))
-;; (x-focus-frame nil)
-;; )
-
 (setq inhibit-splash-screen t)
 (add-hook 'emacs-startup-hook 'dired-jump)
 
 ;; Make frame borderless.
-;; (setq default-frame-alist '((undecorated . t)))
-;; (add-to-list 'default-frame-alist '(drag-internal-border . 1))
-;; (add-to-list 'default-frame-alist '(internal-border-width . 5))
-
-(setq-default frame-title-format "Emacs %b (%f)")
+(setq default-frame-alist '((undecorated . t)))
+(add-to-list 'default-frame-alist '(drag-internal-border . 1))
+(add-to-list 'default-frame-alist '(internal-border-width . 5))
 
 (use-package hungry-delete
   :straight t
   :config
-  (global-hungry-delete-mode)
-  )
+  (global-hungry-delete-mode))
 
 (straight-use-package 'syntax-subword)
 (global-syntax-subword-mode t)
@@ -632,10 +611,10 @@
 						  :family "Fira Code"
 						  :weight 'Bold)
 
-(set-face-attribute 'variable-pitch nil
-						  :family "Input Serif Compressed"
-						  :weight 'Medium
-						  :height 100)
+;; (set-face-attribute 'variable-pitch nil
+						  ;; :family "Input Serif Compressed"
+						  ;; :weight 'Medium
+						  ;; :height 100)
 
 (set-face-attribute 'fixed-pitch nil
 						  :family "Fira Code"
@@ -697,14 +676,15 @@
                                        "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|>" "{|" "|-" "-|" ;; "-|-"
                                        "[|" "]#" "::" ":=" ":>" ":<" "$>" "==" "=>" "!=" "!!" ">:"
                                        ">=" ">>" ">-" "-~" "-|" "->" "--" "-<" "<~" "<*" "<|" "<:"
-"<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
+													"<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
                                        "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
                                        "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
                                        "\\\\" "://" "||-"
 													)))
 
-(add-to-list 'ligature-composition-table '(text-mode ("=" . ,(rx (+ "=")))))
-(add-to-list 'ligature-composition-table '(prog-mode ("=" . ,(rx (+ "=")))))
+;; (add-to-list 'ligature-composition-table '(text-mode ("=" . ,(rx (+ "=")))))
+;; (add-to-list 'ligature-composition-table '(prog-mode ("=" . ,(rx (+ "=")))))
+(global-ligature-mode)
 
 ;; This takes too long to set up. Not needed yet.
 ;; (straight-use-package 'unicode-fonts)
@@ -732,7 +712,7 @@
  ;; If there is more than one, they won't work right.
  '(cursor ((t nil)))
  '(custom-comment ((t (:background "dim gray" :family "Operator Mono Lig Medium"))))
- '(hydra-face-red ((t (:foreground "violet")))))
+ '(hydra-face-red ((t (:foreground "cyan")))))
 
 
 ;; DIRED
@@ -903,8 +883,7 @@
  'org-babel-load-languages
  '(;; (mysql . t)
 	(emacs-lisp . t)
-   (C . t))
-)
+   (C . t)))
 
   (setq org-confirm-babel-evaluate nil
         org-src-fontify-natively t
@@ -1019,7 +998,8 @@
 (yas-global-mode t)
 (straight-use-package 'yasnippet-snippets)
 
-(delete-selection-mode t)
+;; (delete-selection-mode t)
+(delete-selection-mode nil)
 
 ;; Manage parens
 (straight-use-package 'tab-jump-out)
@@ -1097,6 +1077,9 @@
 ;; Multi Cursors
 (straight-use-package 'multiple-cursors)
 (straight-use-package 'mc-calc)
+
+;; Math
+(straight-use-package 'macro-math)
 
 ;; Bookmarks
 (setq bm-restore-repository-on-load t)
@@ -1276,12 +1259,21 @@
 (global-unset-key "\C-e")
 (global-unset-key "\C-a")
 (global-unset-key "\C-c")
-;;(define-key flycheck-mode-map (kbd "\C-c") nil)
+;(define-key flycheck-mode-map (kbd "\C-c") nil)
+;(define-key yas-minor-mode-map (kbd "\C-c") nil)
 (global-unset-key "\C-o")
 (global-unset-key "\C-j")
 (global-unset-key "\C-y")
-(global-unset-key "\C-i")
+;; (global-unset-key "\C-i")
 (global-unset-key "\C-f")
+
+;; (setq local-function-key-map (delq '(kp-tab . [9]) local-function-key-map))
+;; (global-set-key (kbd "C-i") 'forward-char)
+(keyboard-translate ?\C-i ?\H-i)
+;; (keyboard-translate ?\C-c ?\H-c)
+;; (global-set-key [?\H-i] 'forward-char)
+
+;; (global-set-key (kbd "C-i") (lambda () (interactive) (message "C-i")))
 
 ;; Toggle mark state.
 ;; (straight-use-package 'selected)
@@ -1324,25 +1316,40 @@
    ("C-O" previous-line :first '(kakoune-set-mark-if-inactive))
 	("y" backward-char :first '(kakoune-deactivate-mark) :then '(my-select-under))
 	("C-y" backward-char :first '(kakoune-set-mark-if-inactive))
-   ("i" forward-char :first '(kakoune-deactivate-mark) :then '(my-select-under))
-   ("C-i" forward-char :first '(kakoune-set-mark-if-inactive))
+	("M-y" mc/mark-previous-like-this-symbol)
+	("M-C-y" mc/skip-to-previous-like-this)
+	("i" forward-char :first '(kakoune-deactivate-mark) :then '(my-select-under))
+   ("H-i" forward-char :first '(kakoune-set-mark-if-inactive))
+	("M-i" mc/mark-next-like-this-symbol)
+	("M-C-i" mc/skip-to-next-like-this)
    ("u" pony-sure-prev-word
 	 :first '(kakoune-deactivate-mark)
 	 :then '(pony-mark-word-l))
    ("C-u" pony-sure-prev-word
 	 :first '(kakoune-set-mark-if-inactive)
 	 :then '(pony-mark-word-l))
-   	("U" syntax-subword-left :first '(kakoune-set-mark-here))
+	("M-u" mc/mark-previous-word-like-this)
+	("M-C-u" mc/skip-to-previous-like-this)
+	;; ("M-U" mc/)
+   ("U" syntax-subword-left :first '(kakoune-set-mark-here))
 	("C-U" syntax-subword-left :first '(kakoune-set-mark-if-inactive))
 	("a" pony-sure-forw-word
 	 :first '(kakoune-set-mark-here)
+	 :then
+	 '(pony-mark-word-r))
+	("C-a" pony-sure-forw-word
+	 :first '(kakoune-set-mark-if-inactive)
 	 :then '(pony-mark-word-r))
+	("M-a" mc/mark-next-word-like-this)
 	("A" syntax-subword-right :first '(kakoune-set-mark-here))
 	("C-A" pony-sure-forw-word :first '(kakoune-set-mark-if-inactive))
+	("M-C-a" mc/skip-to-next-like-this)
 	("c" xah-beginning-of-line-or-block :first '(kakoune-deactivate-mark) :then '(my-select-under))
 	("C-c" xah-beginning-of-line-or-block :first '(kakoune-set-mark-if-inactive))
+	("M-c" mc/edit-beginnings-of-lines)
 	("j" xah-end-of-line-or-block :first '(kakoune-deactivate-mark) :then '(my-select-under))
 	("C-j" xah-end-of-line-or-block :first '(kakoune-set-mark-if-inactive))
+	("M-j" mc/edit-ends-of-lines)
 	("C" pony-binary-beginning-of-line :first '(kakoune-deactivate-mark) :then '(my-select-under))
 	("J" pony-binary-end-of-line :first '(kakoune-deactivate-mark) :then '(my-select-under))
 	("." kakoune-select-up-to-char :first '(kakoune-deactivate-mark) :then '(my-select-under))
@@ -1358,7 +1365,7 @@
 	;; TODO:
 	;; https://github.com/palikar/vsexp
 	
-	("TAB" indent-for-tab-command)
+	;; ("TAB" indent-for-tab-command)
 	
 	;; Basic deletion commands.
 	("n" my-delete-dwim)
@@ -1382,16 +1389,14 @@
 	("M-e" mc/mark-next-like-this)
 
 	;; Bookmarks
-	;; ("p" (
-	;; TODO: Configure bookmarks.
-	;; ("e" bm-next :name "Bookmark Down")
-	;; ("u" bm-toggle :name "Bookmark Toggle")
-	;; ("h" bm-show :name "Bookmark Jump")
-	;; ("N" bm-remove-all-current-buffer "Remove All")
-	;; )
-	;; )
-	)
-
+	("g" (
+			;; TODO: Configure bookmarks.
+			("e" bm-next :name "Bookmark Down")
+			("o" bm-previous :name "Bookmark Up")
+			("u" bm-toggle :name "Bookmark Toggle")
+			("h" bm-show :name "Bookmark Jump")
+			("N" bm-remove-all-current-buffer "Remove All"))))
+  
   (ryo-modal-keys
    ;; First argument to ryo-modal-keys may be a list of keywords.
    ;; These keywords will be applied to all keybindings.
@@ -1421,9 +1426,11 @@
 	("M" undo-redo :first '(kakoune-deactivate-mark))
 	("w" ctrlf-forward-fuzzy :first '(kakoune-deactivate-mark) :then '(my-select-under))
 	("W" ctrlf-forward-literal :first '(kakoune-deactivate-mark) :then '(my-select-under))
-	("g" xah-shrink-whitespaces)
-	("_" grugru))
-
+	("M-w" mc/mark-all-in-region)
+	;; ("g" xah-shrink-whitespaces)
+	("_" grugru)
+	("z" kmacro-end-or-call-macro-repeat))
+  
   (ryo-modal-keys
 	;; Buffer management hydra
 	;; ("SPC" (
@@ -1455,19 +1462,8 @@
 						 ("g" balance-windows)
 						 ;; TODO: Configure IBuffer commands.
 						 ("h" ibuffer "IBuffer")
-						 ("<tab>" nil "Cancel" :color blue)))
-
-	;; Multi-cursor bindings
-	;; TODO: This would be better as
-	;; "2" when a selection exists.
-	;; ("2" (
-	;; 		("e" mc/edit-lines)
-	;; 		("d" mc/edit-beginnings-of-lines)
-	;; 		("s" mc/edit-ends-of-lines)
-	;; 		("+" mc/mark-all-in-region)
-	;; 		(")" mc/mark-all-dwim)))
-	)
-
+						 ("<tab>" nil "Cancel" :color blue))))
+  
   (ryo-modal-keys
 	;; Leader key
 	("SPC" (;; ("r" format-all-buffer :name "Format")
@@ -1482,7 +1478,10 @@
 			  ("<" sp-push-hybrid-sexp :name "Push Sexp")
 			  ("F" sp-transpose-hybrid-sexp :name "Transpose Sexp")
 			  ("_" origami-toggle-node)
-
+			  ("z" kmacro-start-macro)
+			  ("d" yank-from-kill-ring)
+			  ;; ("g" xah-shrink-whitespaces)
+		  
 			  ;; Inserts
 			  ("n" (
 					  ;; TODO: Consider company-yasnippet
@@ -1541,6 +1540,12 @@
 					  ("o" flyspell-correct-previous :name "Previous"))
 				:name "Spell Checking")
 
+			  ;; Clipboard
+			  ("l" (
+					  ("h" avy-kill-ring-save-region)
+					  ("k" avy-kill-ring-save-whole-line))
+				:name "Clipboard")
+			  
 			  ("u" (
 					  ;; lower
 					  ("n" string-inflection-underscore :name "snake_case")
@@ -1575,6 +1580,26 @@
 				;; 		) :then '(delete-region) :exit t)
 				)
 			  ) :name "LEFT LEADER"))
+
+  (ryo-modal-keys
+	("<tab>" (
+			  ("e" (
+					  ("e" avy-goto-line-below)
+					  ("o" avy-goto-line-above)
+					  ))
+			  ("n" (
+					  ("e" avy-kill-whole-line)
+				))
+			  )))
+
+  (ryo-modal-keys
+	;; CPP Mode
+	(:mode 'c++-mode)
+	("SPC" (
+			  ("o" (
+					  ;; TODO: Make utility fn for this or c-macro-expand
+					  ("u" macro-math-eval-region :name "Eval Arithmetic")))))
+	)
 
   (ryo-modal-keys
 	;; Dired Mode
@@ -1619,7 +1644,6 @@
 			("t" org-table-create))
 	 :name "Table")
 
-	("TAB" org-cycle)
 	("_" org-todo)
 	("M-o" org-move-subtree-up)
 	("M-e" org-move-subtree-down)
@@ -1628,6 +1652,7 @@
 			  ("u" org-do-promote)
 			  ("i" org-forward-heading-same-level)
 			  ("y" org-backward-heading-same-level)
+			  ("_" org-cycle)
 			  ;; ("TAB" org-cycle)
 			  ("t" (
 					  ("a" org-insert-todo-subheading)
@@ -1639,14 +1664,17 @@
 					  ("e" org-insert-heading)))
 			  ("SPC" (
 						 ("TAB" org-toggle-narrow-to-subtree)
-						 ("t" org-next-visible-heading)
-						 ("c" org-previous-visible-heading)
-						 ("T" org-forward-heading-same-level)
-						 ("C" org-backward-heading-same-level)
-						 ("h" outline-up-heading)
-						 ("n" org-goto)
-						 )
-				:name "Headings")))))
+						 ("a" org-next-visible-heading)
+						 ("u" org-previous-visible-heading)
+						 ("e" org-forward-heading-same-level)
+						 ("o" org-backward-heading-same-level)
+						 ("y" outline-up-heading)
+						 ("w" org-goto))
+				:name "Headings"))))
+  
+  (ryo-modal-keys
+	(:mode 'magit-mode)
+	("SPC" (("_" magit-section-toggle)))))
 
 (ryo-modal-key "SPC e a" 'better-scroll-up :first '(kakoune-deactivate-mark) :then '(my-select-under) :name "Page Down")
 (ryo-modal-key "SPC e u" 'better-scroll-down :first '(kakoune-deactivate-mark) :then '(my-select-under) :name "Page Up")
