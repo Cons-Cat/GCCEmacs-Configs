@@ -58,7 +58,7 @@
 (straight-use-package 'marginalia)
 (marginalia-mode)
 (setq marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light))
- 
+
 ;; Folding
 (straight-use-package
  '(origami :type git :host github :repo "jcs-elpa/origami.el"))
@@ -262,19 +262,6 @@
 
 (global-company-mode t)
 
-;; Debugging
-;; TODO: Configure debugger.
-(straight-use-package 'dap-mode)
-(add-hook 'dap-stopped-hook
-          (lambda (arg) (call-interactively #'dap-hydra)))
-(dap-mode 1)
-(require 'dap-ui)
-(require 'lsp-ui)
-(dap-ui-mode 1)
-(dap-tooltip-mode 1)
-(dap-ui-controls-mode 1)
-
-
 ;; Languages
 ;; V
 (straight-use-package
@@ -309,8 +296,14 @@
       lsp-headerline-breadcrumb-enable t)
 
 (straight-use-package 'cpp-auto-include)
-;; (require 'dap-cpptools)
-(require 'dap-lldb)
+
+;; (defun c-save-compile ()
+  ;; (interactive)
+  ;; (save-buffer)
+  ;; (defvar my-comp-commands)
+  ;; (setq my-comp-commands(concat "g++ -g " (buffer-name) " -o main" ))
+  ;; (shell-command my-comp-commands)
+  ;; )
 
 ;; Elisp
 ;; https://github.com/Fuco1/.emacs.d/blob/master/files/smartparens.el
@@ -347,6 +340,9 @@
 ;; (smart-tabs-insinuate 'c ;; 'vlang
                       ;; 'c++)
 
+;; Compiling
+(straight-use-package 'smart-compile)
+
 ;; Debugging
 (use-package dap-mode
   :straight t
@@ -354,6 +350,22 @@
 
 (add-hook 'dap-stopped-hook
           (lambda (arg) (call-interactively #'dap-hydra)))
+
+;; Debugging
+;; TODO: Configure debugger.
+;; (straight-use-package 'dap-mode)
+;; (dap-mode 1)
+(require 'dap-ui)
+(require 'lsp-ui)
+;; (dap-ui-mode 1)
+;; (dap-tooltip-mode 1)
+;; (dap-ui-controls-mode 1
+;; (add-hook 'dap-stopped-hook
+          ;; (lambda (arg) (call-interactively #'dap-hydra)))
+
+(require 'dap-cpptools)
+;; (require 'dap-lldb)
+;; (require 'dap-gdb-lldb)
 
 
 ;; Searching
@@ -574,9 +586,9 @@
 ;; (setq highlight-thing-all-visible-buffers-p t)
 ;; (setq highlight-thing-ignore-list '("False" "True" "t" "nil"))
 
-(straight-use-package 'compact-docstrings)
-(setq compact-docstrings-only-doc-blocks nil)
-(add-hook 'after-init-hook #'global-compact-docstrings--mode)
+;; (straight-use-package 'compact-docstrings)
+;; (setq compact-docstrings-only-doc-blocks nil)
+;; (add-hook 'after-init-hook #'global-compact-docstrings--mode)
 (setq redisplay-dont-pause t)
 
 (use-package whitespace
@@ -795,6 +807,11 @@
   (setq grugru-highlight-idle-delay 0.15))
 ;; (add-hook 'prog-mode-hook #'grugru-highlight-mode)
 
+;; Words
+;; (modify-syntax-entry ?_ "w")
+;; (modify-syntax-entry ?- "w")
+;; (superword-mode t)
+
 ;; Spell Checking
 
 ;; (use-package wucuo
@@ -980,25 +997,25 @@
 (add-hook 'after-save-hook 'magit-after-save-refresh-status)
 (require 'magit)
 
-(use-package git-gutter
-  :straight t
-  )
+;; (use-package git-gutter
+  ;; :straight t
+  ;; )
 ;; (add-hook 'prog-mode-hook 'git-gutter-mode)
-(add-hook 'org-mode-hook 'git-gutter-mode)
+;; (add-hook 'org-mode-hook 'git-gutter-mode)
 
-(set-face-foreground 'git-gutter:added "orange")
+;; (set-face-foreground 'git-gutter:added "orange")
 
 
 ;; Snippets
 (use-package yasnippet
   :straight t
-  :init
+  ;; :init
   ;; (define-key yas-minor-mode-map "TAB" nil)
   ;; (define-key yas-minor-mode-map "C-RET" 'yas-next-field-or-maybe-expand)
   )
 
-(setq company-lsp-enable-snippet nil)
-(advice-add 'company-tng--supress-post-completion :override #'ignore)
+;; (setq company-lsp-enable-snippet nil)
+;; (advice-add 'company-tng--supress-post-completion :override #'ignore)
 
 (define-key yas-minor-mode-map "\M-t" 'yas-expand)
 (define-key yas-keymap "\M-t" 'yas-next-field-or-maybe-expand)
@@ -1248,6 +1265,29 @@
   (forward-char)
   (sp-up-sexp)
   (backward-char))
+
+(defun my-semicolon-eol ()
+  (call-interactively 'move-end-of-line)
+  (backward-char 1)
+  (when (not (looking-at ";"))
+	 (progn (forward-char 1)
+			  (insert ";")
+			  t)))
+
+(defun my-semi-line-below ()
+  (interactive)
+  (if (my-semicolon-eol)
+		(newline-and-indent))
+  (kakoune-deactivate-mark))
+
+(defun my-semi-line-above ()
+  (interactive)
+  (if (my-semicolon-eol)
+		(crux-smart-open-line-above))
+  (kakoune-deactivate-mark))
+
+(global-set-key [C-tab] 'my-semi-line-below)
+(global-set-key [C-iso-lefttab] 'my-semi-line-above)
 
 ;; (defun my-tog-or-fold ()
   ;; (interactive)
@@ -1629,7 +1669,9 @@
 	("SPC" (
 			  ("o" (
 					  ;; TODO: Make utility fn for this or c-macro-expand
-					  ("u" macro-math-eval-region :name "Eval Arithmetic"))))))
+					  ("u" macro-math-eval-region :name "Eval Arithmetic")))))
+	("<tab>" (
+				 ("h" (("a" smart-compile))))))
 
  (ryo-modal-keys
 	;; Dired Mode
@@ -1667,7 +1709,7 @@
 				;; :name "Finding"
 				))))
 
-  (ryo-modal-keys
+ (ryo-modal-keys
 	;; Org Mode
 	(:mode 'org-mode)
 	("x" (
