@@ -149,8 +149,8 @@
   :custom
   (company-begin-commands '(self-insert-command))
   (company-require-match nil)
-  (company-idle-delay .4)
-  (company-minimum-prefix-length 1)
+  (company-idle-delay .8)
+  (company-minimum-prefix-length 2)
   (company-selection-wrap-around t)
   (company-show-numbers t)
   (company-tooltip-align-annotations t)
@@ -161,6 +161,7 @@
 
 (straight-use-package 'company-posframe)
 (straight-use-package 'company-box)
+;;(set-face-background 'company-box-background "#2C1F2D")
 (add-hook 'company-mode-hook 'company-posframe-mode)
 
 ;; Company keybindings
@@ -296,6 +297,7 @@
       lsp-headerline-breadcrumb-enable t)
 
 (straight-use-package 'cpp-auto-include)
+(straight-use-package 'cff)
 
 ;; (defun c-save-compile ()
   ;; (interactive)
@@ -338,7 +340,19 @@
 
 ;; https://www.emacswiki.org/emacs/SmartTabs
 ;; (smart-tabs-insinuate 'c ;; 'vlang
-                      ;; 'c++)
+;; 'c++)
+
+;; GLSL
+(straight-use-package 'glsl-mode)
+(add-to-list 'auto-mode-alist '("\\.glsl$" . glsl-mode))
+(add-to-list 'auto-mode-alist '("\\.vert$" . glsl-mode))
+(add-to-list 'auto-mode-alist '("\\.frag" . glsl-mode))
+(add-to-list 'auto-mode-alist '("\\.geom" . glsl-mode))
+
+;; Matlab
+(straight-use-package 'matlab-mode)
+(setq matlab-indent-function t)
+(setq matlab-shell-command "matlab")
 
 ;; Compiling
 (straight-use-package 'smart-compile)
@@ -385,10 +399,10 @@
 (add-to-list 'default-frame-alist '(drag-internal-border . 1))
 (add-to-list 'default-frame-alist '(internal-border-width . 5))
 
-(use-package hungry-delete
-  :straight t
-  :config
-  (global-hungry-delete-mode))
+;; (use-package hungry-delete
+;;   :straight t
+;;   :config
+;;   (global-hungry-delete-mode))
 
 (straight-use-package 'syntax-subword)
 (global-syntax-subword-mode t)
@@ -579,6 +593,9 @@
   )
 
 (setq custom-safe-themes t)
+;;(set-face-background 'company-box-background "#2C1F2D")
+;; (set-face-background 'company-box-background "#2C1F2D")
+;; (set-face-background 'company-box-background "#FFFFFF")
 
 ;; (straight-use-package 'highlight-thing)
 ;; (global-highlight-thing-mode)
@@ -777,6 +794,7 @@
 
 (straight-use-package 'dired-git)
 (add-hook 'dired-mode-hook 'dired-git-mode)
+(add-hook 'dired-mode-hook 'dired-omit-mode)
 ;; (setq initial-buffer-choice "~/.emacs.d/")
 ;; (add-hook 'after-init-hook 'dired-jump)
 
@@ -1110,6 +1128,7 @@
 
 ;; Math
 (straight-use-package 'macro-math)
+(straight-use-package 'evil-numbers)
 
 ;; Bookmarks
 (setq bm-restore-repository-on-load t)
@@ -1286,12 +1305,36 @@
 		(crux-smart-open-line-above))
   (kakoune-deactivate-mark))
 
-(global-set-key [C-tab] 'my-semi-line-below)
-(global-set-key [C-iso-lefttab] 'my-semi-line-above)
+(defun my-c-comment-eol ()
+  (interactive)
+  (kakoune-deactivate-mark)
+  (call-interactively 'move-end-of-line)
+  ;; (xah-shrink-whitespaces)
+  (insert " // "))
 
 ;; (defun my-tog-or-fold ()
   ;; (interactive)
-  ;; (if (looking-at "\(\)")))
+;; (if (looking-at "\(\)")))
+
+(defun my-for-word ()
+  (interactive)
+  (superword-mode)
+  (forward-word))
+
+(defun my-back-word ()
+  (interactive)
+  (superword-mode)
+  (backward-word))
+
+(defun my-for-subword ()
+  (interactive)
+  (subword-mode)
+  (forward-word))
+
+(defun my-back-subword ()
+  (interactive)
+  (subword-mode)
+  (backward-word))
 
 ;; (add-hook 'grugru-after-no-rotate-hook 'origami-toggle-node)
 
@@ -1319,14 +1362,28 @@
 (global-unset-key "\C-y")
 ;; (global-unset-key "\C-i")
 (global-unset-key "\C-f")
+;; (global-unset-key "\C-X")
+;; (global-unset-key "\C-U")
+;; (global-unset-key "\C-S-u")
+;; (global-unset-key (kbd "C-u"))
+;; (global-unset-key (kbd "C-U"))
+;; (global-unset-key (kbd "C-S-U"))
+;; (define-key global-map (kbd "C-S-u") 'insert-char)
+;; (define-key global-map (kbd "C-U") 'insert-char)
 
 ;; (setq local-function-key-map (delq '(kp-tab . [9]) local-function-key-map))
 ;; (global-set-key (kbd "C-i") 'forward-char)
 (keyboard-translate ?\C-i ?\H-i)
+(keyboard-translate ?\C-x ?\H-x)
 ;; (keyboard-translate ?\C-c ?\H-c)
 ;; (global-set-key [?\H-i] 'forward-char)
+;; (keyboard-translate ?\C-U ?\H-U)
 
 ;; (global-set-key (kbd "C-i") (lambda () (interactive) (message "C-i")))
+(global-set-key [C-tab] 'my-semi-line-below)
+(global-set-key [C-iso-lefttab] 'my-semi-line-above)
+;; (global-set-key [H-x] 'my-c-comment-eol)
+(global-set-key (kbd "H-x") 'my-c-comment-eol)
 
 ;; Toggle mark state.
 ;; (straight-use-package 'selected)
@@ -1375,27 +1432,41 @@
    ("H-i" forward-char :first '(kakoune-set-mark-if-inactive))
 	("M-i" mc/mark-next-like-this-symbol)
 	("M-C-i" mc/skip-to-next-like-this)
-   ("u" pony-sure-prev-word
+   ;; ("u" pony-sure-prev-word
+   ("u" my-back-word
 	 :first '(kakoune-deactivate-mark)
-	 :then '(pony-mark-word-l))
-   ("C-u" pony-sure-prev-word
+	 ;; :first '(kakoune-set-mark-here)
+	 :then '(pony-mark-word-l)
+	 )
+   ;; ("C-u" pony-sure-prev-word
+   ("C-u" my-back-word
 	 :first '(kakoune-set-mark-if-inactive)
-	 :then '(pony-mark-word-l))
+	 ;; :then '(pony-mark-word-l)
+	 )
 	("M-u" mc/mark-previous-word-like-this)
 	("M-C-u" mc/skip-to-previous-like-this)
 	;; ("M-U" mc/)
-   ("U" syntax-subword-left :first '(kakoune-set-mark-here))
-	("C-U" syntax-subword-left :first '(kakoune-set-mark-if-inactive))
-	("a" pony-sure-forw-word
-	 :first '(kakoune-set-mark-here)
-	 :then
-	 '(pony-mark-word-r))
-	("C-a" pony-sure-forw-word
+   ;; ("U" syntax-subword-left :first '(kakoune-set-mark-here))
+   ("U" my-back-subword :first '(kakoune-set-mark-here))
+	;; ("C-U" syntax-subword-left :first '(kakoune-set-mark-if-inactive))
+	("C-S-u" my-back-subword :first '(kakoune-set-mark-if-inactive))
+	;; ("a" pony-sure-forw-word
+	("a" my-for-word
+	 ;; :first '(kakoune-set-mark-here)
+	 :first '(kakoune-deactivate-mark)
+	 :then '(pony-mark-word-r)
+	 )
+	;; ("C-a" pony-sure-forw-word
+		("M-a" mc/mark-next-word-like-this)
+	;; ("A" syntax-subword-right :first '(kakoune-set-mark-here))
+	("A" my-for-subword :first '(kakoune-set-mark-here))
+	;; ("C-A" pony-sure-forw-word :first '(kakoune-set-mark-if-inactive))
+	("C-S-A" my-for-subword :first '(kakoune-set-mark-if-inactive))
+	("C-a" my-for-word
 	 :first '(kakoune-set-mark-if-inactive)
-	 :then '(pony-mark-word-r))
-	("M-a" mc/mark-next-word-like-this)
-	("A" syntax-subword-right :first '(kakoune-set-mark-here))
-	("C-A" pony-sure-forw-word :first '(kakoune-set-mark-if-inactive))
+	 ;; :then '(superword-mode)
+	 ;; :then '(pony-mark-word-r)
+	 )
 	("M-C-a" mc/skip-to-next-like-this)
 	("c" xah-beginning-of-line-or-block :first '(kakoune-deactivate-mark) :then '(my-select-under))
 	("C-c" xah-beginning-of-line-or-block :first '(kakoune-set-mark-if-inactive))
@@ -1405,8 +1476,8 @@
 	("M-j" mc/edit-ends-of-lines)
 	("C" pony-binary-beginning-of-line :first '(kakoune-deactivate-mark) :then '(my-select-under))
 	("J" pony-binary-end-of-line :first '(kakoune-deactivate-mark) :then '(my-select-under))
-	("." kakoune-select-up-to-char :first '(kakoune-deactivate-mark) :then '(my-select-under))
-	("C-." kakoune-select-up-to-char :first '(kakoune-set-mark-if-inactive))
+	;; ("." kakoune-select-up-to-char :first '(kakoune-deactivate-mark) :then '(my-select-under))
+	;; ("C-." kakoune-select-up-to-char :first '(kakoune-set-mark-if-inactive))
 	("f" my-back-up-brace :first '(kakoune-deactivate-mark) :then '(my-select-under))
 	("C-f" my-back-up-brace :first '(kakoune-set-mark-if-inactive))
 	("F" my-back-brace :first '(kakoune-deactivate-mark) :then '(my-select-under))
@@ -1418,7 +1489,8 @@
 	;; TODO:
 	;; https://github.com/palikar/vsexp
 	
-	;; ("TAB" indent-for-tab-command)
+	("." lsp-find-definition :first '(kakoune-deactivate-mark) )
+	(">" lsp-ui-peek-find-definitions :first '(kakoune-set-mark-if-inactive))
 	
 	;; Basic deletion commands.
 	("n" my-delete-dwim)
@@ -1444,11 +1516,11 @@
 	;; Bookmarks
 	("g" (
 			;; TODO: Configure bookmarks.
-			("e" bm-next :name "Bookmark Down")
-			("o" bm-previous :name "Bookmark Up")
-			("u" bm-toggle :name "Bookmark Toggle")
-			("h" bm-show :name "Bookmark Jump")
-			("N" bm-remove-all-current-buffer "Remove All"))))
+			("e" bm-next :first '(kakoune-deactivate-mark)  :name "Bookmark Down")
+			("o" bm-previous :first '(kakoune-deactivate-mark)  :name "Bookmark Up")
+			("u" bm-toggle :first '(kakoune-deactivate-mark)  :name "Bookmark Toggle")
+			("h" bm-show :first '(kakoune-deactivate-mark)  :name "Bookmark Jump")
+			("N" bm-remove-all-current-buffer :first '(kakoune-deactivate-mark) :name "Remove All"))))
   
   (ryo-modal-keys
    ;; First argument to ryo-modal-keys may be a list of keywords.
@@ -1534,7 +1606,9 @@
 			  ("z" kmacro-start-macro)
 			  ("d" yank-from-kill-ring)
 			  ;; ("g" xah-shrink-whitespaces)
-		  
+			  
+			  ("." kakoune-select-up-to-char :first '(kakoune-deactivate-mark))
+			  ("C-." kakoune-select-up-to-char :first '(kakoune-set-mark-if-inactive))		  
 			  ;; Inserts
 			  ("n" (
 					  ;; TODO: Consider company-yasnippet
@@ -1645,7 +1719,7 @@
 					  ) :name "Kill")
 			  ("r" (
 					  ;; TODO: Fix ui on startup.
-					  ("t" lsp-rename :name "Rename")
+					  ("t" lsp-rename :name "Rename Symbol")
 					  ("n" lsp-ui-peek-mode)
 					  ("w" lsp-ui-find-workspace-symbol)
 					  ("W" lsp-ui-peek-find-workspace-symbol)
@@ -1658,8 +1732,19 @@
 			  ("h" (("_" dap-breakpoint-toggle)
 					  ("u" dap-breakpoint-condition)
 					  ;; ("h" dap-ui-breakpoints)
+					  ("h" dap-hydra)
 					  ("e" dap-debug)
 					  ) :name "Debug")
+			  ("s"(("a" windmove-right)
+					 ("u" windmove-left)
+					 ("o" windmove-up)
+					 ("e" windmove-down)
+					 ("k" switch-to-buffer)
+					 ("n" delete-window)
+					 ) :name "Windows")
+			  ("a"(("n" evil-numbers/inc-at-pt)
+					 ("h" evil-numbers/dec-at-pt)))
+			  ;; ("k" lsp-rename :name "Rename Symbol")
 			  ("<tab>" indent-region)
 			  ("_" treemacs))))
 
@@ -1671,7 +1756,9 @@
 					  ;; TODO: Make utility fn for this or c-macro-expand
 					  ("u" macro-math-eval-region :name "Eval Arithmetic")))))
 	("<tab>" (
-				 ("h" (("a" smart-compile))))))
+				 ("h" (("a" smart-compile)
+						 ("<tab>" cff-find-other-file)))
+				 ("<tab>" lsp-format-buffer))))
 
  (ryo-modal-keys
 	;; Dired Mode
@@ -1763,9 +1850,10 @@
 ;; (add-hook 'prog-mode-hook 'whitespace-cleanup-mode)
 ;; (add-hook 'prog-mode-hook 'ligature-mode)
 
-(defun my-c++-mode-before-save-hook ()
-  (when (eq major-mode 'c++-mode)
-    (cpp-auto-include)))
+;; TODO: Get a better auto-includer.
+;; (defun my-c++-mode-before-save-hook ()
+  ;; (when (eq major-mode 'c++-mode)
+    ;; (cpp-auto-include)))
 
 (setq company-backends (delete 'company-dabbrev company-backends))
 

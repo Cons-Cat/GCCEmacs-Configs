@@ -86,7 +86,7 @@ read it before opening a new issue about your will.")
                 (pink-cat-boo-buffy-purple  "#DCBFF2" "#af87ff" "brightmagenta") ; official purple
                 (pink-cat-boo-buffy-red     "#ff62a5" "#ff8787" "red") ; official red
                 (pink-cat-boo-buffy-yellow  "#FAE8B6" "#ffff87" "yellow") ; official yellow
-                (pink-cat-boo-buffy-highlight  "#d0963a" "#ffff87" "yellow") ; official yellow
+               (pink-cat-boo-buffy-highlight  "#d0963a" "#ffff87" "yellow") ; official yellow
                 ;; Other colors
                 (bg2             "#2D2F42" "#121212" "brightblack")
                 (bg3             "#3A3D54" "#262626" "brightblack")
@@ -94,6 +94,7 @@ read it before opening a new issue about your will.")
                 (fg2             "#FFF0F5" "#e4e4e4" "brightwhite")
                 (fg3             "#4747a1" "#c6c6c6" "white")
                 (fg4             "#b6b6b2" "#b2b2b2" "white")
+                (company-bg      "#2C1F2D" "#b2b2b2" "white")
                 (other-blue      "#A2C2EB" "#0087ff" "brightblue")
 					 (other-green     "#9CD162" "#0087ff" "brightblue")
 					 (canon-comment     "#6D7A72" "#0087ff" "brightblue")))
@@ -154,7 +155,7 @@ read it before opening a new issue about your will.")
                                              :weight bold)
                (font-lock-warning-face :foreground ,pink-cat-boo-buffy-orange :background ,bg2)
 					;; company
-               (company-echo-common :foreground ,pink-cat-boo-buffy-bg :background ,pink-cat-boo-buffy-fg)
+               (company-echo-common :foreground ,pink-cat-boo-buffy-bg :background ,company-bg)
                (company-preview :background ,pink-cat-boo-buffy-current :foreground ,other-blue)
                (company-preview-common :inherit company-preview
                                        :foreground ,pink-cat-boo-buffy-pink)
@@ -162,24 +163,26 @@ read it before opening a new issue about your will.")
                                        :foreground ,pink-cat-boo-buffy-green)
                (company-scrollbar-bg :background ,pink-cat-boo-buffy-comment)
                (company-scrollbar-fg :foreground ,other-blue)
-               (company-tooltip :foreground ,pink-cat-boo-buffy-fg :background ,pink-cat-boo-buffy-dark)
+               (company-tooltip :foreground ,pink-cat-boo-buffy-fg :background ,company-bg)
                (company-tooltip-search :foreground ,pink-cat-boo-buffy-green
                                        :underline t)
                (company-tooltip-search-selection :background ,pink-cat-boo-buffy-green
                                                  :foreground ,pink-cat-boo-buffy-bg)
-               (company-tooltip-selection :inherit match :background ,pink-cat-boo-buffy-current :foreground ,pink-cat-boo-buffy-fg)
+               (company-tooltip-selection :inherit match :background ,pink-cat-boo-buffy-current :foreground ,fg2)
                ;; (company-tooltip-mouse :background ,pink-cat-boo-buffy-bg)
-               (company-tooltip-common :foreground ,pink-cat-boo-buffy-pink :weight bold)
+               (company-tooltip-common :foreground ,pink-cat-boo-buffy-pink :weight bold :background ,company-bg)
                ;;(company-tooltip-common-selection :inherit company-tooltip-common)
                (company-tooltip-annotation :foreground ,pink-cat-boo-buffy-cyan)
                ;;(company-tooltip-annotation-selection :inherit company-tooltip-annotation)
-					(company-box-background :background ,pink-cat-boo-buffy-dark)
-					(company-box-tooltip :background ,pink-cat-boo-buffy-dark)
+					(company-box-background :background ,company-bg)
+					(company-box-tooltip :background ,company-bg)
 					(company-box-numbers :foreground ,pink-cat-boo-buffy-comment :slant italic)
-					(company-box-selection :background ,pink-cat-boo-buffy-current :foreground ,pink-cat-boo-buffy-current)
+					;; (company-box-selection :background ,pink-cat-boo-buffy-current :foreground ,pink-cat-boo-buffy-current)
+					;; (company-box-selection :background ,pink-cat-boo-buffy-dark :foreground ,pink-cat-boo-buffy-current)
 					(company-box-scrollbar :background ,pink-cat-boo-buffy-comment :foreground ,pink-cat-boo-buffy-comment)
 					(company-box-backends-colors '(
-															 (company-tabnine . (:candidate ,pink-cat-boo-buffy-orange))))
+															 (company-tabnine . (:candidate ,pink-cat-boo-buffy-orange))
+                                              (company-lsp . (:candidate ,pink-cat-boo-buffy-orange))))
                ;; diff-hl
                (diff-hl-change :foreground ,pink-cat-boo-buffy-orange :background ,pink-cat-boo-buffy-orange)
                (diff-hl-delete :foreground ,pink-cat-boo-buffy-red :background ,pink-cat-boo-buffy-red)
