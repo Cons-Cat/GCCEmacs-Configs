@@ -198,59 +198,58 @@
   :config
   (add-to-list 'company-backends '(company-lsp)))
 
-;; Doesn't seem to work rn.
-(use-package company-tabnine
-:straight t
-:custom
-(company-tabnine-max-num-results 9)
-:ensure t
-:hook
-  (lsp-after-open . (lambda ()
-                      (setq company-tabnine-max-num-results 4)
-                      (add-to-list 'company-transformers 'company//sort-by-tabnine t)
-                      (add-to-list 'company-backends '(company-capf :with company-tabnine :separate))))
-  (kill-emacs . company-tabnine-kill-process)
-;; )
-;; (require 'company-tabnine)
-;; (straight-use-package 'company-tabnine)
-;; (add-to-list 'company-backends 'company-tabnine)
-
 ;; (use-package company-tabnine
-;;   :defer 1
-;;   :custom
-;;   (company-tabnine-max-num-results 12)
-;;   :bind
-;;   ;; (("M-q" . company-other-backend)
-;;    ;; ("C-z t" . company-tabnine))
-;;   :hook
+;; :straight t
+;; :custom
+;; (company-tabnine-max-num-results 9)
+;; :ensure t
+;; :hook
 ;;   (lsp-after-open . (lambda ()
-;;                       (setq company-tabnine-max-num-results 5)
+;;                       (setq company-tabnine-max-num-results 4)
 ;;                       (add-to-list 'company-transformers 'company//sort-by-tabnine t)
 ;;                       (add-to-list 'company-backends '(company-capf :with company-tabnine :separate))))
 ;;   (kill-emacs . company-tabnine-kill-process)
-  :config
-  ;; Enable TabNine on default
-  (add-to-list 'company-backends 'company-tabnine)
+;; ;; )
+;; ;; (require 'company-tabnine)
+;; ;; (straight-use-package 'company-tabnine)
+;; ;; (add-to-list 'company-backends 'company-tabnine)
 
-  ;; Integrate company-tabnine with lsp-mode
-  (defun company//sort-by-tabnine (candidates)
-    (if (or (functionp company-backend)
-            (not (and (listp company-backend) (memq 'company-tabnine company-backends))))
-        candidates
-      (let ((candidates-table (make-hash-table :test #'equal))
-            candidates-lsp
-            candidates-tabnine)
-        (dolist (candidate candidates)
-          (if (eq (get-text-property 0 'company-backend candidate)
-                  'company-tabnine)
-              (unless (gethash candidate candidates-table)
-                (push candidate candidates-tabnine))
-            (push candidate candidates-lsp)
-            (puthash candidate t candidates-table)))
-        (setq candidates-lsp (nreverse candidates-lsp))
-        (setq candidates-tabnine (nreverse candidates-tabnine))
-        (nconc (seq-take candidates-tabnine 4)
-               (seq-take candidates-lsp 6))))))
+;; ;; (use-package company-tabnine
+;; ;;   :defer 1
+;; ;;   :custom
+;; ;;   (company-tabnine-max-num-results 12)
+;; ;;   :bind
+;; ;;   ;; (("M-q" . company-other-backend)
+;; ;;    ;; ("C-z t" . company-tabnine))
+;; ;;   :hook
+;; ;;   (lsp-after-open . (lambda ()
+;; ;;                       (setq company-tabnine-max-num-results 5)
+;; ;;                       (add-to-list 'company-transformers 'company//sort-by-tabnine t)
+;; ;;                       (add-to-list 'company-backends '(company-capf :with company-tabnine :separate))))
+;; ;;   (kill-emacs . company-tabnine-kill-process)
+;;   :config
+;;   ;; Enable TabNine on default
+;;   (add-to-list 'company-backends 'company-tabnine)
+
+;;   ;; Integrate company-tabnine with lsp-mode
+;;   (defun company//sort-by-tabnine (candidates)
+;;     (if (or (functionp company-backend)
+;;             (not (and (listp company-backend) (memq 'company-tabnine company-backends))))
+;;         candidates
+;;       (let ((candidates-table (make-hash-table :test #'equal))
+;;             candidates-lsp
+;;             candidates-tabnine)
+;;         (dolist (candidate candidates)
+;;           (if (eq (get-text-property 0 'company-backend candidate)
+;;                   'company-tabnine)
+;;               (unless (gethash candidate candidates-table)
+;;                 (push candidate candidates-tabnine))
+;;             (push candidate candidates-lsp)
+;;             (puthash candidate t candidates-table)))
+;;         (setq candidates-lsp (nreverse candidates-lsp))
+;;         (setq candidates-tabnine (nreverse candidates-tabnine))
+;;         (nconc (seq-take candidates-tabnine 4)
+;;                (seq-take candidates-lsp 6))))))
 
 (global-set-key (kbd "C-T") 'company-dabbrev)
 (global-set-key (kbd "C-t") 'company-dabbrev-code)
@@ -351,8 +350,28 @@
 
 ;; Matlab
 (straight-use-package 'matlab-mode)
+
+;; (autoload 'matlab-mode "matlab" "Matlab Editing Mode" t)
+;; (add-to-list
+;;  'auto-mode-alist
+;;  '("\\.m$" . matlab-mode))
 (setq matlab-indent-function t)
 (setq matlab-shell-command "matlab")
+
+(setq inferior-octave-program "/usr/local/bin/octave")
+(setq inferior-octave-prompt ">> ")
+(add-to-list 'load-path "/usr/local/bin/gnuplot")
+
+(setq auto-mode-alist
+  (cons '("\\.m$" . octave-mode) auto-mode-alist))
+
+(add-hook 'octave-mode-hook
+          (lambda ()
+            (abbrev-mode 1)
+            (auto-fill-mode 1)
+            (if (eq window-system 'x)
+                (font-lock-mode 1))))
+
 
 ;; Compiling
 (straight-use-package 'smart-compile)
@@ -597,16 +616,22 @@
 ;; (set-face-background 'company-box-background "#2C1F2D")
 ;; (set-face-background 'company-box-background "#FFFFFF")
 
-;; (straight-use-package 'highlight-thing)
-;; (global-highlight-thing-mode)
-;; (setq highlight-thing-case-sensitive-p nil)
-;; (setq highlight-thing-all-visible-buffers-p t)
-;; (setq highlight-thing-ignore-list '("False" "True" "t" "nil"))
+(straight-use-package 'highlight-thing)
+(global-highlight-thing-mode)
+(setq highlight-thing-case-sensitive-p nil)
+(setq highlight-thing-all-visible-buffers-p t)
+(setq highlight-thing-ignore-list '("False" "True" "t" "nil"))
+(setq highlight-thing-prefer-active-region nil)
+(setq highlight-thing-limit-to-region-in-large-buffers-p nil
+	   highlight-thing-narrow-region-lines 15
+	   highlight-thing-large-buffer-limit 5000)
 
 ;; (straight-use-package 'compact-docstrings)
 ;; (setq compact-docstrings-only-doc-blocks nil)
 ;; (add-hook 'after-init-hook #'global-compact-docstrings--mode)
 (setq redisplay-dont-pause t)
+
+(setq hl-line-sticky-flag nil)
 
 (use-package whitespace
   :straight t
@@ -621,14 +646,28 @@
 									)
    ;; Make whitespace-mode and whitespace-newline-mode use “↵" for end of line char and “⇥" for tab.
    whitespace-display-mappings
-    '((space-mark 32 [183] [46]) ; SPACE 32 「 」, 183 MIDDLE DOT 「·」, 46 FULL STOP 「.」
-      (newline-mark 10 [?↵ 10])
-      (tab-mark ?\t [?⇥ ?\t]))))
+   '((space-mark 32 [183] [46]) ; SPACE 32 「 」, 183 MIDDLE DOT 「·」, 46 FULL STOP 「.」
+     (newline-mark 10 [?↵ 10])
+     (tab-mark ?\t [?⇥ ?\t]))))
 
 (use-package show-eol
   :straight t)
 ;; (global-show-eol-mode t)
 (add-hook 'whitespace-mode-hook 'show-eol-mode)
+
+(straight-use-package 'all-the-icons-ibuffer)
+(setq all-the-icons-ibuffer-human-readable-size t)
+(all-the-icons-ibuffer-mode t)
+(add-hook 'ibuffer-mode 'ryo-enable)
+
+(straight-use-package 'frog-jump-buffer)
+(straight-use-package 'all-the-icons-ivy)
+;; (dolist (regexp '("TAGS" "^\\*Compile-log" "-debug\\*$" "^\\:" "errors\\*$" "^\\*Backtrace" "-ls\\*$"
+                  ;; "stderr\\*$" "^\\*Flymake" "^\\*vc" "^\\*Warnings" "^\\*eldoc" "\\^*Shell Command"))
+;; (push regexp frog-jump-buffer-ignore-buffers))
+(setq frog-jump-buffer-include-current-buffer nil)
+(setq frog-jump-buffer-default-filters-capital-letters t)
+;; (setq frog-jump-buffer-posframe-parameters '(("background-color" "green")))
 
 ;; nil does not work.
 (menu-bar-mode -1)
@@ -878,7 +917,29 @@
 
 (straight-use-package 'flyspell-lazy)
 (add-hook 'flyspell-mode-hook 'flyspell-lazy-mode)
+(add-hook 'flyspell-prog-mode-hook 'flyspell-lazy-mode)
 (add-to-list 'ispell-extra-args "--sug-mode=ultra")
+
+(setq flyspell-persistent-highlight t)
+(defun flyspell-check-after-space ()
+  (interactive)
+  (flyspell-small-region (line-beginning-position) (line-end-position))
+  ;; (flyspell-word)
+  (xah-insert-space-before))
+(local-set-key " " 'flyspell-check-after-space)
+
+(defun my-whats-that-squiggle ()
+  (interactive)
+  (let* ((interesting-properties '(flycheck-error flyspell-overlay flymake-overlay))
+         (present-properties (cl-remove-if-not
+                              (lambda (p) (get-char-property (point) p))
+                              interesting-properties)))
+    (if present-properties
+        (message "This squiggle represents: %s"
+                 (mapconcat 'symbol-name present-properties ", "))
+      (message "No interesting properties present"))))
+
+(add-hook 'prog-mode 'flyspell-prog-mode)
 
 ;; TODO: Configure this for Org or comments or something.
 ;; https://laclefyoshi.hatenablog.com/entry/20150912/langtool_popup
@@ -894,13 +955,38 @@
   :straight t
   :config
   (setq-default
-	;; org-src-fontify-natively t
 	org-hide-emphasis-markers t
 	org-pretty-entities t
 	org-pretty-entities-include-sub-superscripts t)
   (add-to-list 'auto-mode-alist '("\\.org$" . org-mode)))
 
-;; (setq org-src-fontify-natively nil)
+;; (setq org-latex-listings 'minted)
+
+(setq org-latex-listings 'minted
+      org-latex-packages-alist '(("" "minted"))
+      ;; org-latex-pdf-process
+      ;; '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+      ;;   "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+      ;;   "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f")
+		)
+
+
+;; (add-to-list 'org-latex-packages-alist '("" "minted"))
+;; (add-to-list 'org-latex-packages-alist '("newfloat" "minted" "color"))
+
+(setq org-latex-minted-options
+      '(("frame" "lines")
+        ("linenos" "")
+		  ("breaklines" "true")
+        ("breakanywhere" "true")
+        ;; ("bgcolor" "bg")
+        ))
+
+(setq org-latex-pdf-process
+      '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+
 
 ;; (use-package org-bullets
 ;;   :straight t
@@ -924,18 +1010,30 @@
 ;; (org-visual-indent-mode)
 
 ;; (add-hook 'org-mode-hook 'variable-pitch-mode)
+(add-hook 'org-mode-hook 'visual-line-mode)
+
+(straight-use-package 'grip-mode)
+(add-hook 'org-mode-hook #'grip-mode)
+(add-hook 'markdown-mode-hook #'grip-mode)
+;; (setq grip-binary-path "/path/to/grip"
+(setq grip-github-user "")
+(setq grip-github-password "")
+(setq grip-update-after-change t)
+(setq grip-preview-use-webkit t)
 
 ;; Org Babel
 (org-babel-do-load-languages
  'org-babel-load-languages
  '(;; (mysql . t)
 	(emacs-lisp . t)
-   (C . t)))
+   (C . t)
+   (octave . t)
+	(latex . t)))
 
-  (setq org-confirm-babel-evaluate nil
-        org-src-fontify-natively t
-        org-src-tab-acts-natively t
-		  org-confirm-babel-evaluate nil)
+(setq org-confirm-babel-evaluate nil
+      org-src-fontify-natively t
+      org-src-tab-acts-natively t
+		org-confirm-babel-evaluate nil)
 
 ;; (set-face-attribute 'org-code nil :inherit 'fixed-pitch)
 ;; (set-face-attribute 'org-table nil :inherit 'fixed-pitch)
@@ -959,8 +1057,12 @@
 ;;     (list 'org-code 'org-block 'org-table)))
 
 ;; Make Bibtex export in PDF
-(setq org-latex-pdf-process
-		'("latexmk -pdflatex='pdflatex -interaction nonstopmode' -pdf -bibtex -f %f"))
+;; (setq org-latex-pdf-process
+		;; '("latexmk -shell-escape -pdflatex='pdflatex -interaction nonstopmode' -bibtex -f %f -pdf %f"))
+
+;; (setq org-latex-pdf-process
+;; 		'("latexmk -shell-escape -pdflatex='pdflatex -interaction nonstopmode' -bibtex -f %f -pdf %f pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+
 
 (setq org-todo-keyword-faces
       '(
@@ -1336,6 +1438,34 @@
   (subword-mode)
   (backward-word))
 
+(defun my-forw-line-or-para ()
+  (interactive)
+  (setq v (line-number-at-pos))
+  (xah-end-of-line-or-block)
+  (if (eq (line-number-at-pos) v)
+		(progn)
+	 (progn 
+		(previous-logical-line))))
+
+(defun my-back-line-or-para ()
+  (interactive)
+  (setq v (line-number-at-pos))
+  (xah-beginning-of-line-or-block)
+  (if (eq (line-number-at-pos) v)
+		(progn)
+	 (progn 
+		(next-logical-line))))
+
+(defun my-mark-line ()
+  (interactive)
+  (end-of-line)
+  (setq max (point))
+  (beginning-of-line)
+  (setq min (-(point) 1))
+  (set-mark min)
+  (goto-char max)
+  )
+
 ;; (add-hook 'grugru-after-no-rotate-hook 'origami-toggle-node)
 
 ;; MODAL EDITING
@@ -1395,6 +1525,9 @@
 
 (selected-global-mode t)
 
+(add-hook 'treemacs-mode-hook 'ryo-enable)
+(add-hook 'treemacs-mode-hook 'linum-relative-toggle)
+
 ;; This seems redundant.
 (add-hook 'ryo-modal-mode-hook 'ryo-cursor-update)
 
@@ -1416,12 +1549,12 @@
 	("r" execute-extended-command)
 	
 	;; Basic navigation controls.
-   ("e" next-logical-line :first '(kakoune-deactivate-mark) :then '(my-select-under))
-   ("C-e" next-logical-line :first '(kakoune-set-mark-if-inactive))
+   ("e" next-logical-line :first '(kakoune-deactivate-mark) :then '(my-mark-line))
+   ("C-e" next-logical-line :first '(kakoune-set-mark-if-inactive) :then '(end-of-line))
    ("E" next-line :first '(kakoune-deactivate-mark) :then '(my-select-under))
    ("C-E" next-line :first '(kakoune-set-mark-if-inactive))
-	("o" previous-logical-line :first '(kakoune-deactivate-mark) :then '(my-select-under))
-	("C-o" previous-logical-line :first '(kakoune-set-mark-if-inactive))
+	("o" previous-logical-line :first '(kakoune-deactivate-mark) :then '(my-mark-line))
+	("C-o" previous-logical-line :first '(kakoune-set-mark-if-inactive) :then '(beginning-of-line))
    ("O" previous-line :first '(kakoune-deactivate-mark) :then '(my-select-under))
    ("C-O" previous-line :first '(kakoune-set-mark-if-inactive))
 	("y" backward-char :first '(kakoune-deactivate-mark) :then '(my-select-under))
@@ -1432,52 +1565,32 @@
    ("H-i" forward-char :first '(kakoune-set-mark-if-inactive))
 	("M-i" mc/mark-next-like-this-symbol)
 	("M-C-i" mc/skip-to-next-like-this)
-   ;; ("u" pony-sure-prev-word
    ("u" my-back-word
 	 :first '(kakoune-deactivate-mark)
-	 ;; :first '(kakoune-set-mark-here)
-	 :then '(pony-mark-word-l)
-	 )
-   ;; ("C-u" pony-sure-prev-word
+	 :then '(pony-mark-word-l))
    ("C-u" my-back-word
-	 :first '(kakoune-set-mark-if-inactive)
-	 ;; :then '(pony-mark-word-l)
-	 )
+	 :first '(kakoune-set-mark-if-inactive))
 	("M-u" mc/mark-previous-word-like-this)
 	("M-C-u" mc/skip-to-previous-like-this)
-	;; ("M-U" mc/)
-   ;; ("U" syntax-subword-left :first '(kakoune-set-mark-here))
    ("U" my-back-subword :first '(kakoune-set-mark-here))
-	;; ("C-U" syntax-subword-left :first '(kakoune-set-mark-if-inactive))
 	("C-S-u" my-back-subword :first '(kakoune-set-mark-if-inactive))
-	;; ("a" pony-sure-forw-word
 	("a" my-for-word
-	 ;; :first '(kakoune-set-mark-here)
 	 :first '(kakoune-deactivate-mark)
-	 :then '(pony-mark-word-r)
-	 )
-	;; ("C-a" pony-sure-forw-word
-		("M-a" mc/mark-next-word-like-this)
-	;; ("A" syntax-subword-right :first '(kakoune-set-mark-here))
+	 :then '(pony-mark-word-r))
+	("M-a" mc/mark-next-word-like-this)
 	("A" my-for-subword :first '(kakoune-set-mark-here))
-	;; ("C-A" pony-sure-forw-word :first '(kakoune-set-mark-if-inactive))
 	("C-S-A" my-for-subword :first '(kakoune-set-mark-if-inactive))
 	("C-a" my-for-word
-	 :first '(kakoune-set-mark-if-inactive)
-	 ;; :then '(superword-mode)
-	 ;; :then '(pony-mark-word-r)
-	 )
+	 :first '(kakoune-set-mark-if-inactive))
 	("M-C-a" mc/skip-to-next-like-this)
-	("c" xah-beginning-of-line-or-block :first '(kakoune-deactivate-mark) :then '(my-select-under))
-	("C-c" xah-beginning-of-line-or-block :first '(kakoune-set-mark-if-inactive))
+	("c" my-back-line-or-para :first '(kakoune-deactivate-mark) :then '(my-select-under))
+	("C-c" my-back-line-or-para :first '(kakoune-set-mark-if-inactive))
 	("M-c" mc/edit-beginnings-of-lines)
-	("j" xah-end-of-line-or-block :first '(kakoune-deactivate-mark) :then '(my-select-under))
-	("C-j" xah-end-of-line-or-block :first '(kakoune-set-mark-if-inactive))
+	("j" my-forw-line-or-para :first '(kakoune-deactivate-mark) :then '(my-select-under))
+	("C-j" my-forw-line-or-para :first '(kakoune-set-mark-if-inactive))
 	("M-j" mc/edit-ends-of-lines)
 	("C" pony-binary-beginning-of-line :first '(kakoune-deactivate-mark) :then '(my-select-under))
 	("J" pony-binary-end-of-line :first '(kakoune-deactivate-mark) :then '(my-select-under))
-	;; ("." kakoune-select-up-to-char :first '(kakoune-deactivate-mark) :then '(my-select-under))
-	;; ("C-." kakoune-select-up-to-char :first '(kakoune-set-mark-if-inactive))
 	("f" my-back-up-brace :first '(kakoune-deactivate-mark) :then '(my-select-under))
 	("C-f" my-back-up-brace :first '(kakoune-set-mark-if-inactive))
 	("F" my-back-brace :first '(kakoune-deactivate-mark) :then '(my-select-under))
@@ -1577,7 +1690,8 @@
 						 ("n" delete-window "Kill")
 						 ("=" ace-delete-window "Kill Other")
 						 ("q" ace-delete-other-windows "Kill All Except")
-						 ("k" switch-to-buffer "Switch")
+						 ;; ("k" switch-to-buffer "Switch")
+						 ("k" frog-jump-buffer "Switch")
 
 						 ;; Resizing
 						 ("H" enlarge-window :name "Grow Vert")
@@ -1739,11 +1853,16 @@
 					 ("u" windmove-left)
 					 ("o" windmove-up)
 					 ("e" windmove-down)
-					 ("k" switch-to-buffer)
+					 ;; ("k" switch-to-buffer)
 					 ("n" delete-window)
+					 ("k" frog-jump-buffer)
+					 ("h" ibuffer)
 					 ) :name "Windows")
 			  ("a"(("n" evil-numbers/inc-at-pt)
 					 ("h" evil-numbers/dec-at-pt)))
+			  ("u"(("u" flyspell-correct-at-point :name "Fix")
+					 ("i" my-whats-that-squiggle :name "Describe")
+					 ) :name "Spelling")
 			  ;; ("k" lsp-rename :name "Rename Symbol")
 			  ("<tab>" indent-region)
 			  ("_" treemacs))))
@@ -1802,6 +1921,7 @@
 	("x" (
 			("t" org-table-create))
 	 :name "Table")
+	("." org-open-at-point)
 
 	("_" org-todo)
 	("M-o" org-move-subtree-up)
@@ -1812,11 +1932,13 @@
 			  ("i" org-forward-heading-same-level)
 			  ("y" org-backward-heading-same-level)
 			  ("_" org-cycle)
-			  ;; ("TAB" org-cycle)
+			  ;; ("o" (
+					  ;; ("u" org-babel-execute-code-block)
+					  ;; ) :name "Babel")
 			  ("t" (
 					  ("a" org-insert-todo-subheading)
-					  ("e" org-insert-todo-heading))
-				:name "TODOs")
+					  ("e" org-insert-todo-heading)
+					  ) :name "TODOs")
 			  ;; TODO: This should be "n".
 			  ("s" (
 					  ("a" org-insert-subheading)
@@ -1831,7 +1953,7 @@
 						 ("w" org-goto))
 				:name "Headings"))))
   
-  (ryo-modal-keys
+ (ryo-modal-keys
 	(:mode 'magit-mode)
 	("SPC" (("_" magit-section-toggle)))))
 
@@ -1901,7 +2023,10 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(warning-suppress-log-types '((comp))))
+ '(warning-suppress-log-types '((comp)))
+ '(warning-suppress-types '((emacs) (emacs) (emacs) (emacs) (emacs))))
 
 (provide 'init)
 ;;; init.el ends here
+
+; LocalWords:  pdf
