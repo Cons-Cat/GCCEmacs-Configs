@@ -59,6 +59,9 @@
 (marginalia-mode)
 (setq marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light))
 
+;; Terminal
+(straight-use-package 'vterm)
+
 ;; Folding
 (straight-use-package
  '(origami :type git :host github :repo "jcs-elpa/origami.el"))
@@ -167,10 +170,9 @@
 ;; Company keybindings
 ;; TODO: tng now prevents a box from appearing.
 ;; (add-hook 'company-mode-hook 'company-tng-mode)
-(define-key company-active-map (kbd "TAB") 'company-select-next)
-(define-key company-active-map (kbd "<backtab>") 'company-select-previous)
+;; (define-key company-active-map (kbd "TAB") 'company-select-next)
+;; (define-key company-active-map (kbd "<backtab>") 'company-select-previous)
 (define-key company-active-map (kbd "RET") nil)
-
 
 ;; LSP
 (use-package lsp-mode
@@ -502,7 +504,6 @@
 
 ;; (straight-use-package 'fancy-battery)
 ;; (fancy-battery-mode)
-
 
 ;; (telephone-line-defsegment* telephone-line-fancy-battery ()
   ;; (:propertize ("%s" fancy-battery-last-status)
@@ -1139,11 +1140,13 @@
 
 (define-key yas-minor-mode-map "\M-t" 'yas-expand)
 (define-key yas-keymap "\M-t" 'yas-next-field-or-maybe-expand)
+(define-key yas-keymap "TAB" 'yas-next-field-or-maybe-expand)
+(define-key yas-keymap "backtab" 'yas-prev-field)
 
-(dolist (keymap (list yas-minor-mode-map yas-keymap))
-  (define-key keymap (kbd "TAB") nil)
-  (define-key keymap [(tab)] nil)
-  )
+;; (dolist (keymap (list yas-minor-mode-map yas-keymap))
+  ;; (define-key keymap (kbd "TAB") nil)
+  ;; (define-key keymap [(tab)] nil)
+  ;; )
 
 (yas-global-mode t)
 (straight-use-package 'yasnippet-snippets)
@@ -1466,6 +1469,16 @@
   (goto-char max)
   )
 
+(defun my-mark-eol ()
+  (interactive)
+  (set-mark (point))
+  (end-of-line))
+
+(defun my-mark-bol ()
+  (interactive)
+  (set-mark (point))
+  (beginning-of-line-text))
+
 ;; (add-hook 'grugru-after-no-rotate-hook 'origami-toggle-node)
 
 ;; MODAL EDITING
@@ -1583,11 +1596,11 @@
 	("C-a" my-for-word
 	 :first '(kakoune-set-mark-if-inactive))
 	("M-C-a" mc/skip-to-next-like-this)
-	("c" my-back-line-or-para :first '(kakoune-deactivate-mark) :then '(my-select-under))
-	("C-c" my-back-line-or-para :first '(kakoune-set-mark-if-inactive))
+	("c" backward-paragraph :first '(kakoune-deactivate-mark) :then '(my-select-under))
+	("C-c" backward-paragraph :first '(kakoune-set-mark-if-inactive))
 	("M-c" mc/edit-beginnings-of-lines)
-	("j" my-forw-line-or-para :first '(kakoune-deactivate-mark) :then '(my-select-under))
-	("C-j" my-forw-line-or-para :first '(kakoune-set-mark-if-inactive))
+	("j" forward-paragraph :first '(kakoune-deactivate-mark) :then '(my-select-under))
+	("C-j" forward-paragraph :first '(kakoune-set-mark-if-inactive))
 	("M-j" mc/edit-ends-of-lines)
 	("C" pony-binary-beginning-of-line :first '(kakoune-deactivate-mark) :then '(my-select-under))
 	("J" pony-binary-end-of-line :first '(kakoune-deactivate-mark) :then '(my-select-under))
@@ -1657,7 +1670,7 @@
 	("l" pony-copy-current-word)
 	;; ("d" yank-from-kill-ring)
 	("d" yank :first '(kakoune-deactivate-mark))
-	("v" exchange-point-and-mark)
+	("s" exchange-point-and-mark)
 
 	;; Basic operations.
 	("m" undo :first '(kakoune-deactivate-mark))
@@ -1670,11 +1683,7 @@
 	("z" kmacro-end-or-call-macro-repeat))
   
   (ryo-modal-keys
-	;; Buffer management hydra
-	;; ("SPC" (
-	;; ("SPC g" :hydra
 	("q" :hydra
-	 ;; ("SPC g" :hydra
 	 '(hydra-buffer (:color red)
 						 "Buffer Hydra"
 						 ("e" split-window-below "Split Vertically")
@@ -1706,7 +1715,6 @@
   (ryo-modal-keys
 	;; Leader key
 	("SPC" (;; ("r" format-all-buffer :name "Format")
-			  ("w" exchange-point-and-mark :name "Reverse Selection")
 			  ;; TODO: https://github.com/Fuco1/smartparens/wiki/Hybrid-S-expressions
 			  ("h" crux-kill-line-backwards)
 			  ("K" sp-kill-hybrid-sexp)
@@ -1719,7 +1727,9 @@
 			  ("_" origami-toggle-node)
 			  ("z" kmacro-start-macro)
 			  ("d" yank-from-kill-ring)
-			  ;; ("g" xah-shrink-whitespaces)
+			  
+			  ("j" my-mark-eol)
+			  ("c" my-mark-bol)
 			  
 			  ("." kakoune-select-up-to-char :first '(kakoune-deactivate-mark))
 			  ("C-." kakoune-select-up-to-char :first '(kakoune-set-mark-if-inactive))		  
@@ -1761,12 +1771,6 @@
 					  ("u" eval-dwim :name "Evaluate")
 					  )
             :name "File")
-
-			  ;; Frames
-			  ("j" (
-					  ("a" view-buffer-other-frame :name "New Frame")
-					  ("s" make-frame :name "Duplicate Frame")
-					  ("h" other-frame :name "Other Frame")))
 
 			  ;; Large Motions
 			  ("e" (("n" recenter-top-bottom :name "Recenter Point")
@@ -1966,6 +1970,9 @@
 (ryo-modal-key "SPC e k" 'avy-goto-word-1 :first '(kakoune-deactivate-mark) :then '(my-select-under) :name "Word Jump")
 (ryo-modal-key "SPC e c" 'beginning-of-buffer :first '(kakoune-deactivate-mark) :then '(my-select-under) :name "Buffer Start")
 (ryo-modal-key "SPC e j" 'end-of-buffer :first '(kakoune-deactivate-mark) :then '(my-select-under) :name "Buffer End")
+
+(ryo-modal-key "SPC C-j" 'end-of-line :first '(kakoune-set-mark-if-inactive))
+(ryo-modal-key "SPC C-c" 'beginning-of-line-text :first '(kakoune-set-mark-if-inactive))
 
 (straight-use-package 'whitespace-cleanup-mode)
 (setq whitespace-cleanup-mode nil)
